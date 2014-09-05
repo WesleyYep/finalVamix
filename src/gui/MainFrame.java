@@ -1,11 +1,14 @@
 package gui;
 
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GraphicsEnvironment;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 import gui.MainFrame;
 
@@ -16,7 +19,6 @@ public class MainFrame extends JFrame{
 	private static final long serialVersionUID = 4714864527745266449L;
 
 	private JTabbedPane mainMenu;
-	
 	
 	public MainFrame() {
 		// Set up the main frame
@@ -40,6 +42,12 @@ public class MainFrame extends JFrame{
 	}
 	
 	public static void main(String[] args) {
+		// First this sets the default fonts so that my GUI look really nice
+		GraphicsEnvironment e = GraphicsEnvironment.getLocalGraphicsEnvironment();
+	    Font[] fonts = e.getAllFonts();
+		UIManager.put("Label.font", new Font(fonts[8].getName(), Font.PLAIN, 17));
+		UIManager.put("Button.font", new Font(fonts[5].getName(), Font.BOLD, 15));
+		
 		// Display the gui (its not static so must use invoke later)
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override

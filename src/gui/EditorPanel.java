@@ -66,8 +66,22 @@ public class EditorPanel extends JPanel implements ActionListener{
 	 */
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		// TODO Auto-generated method stub
-		playMusic();
+		// If the media player is already playing audio then the button click 
+		// should pause the video
+		if (mediaPlayerComponent.getMediaPlayer().isPlaying()) {
+			mediaPlayerComponent.getMediaPlayer().pause();
+			playBtn.setText("Play");
+		// If the video is already pause then the button click will continue to play it
+		} else if (mediaPlayerComponent.getMediaPlayer().isPlayable()) {
+			mediaPlayerComponent.getMediaPlayer().play();
+			playBtn.setText("Pause");
+		// Otherwise we will ask the user for the file they want to play and 
+		// start playing that
+		} else {
+			playMusic();
+			playBtn.setText("Pause");
+		}
+		
 	}
 		
 }

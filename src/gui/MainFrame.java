@@ -3,6 +3,8 @@ package gui;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -19,6 +21,7 @@ public class MainFrame extends JFrame{
 	private static final long serialVersionUID = 4714864527745266449L;
 
 	private JTabbedPane mainMenu;
+	EditorPanel editorPanel;
 	
 	public MainFrame() {
 		// Set up the main frame
@@ -32,7 +35,7 @@ public class MainFrame extends JFrame{
 		
 		mainMenu = new JTabbedPane();
 		JPanel mainPanel = new MainPanel();
-		JPanel editorPanel = new EditorPanel();
+		editorPanel = new EditorPanel();
 		JPanel downloadPanel = new DownloadPanel();
 		mainMenu.addTab("Main Menu", mainPanel);
 		mainMenu.addTab("Editor", editorPanel);
@@ -52,10 +55,19 @@ public class MainFrame extends JFrame{
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				MainFrame frame = new MainFrame();
+				final MainFrame frame = new MainFrame();
 				frame.setVisible(true);
+				frame.addWindowListener(new WindowAdapter()  
+				{  
+				    // override only the method(s) you need  
+					@Override
+				public void windowClosing(WindowEvent e) {
+						frame.editorPanel.stop();
+				}
+				}); 
 			}
 		});
+		
 	}
 
 }

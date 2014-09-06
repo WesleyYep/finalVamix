@@ -103,7 +103,7 @@ public class Bubba extends SwingWorker<Integer, String>{
 		try {
 			if (get() == 0) {
 				prog.setValue(100);
-				JOptionPane.showMessageDialog(new JFrame(),
+				JOptionPane.showMessageDialog(submitBtn,
 					    "Download successful",
 					    "Done",
 					    JOptionPane.DEFAULT_OPTION);
@@ -112,7 +112,7 @@ public class Bubba extends SwingWorker<Integer, String>{
 				wgetError(get());
 			}
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(new JFrame(),
+			JOptionPane.showMessageDialog(submitBtn,
 				    "Download Cancelled",
 				    "Cancel",
 				    JOptionPane.WARNING_MESSAGE);
@@ -147,7 +147,7 @@ public class Bubba extends SwingWorker<Integer, String>{
 		} else if (exitCode == 8) {
 			msg4Error = "Failed to download - Server error";
 		} 
-		JOptionPane.showMessageDialog(new JFrame(),
+		JOptionPane.showMessageDialog(submitBtn,
 					    msg4Error,
 					    "Error",
 					    JOptionPane.ERROR_MESSAGE);

@@ -17,7 +17,6 @@ import javax.swing.JProgressBar;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle;
-
 import download.Bubba;
 
 /**
@@ -170,12 +169,12 @@ public class DownloadPanel extends JPanel implements ActionListener{
 			pauseBtn.setEnabled(true);
 			url = urlField.getText();
 			if (url == null || url.equals("")) {
-				JOptionPane.showMessageDialog(new JFrame(),
+				JOptionPane.showMessageDialog(submitBtn,
 					    "You have not entered a URL",
 					    "Error",
 					    JOptionPane.WARNING_MESSAGE);
 			} else if (!openY.isSelected() ) { 
-				JOptionPane.showMessageDialog(new JFrame(),
+				JOptionPane.showMessageDialog(submitBtn,
 					    "It may be illegal to download this so I have stopped you",
 					    "Error",
 					    JOptionPane.ERROR_MESSAGE);
@@ -195,18 +194,24 @@ public class DownloadPanel extends JPanel implements ActionListener{
 		try {
 			ProcessBuilder builder = new ProcessBuilder("/bin/bash", "-c", cmd1);
 			Process process = builder.start();
-			
+			String cmd;
 			if (process.waitFor() == 0) {
-				JOptionPane.showMessageDialog(new JFrame(),
-					    "File already exists",
-					    "Error",
-					    JOptionPane.ERROR_MESSAGE);
-			} else {
-				String cmd = "wget " + url + " 2>&1 ";
-				download(cmd);
+				if(JOptionPane.showOptionDialog(submitBtn, "File already exists. Would you like to try to overwrite?",
+								"Error", 0, 0, null, new String[]{"Overwrite", "Cancel"}, null) == 1){
+					JOptionPane.showMessageDialog(submitBtn,
+									    "File not overwritten",
+									    "Error",
+									    JOptionPane.ERROR_MESSAGE);
+					pauseBtn.setEnabled(false);
+					return;
+				}
+				cmd = "wget -N " + url + " 2>&1 "; //using -N to "overwrite"
+			}else{
+				cmd = "wget " + url + " 2>&1 ";
 			}
-		} catch (Exception e) {
-			JOptionPane.showMessageDialog(new JFrame(),
+			download(cmd);
+		}catch (Exception e) {
+			JOptionPane.showMessageDialog(submitBtn,
 				    "Error attempting",
 				    "Error",
 				    JOptionPane.ERROR_MESSAGE);
@@ -227,7 +232,7 @@ public class DownloadPanel extends JPanel implements ActionListener{
 			shrimp.execute();
 			
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(new JFrame(),
+			JOptionPane.showMessageDialog(submitBtn,
 				    "Error attempting download",
 				    "Error",
 				    JOptionPane.ERROR_MESSAGE);

@@ -1,5 +1,9 @@
 package download;
 
+import gui.DownloadPanel;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -27,17 +31,19 @@ public class Bubba extends SwingWorker<Integer, String>{
 	private String _cmd;
 	private JProgressBar prog;
 	private JButton submitBtn;
+	private JButton pauseBtn;
+	
 	
 	/**
 	 * This is the standard constructor for Bubba
-	 * @param cmd this is the bash command to execute
 	 * @param progress the progress bar that should be updated as the download progresses
 	 * @param button the button that must not be active until download is complete
 	 */
-	public Bubba(String cmd, JProgressBar progress, JButton button) {
+	public Bubba(String cmd, JProgressBar progress, JButton startButton, JButton pauseButton) {
 		_cmd = cmd;
 		prog = progress;
-		submitBtn = button;
+		submitBtn = startButton;
+		pauseBtn = pauseButton;
 	}
 	
 	/** 
@@ -45,7 +51,6 @@ public class Bubba extends SwingWorker<Integer, String>{
 	 */
 	@Override
 	protected Integer doInBackground() throws Exception {
-		
 		ProcessBuilder builder = new ProcessBuilder("/bin/bash", "-c", _cmd);
 		Process process = builder.start();
 		
@@ -54,7 +59,7 @@ public class Bubba extends SwingWorker<Integer, String>{
 		String line;
 		Pattern varPattern = Pattern.compile("([0-9]*)%");
 		while ((line = stdout.readLine()) != null) {
-			if (isCancelled()) {
+			if (isCancelled() || DownloadPanel.isPaused) {
 				process.destroy();
 				return null;
 			}
@@ -92,6 +97,9 @@ public class Bubba extends SwingWorker<Integer, String>{
 	 */
 	@Override
 	public void done() {
+		if (DownloadPanel.isPaused){
+			return;
+		}
 		try {
 			if (get() == 0) {
 				prog.setValue(100);
@@ -113,6 +121,7 @@ public class Bubba extends SwingWorker<Integer, String>{
 		prog.setVisible(false);
 		prog.setValue(0);
 		submitBtn.setText("Start Download");
+		pauseBtn.setEnabled(false);
 	}
 	
 	/**
@@ -143,5 +152,6 @@ public class Bubba extends SwingWorker<Integer, String>{
 					    "Error",
 					    JOptionPane.ERROR_MESSAGE);
 	}
+	
 		
 }

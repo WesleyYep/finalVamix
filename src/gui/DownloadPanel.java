@@ -24,7 +24,7 @@ import download.Bubba;
  * This has been taken from my assignment 2 and should be usable with a few 
  * (or perhaps a lot of) changes
  * 
- * This screen is used to download either video or audio
+ * This screen is used to download either video or audio 
  * 
  * @author group 27
  */
@@ -49,7 +49,9 @@ public class DownloadPanel extends JPanel implements ActionListener{
 	private JRadioButton openY = new JRadioButton("Yes");
 	private JRadioButton openN = new JRadioButton("No");
 	private JButton submitBtn = new JButton(submit);
+	private JButton pauseBtn = new JButton("Pause");
 	private JProgressBar prog = new JProgressBar(0, 100);
+	public static boolean isPaused = false;
 	
 	private JPanel innerPanel = new JPanel();
 	
@@ -78,13 +80,15 @@ public class DownloadPanel extends JPanel implements ActionListener{
                      GroupLayout.DEFAULT_SIZE, 50)
 			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
 			           .addComponent(urlInstr)
-			           .addComponent(isOpen))
+			           .addComponent(isOpen)
+			           .addComponent(submitBtn))
 			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
 			           .addComponent(urlField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
 			        	          GroupLayout.PREFERRED_SIZE)
 			           .addGroup(layout.createSequentialGroup()
 			        		.addComponent(openY)
-			        		.addComponent(openN)))
+			        		.addComponent(openN))
+			           .addComponent(pauseBtn))
 		);
 		layout.setVerticalGroup(
 		   layout.createSequentialGroup()
@@ -102,6 +106,11 @@ public class DownloadPanel extends JPanel implements ActionListener{
 		           .addComponent(openN))
 		      .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED,
                      GroupLayout.DEFAULT_SIZE, 15)
+              .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+		           .addComponent(submitBtn)
+		           .addComponent(pauseBtn))
+		      .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED,
+                     GroupLayout.DEFAULT_SIZE, 15)
 		      
 		);
 		
@@ -115,13 +124,32 @@ public class DownloadPanel extends JPanel implements ActionListener{
 		// can be in the center of the window
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		innerPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-		submitBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
 		add(innerPanel);
-		add(submitBtn);
+
+		//this is used to pause the download
+		pauseBtn.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (isPaused){
+					pauseBtn.setText("Pause");
+					isPaused = false;
+					submitBtn.setEnabled(true);
+					String cmd = "wget -c " + url + " 2>&1 ";
+					download(cmd);
+				}else{
+					pauseBtn.setText("Resume");
+					isPaused = true;
+					submitBtn.setEnabled(false);
+				}
+			}	
+		});
 		
 		// Add the progress bar but don't show it until something is actually being downloaded
 		add(prog);
 		prog.setVisible(false);
+		
+		//ensure pause button is not active at start
+		pauseBtn.setEnabled(false);
 	}
 
 	/**
@@ -139,6 +167,7 @@ public class DownloadPanel extends JPanel implements ActionListener{
 			submitBtn.setText("Start Download");
 			shrimp = null;
 		} else {
+			pauseBtn.setEnabled(true);
 			url = urlField.getText();
 			if (url == null || url.equals("")) {
 				JOptionPane.showMessageDialog(new JFrame(),
@@ -173,7 +202,8 @@ public class DownloadPanel extends JPanel implements ActionListener{
 					    "Error",
 					    JOptionPane.ERROR_MESSAGE);
 			} else {
-				download();
+				String cmd = "wget " + url + " 2>&1 ";
+				download(cmd);
 			}
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(new JFrame(),
@@ -188,13 +218,12 @@ public class DownloadPanel extends JPanel implements ActionListener{
 	 * During the download the progress bar will be displayed and updated 
 	 * and you will be unable to start another download (the button is disabled)
 	 */
-	private void download() {
-		String cmd1 = "wget " + url + " 2>&1 ";
+	private void download(String cmd) {
 		try {
 			prog.setVisible(true);
 			submitBtn.setText("Cancel");
 			// Bubba is the download SwingWorker
-			shrimp = new Bubba(cmd1, prog, submitBtn);
+			shrimp = new Bubba(cmd, prog, submitBtn, pauseBtn);
 			shrimp.execute();
 			
 		} catch (Exception e) {

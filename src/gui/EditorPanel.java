@@ -29,6 +29,8 @@ public class EditorPanel extends JPanel{
 	private final EmbeddedMediaPlayerComponent mediaPlayerComponent;
 	private JButton playBtn = new JButton("Play");
 	private JButton stopBtn = new JButton("Stop");
+	private JButton forwardBtn = new JButton("Fast Forward");
+	private JButton backwardBtn = new JButton("Rewind");
 	private JButton openBtn = new JButton("Open");
 	private JButton openAudioBtn = new JButton("Open Audio");
 	private JLabel audioTitle = new JLabel("Audio");
@@ -72,8 +74,13 @@ public class EditorPanel extends JPanel{
     			// Otherwise we will ask the user for the file they want to play and 
     			// start playing that
     			} else {
-    				playMusic();
-    				playBtn.setText("Pause");
+    				// Ensures there is a video selected to play. Otherwise warn the user
+    				if (!fileTextField.getText().equals("")) {
+	    				playMusic();
+	    				playBtn.setText("Pause");
+    				} else {
+    					chooseFile();
+    				}
     			}
     			stopBtn.setEnabled(true);
         	}
@@ -94,9 +101,7 @@ public class EditorPanel extends JPanel{
         openBtn.addActionListener(new ActionListener(){
         	@Override
         	public void actionPerformed(ActionEvent arg0) {
-        		final JFileChooser fc = new JFileChooser();
-                fc.showOpenDialog(fc);
-               fileTextField.setText(fc.getSelectedFile().getAbsolutePath().toString());
+        		chooseFile();
         	}
         });
         
@@ -124,26 +129,37 @@ public class EditorPanel extends JPanel{
         });
         
         stopBtn.setEnabled(false);
-        // This is temporary while i figure out how to properly use MigLayout
-        // Note: the sizes should not be hard coded
-
-        add(title, "cell 0 0, align center, wrap");
-        add(fileTextField, "cell 0 1, span 9");
-        add(openBtn, "cell 0 1");
-        add(mediaPlayerComponent, "cell 0 2 2 1, width :800:, height :400:");
-        add(playBtn, "cell 0 3, growx");
-        add(stopBtn, "cell 1 3, growx");
         
-        add(audioTitle, "cell 0 4, growx");
-        add(audioTextField, "cell 0 5");
-        add(openAudioBtn, "cell 0 5");
-        add(replaceBtn, "cell 0 6");
-        add(overlayBtn, "cell 0 6");
-        add(stripBtn, "cell 0 6");
+        add(title, "wrap, center");
+        //moved the open file stuff to the top for now
+        add(fileTextField, "split 2, grow");
+        add(openBtn, "wrap");
+        // This media  player has massive preferred size in 
+        // order to force it to fill the screen
+        add(mediaPlayerComponent, "grow, wrap, height 200:10000:, width 600:10000:");
+        add(backwardBtn, "split 4, grow");
+        add(playBtn, "grow");
+        add(stopBtn, "grow");
+        add(forwardBtn, "grow, wrap");
+        
+        //audio components
+        add(audioTitle, "wrap");
+        add(audioTextField, "split 2");
+        add(openAudioBtn, "wrap");
+        add(replaceBtn, "split 3");
+        add(overlayBtn);
+        add(stripBtn);
+
+	}
+	
+	private void chooseFile() {
+		final JFileChooser fc = new JFileChooser();
+        fc.showOpenDialog(fc);
+        fileTextField.setText(fc.getSelectedFile().getAbsolutePath().toString());
 	}
 	
 	private void playMusic() {
-        mediaPlayerComponent.getMediaPlayer().playMedia(fileTextField.getText());
+		mediaPlayerComponent.getMediaPlayer().playMedia(fileTextField.getText());
 	}
 
 	/** This method is to be called by the mainframe when it is exiting so that 

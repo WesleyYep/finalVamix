@@ -3,10 +3,12 @@ package gui;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -28,11 +30,17 @@ public class EditorPanel extends JPanel{
 	private JButton playBtn = new JButton("Play");
 	private JButton stopBtn = new JButton("Stop");
 	private JButton openBtn = new JButton("Open");
+	private JButton openAudioBtn = new JButton("Open Audio");
+	private JLabel audioTitle = new JLabel("Audio");
+	private JButton replaceBtn = new JButton("Replace");
+	private JButton overlayBtn = new JButton("Overlay");
+	private JButton stripBtn = new JButton("Strip");
 	private JTextField fileTextField = new JTextField(40);
+	private JTextField audioTextField = new JTextField(40);
 	private MigLayout myLayout = new MigLayout("",
 			"10 [] 10 [] 0 []",
 			"5 [] 0 [] 10 []");
-	
+
 	EditorPanel () {
 		this.setLayout(myLayout);
 		
@@ -92,6 +100,29 @@ public class EditorPanel extends JPanel{
         	}
         });
         
+        openAudioBtn.addActionListener(new ActionListener(){
+        	@Override
+        	public void actionPerformed(ActionEvent arg0) {
+        		final JFileChooser fc = new JFileChooser();
+                fc.showOpenDialog(fc);
+               audioTextField.setText(fc.getSelectedFile().getAbsolutePath().toString());
+        	}
+        });
+        
+        stripBtn.addActionListener(new ActionListener(){
+        	@Override
+        	public void actionPerformed(ActionEvent arg0) {
+        		audioEdit("strip");
+        	}
+        });
+        
+        replaceBtn.addActionListener(new ActionListener(){
+        	@Override
+        	public void actionPerformed(ActionEvent arg0) {
+        		audioEdit("replace");
+        	}
+        });
+        
         stopBtn.setEnabled(false);
         // This is temporary while i figure out how to properly use MigLayout
         // Note: the sizes should not be hard coded
@@ -103,7 +134,12 @@ public class EditorPanel extends JPanel{
         add(playBtn, "cell 0 3, growx");
         add(stopBtn, "cell 1 3, growx");
         
-        
+        add(audioTitle, "cell 0 4, growx");
+        add(audioTextField, "cell 0 5");
+        add(openAudioBtn, "cell 0 5");
+        add(replaceBtn, "cell 0 6");
+        add(overlayBtn, "cell 0 6");
+        add(stripBtn, "cell 0 6");
 	}
 	
 	private void playMusic() {
@@ -117,5 +153,37 @@ public class EditorPanel extends JPanel{
 		mediaPlayerComponent.getMediaPlayer().stop();
 	}
 	
+	public void audioEdit(String option) {
+		final JFileChooser fc = new JFileChooser();
+        fc.showSaveDialog(fc);
+        String file = fc.getSelectedFile().getAbsolutePath().toString();
+    	String cmd;
+    	String message;
+    	if (option.equals("strip")){
+    		cmd = "avconv -i " + fileTextField.getText() + " -an -c:v copy " + file;
+    		message = "Audio track removed";
+    	}
+    	else{
+    		cmd = "avconv -i " +  fileTextField.getText() + " -i " + audioTextField.getText() +
+    				" -map 0:0 -map 1:0 -codec copy " + file;
+    		message = "Audio track replaced";
+    	}
+    	System.out.println(cmd);
+        try {
+        	ProcessBuilder builder = new ProcessBuilder("/bin/bash", "-c", cmd);
+			Process process = builder.start();
+			process.waitFor();
+			if (process.exitValue()==0)
+				JOptionPane.showMessageDialog(null, message, "Done", JOptionPane.DEFAULT_OPTION);
+			else
+				JOptionPane.showMessageDialog(null, "Error occurred.", "Error", JOptionPane.WARNING_MESSAGE);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 		
 }

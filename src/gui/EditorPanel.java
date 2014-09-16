@@ -26,6 +26,10 @@ public class EditorPanel extends JPanel implements ActionListener{
 	private final EmbeddedMediaPlayerComponent mediaPlayerComponent;
 	private JButton playBtn = new JButton("Play");
 	private JButton stopBtn = new JButton("Stop");
+	private JButton forwardBtn = new JButton("Fast Forward");
+	private JButton backwardBtn = new JButton("Rewind");
+	
+	
 	private MigLayout myLayout = new MigLayout("",
 			"10 [] 10 [] 0 []",
 			"5 [] 0 [] 10 []");
@@ -43,12 +47,15 @@ public class EditorPanel extends JPanel implements ActionListener{
         playBtn.addActionListener(this);
         stopBtn.addActionListener(this);
         stopBtn.setEnabled(false);
-        // This is temporary while i figure out how to properly use MigLayout
-        // Note: the sizes should not be hard coded
-        add(title, "cell 0 0, align center");
-        add(mediaPlayerComponent, "cell 0 1 2 1, width :800:, height :400:");
-        add(playBtn, "cell 0 2, growx");
-        add(stopBtn, "cell 1 2, growx");
+        
+        add(title, "wrap, center");
+        // This media  player has massive preferred size in 
+        // order to force it to fill the screen
+        add(mediaPlayerComponent, "grow, wrap, height 200:10000:, width 600:10000:");
+        add(backwardBtn, "split 4, grow");
+        add(playBtn, "grow");
+        add(stopBtn, "grow");
+        add(forwardBtn, "grow");
         
         
 	}

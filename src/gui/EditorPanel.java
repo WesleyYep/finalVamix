@@ -8,6 +8,7 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import net.miginfocom.swing.MigLayout;
 import uk.co.caprica.vlcj.component.EmbeddedMediaPlayerComponent;
@@ -17,7 +18,7 @@ import uk.co.caprica.vlcj.component.EmbeddedMediaPlayerComponent;
  * 
  * @author Mathew and Wesley
  */
-public class EditorPanel extends JPanel implements ActionListener{
+public class EditorPanel extends JPanel{
 
 	/** An unused ID here only to get rid of the warning */
 	private static final long serialVersionUID = 1075006905710700282L;
@@ -28,8 +29,8 @@ public class EditorPanel extends JPanel implements ActionListener{
 	private JButton stopBtn = new JButton("Stop");
 	private JButton forwardBtn = new JButton("Fast Forward");
 	private JButton backwardBtn = new JButton("Rewind");
-	
-	
+	private JButton openBtn = new JButton("Open");
+	private JTextField fileTextField = new JTextField(40);
 	private MigLayout myLayout = new MigLayout("",
 			"10 [] 10 [] 0 []",
 			"5 [] 0 [] 10 []");
@@ -44,8 +45,58 @@ public class EditorPanel extends JPanel implements ActionListener{
 		// This is the video player
         mediaPlayerComponent = new EmbeddedMediaPlayerComponent();
 
-        playBtn.addActionListener(this);
-        stopBtn.addActionListener(this);
+    	/**
+    	 * When the play button is clicked the video should be started and the play button
+    	 * turns into a pause button
+    	 * Also the stop button is activated when video is playing and will get rid of the 
+    	 * video so that another video can be loaded in
+    	 */
+        playBtn.addActionListener(new ActionListener(){
+        	@Override
+        	public void actionPerformed(ActionEvent arg0) {
+    			// If the media player is already playing audio then the button click 
+    			// should pause the video
+    			if (mediaPlayerComponent.getMediaPlayer().isPlaying()) {
+    				mediaPlayerComponent.getMediaPlayer().pause();
+    				playBtn.setText("Play");
+    			// If the video is already pause then the button click will continue to play it
+    			} else if (mediaPlayerComponent.getMediaPlayer().isPlayable()) {
+    				mediaPlayerComponent.getMediaPlayer().play();
+    				playBtn.setText("Pause");
+    			// Otherwise we will ask the user for the file they want to play and 
+    			// start playing that
+    			} else {
+    				// Ensures there is a video selected to play. Otherwise warn the user
+    				if (!fileTextField.getText().equals("")) {
+	    				playMusic();
+	    				playBtn.setText("Pause");
+    				} else {
+    					chooseFile();
+    				}
+    			}
+    			stopBtn.setEnabled(true);
+        	}
+        });
+        stopBtn.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (mediaPlayerComponent.getMediaPlayer().isPlaying()) {
+					mediaPlayerComponent.getMediaPlayer().stop();
+					playBtn.setText("Play");
+				} else if (mediaPlayerComponent.getMediaPlayer().isPlayable()) {
+					mediaPlayerComponent.getMediaPlayer().stop();
+				} 
+				stopBtn.setEnabled(false);
+			}      	
+        });
+    	//When the open button is clicked the file chooser appears
+        openBtn.addActionListener(new ActionListener(){
+        	@Override
+        	public void actionPerformed(ActionEvent arg0) {
+        		chooseFile();
+        	}
+        });
+        
         stopBtn.setEnabled(false);
         
         add(title, "wrap, center");
@@ -55,19 +106,20 @@ public class EditorPanel extends JPanel implements ActionListener{
         add(backwardBtn, "split 4, grow");
         add(playBtn, "grow");
         add(stopBtn, "grow");
-        add(forwardBtn, "grow");
-        
+        add(forwardBtn, "grow, wrap");
+        add(fileTextField, "split 2, grow");
+        add(openBtn);
         
 	}
 	
-	private void playMusic() {
-		// The user chooses the file they want to play only after clicking
-		// the play button (this will be changed as we get further)
+	private void chooseFile() {
 		final JFileChooser fc = new JFileChooser();
-        fc.showOpenDialog(this);
-        String fileLocation = fc.getSelectedFile().getAbsolutePath().toString();
-        
-        mediaPlayerComponent.getMediaPlayer().playMedia(fileLocation);
+        fc.showOpenDialog(fc);
+        fileTextField.setText(fc.getSelectedFile().getAbsolutePath().toString());
+	}
+	
+	private void playMusic() {
+		mediaPlayerComponent.getMediaPlayer().playMedia(fileTextField.getText());
 	}
 
 	/** This method is to be called by the mainframe when it is exiting so that 
@@ -77,44 +129,5 @@ public class EditorPanel extends JPanel implements ActionListener{
 		mediaPlayerComponent.getMediaPlayer().stop();
 	}
 	
-	/**
-	 * When the play button is clicked the video should be started and the play button
-	 * turns into a pause button
-	 * Also the stop button is activated when video is playing and will get rid of the 
-	 * video so that another video can be loaded in
-	 */
-	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		if (arg0.getSource().equals(playBtn)) {
-			// If the media player is already playing audio then the button click 
-			// should pause the video
-			if (mediaPlayerComponent.getMediaPlayer().isPlaying()) {
-				mediaPlayerComponent.getMediaPlayer().pause();
-				playBtn.setText("Play");
-			// If the video is already pause then the button click will continue to play it
-			} else if (mediaPlayerComponent.getMediaPlayer().isPlayable()) {
-				mediaPlayerComponent.getMediaPlayer().play();
-				playBtn.setText("Pause");
-			// Otherwise we will ask the user for the file they want to play and 
-			// start playing that
-			} else {
-				playMusic();
-				playBtn.setText("Pause");
-			}
-			stopBtn.setEnabled(true);
-		} else if (arg0.getSource().equals(stopBtn)) {
-			if (mediaPlayerComponent.getMediaPlayer().isPlaying()) {
-				mediaPlayerComponent.getMediaPlayer().stop();
-				playBtn.setText("Play");
-			} else if (mediaPlayerComponent.getMediaPlayer().isPlayable()) {
-				mediaPlayerComponent.getMediaPlayer().stop();
-			} 
-			stopBtn.setEnabled(false);
-		}
-		
-		
-		
-		
-	}
 		
 }

@@ -8,10 +8,16 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
 import javax.swing.JTextField;
+import javax.swing.Timer;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import net.miginfocom.swing.MigLayout;
 import uk.co.caprica.vlcj.component.EmbeddedMediaPlayerComponent;
+import uk.co.caprica.vlcj.player.MediaMeta;
+import uk.co.caprica.vlcj.player.MediaPlayerFactory;
 
 /**
  * This screen is used for all your video editing needs
@@ -25,12 +31,16 @@ public class EditorPanel extends JPanel{
 
 	private JLabel title = new JLabel ("Lets get editing");
 	private final EmbeddedMediaPlayerComponent mediaPlayerComponent;
+	private JSlider vidPosSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
 	private JButton playBtn = new JButton("Play");
 	private JButton stopBtn = new JButton("Stop");
 	private JButton forwardBtn = new JButton("Fast Forward");
 	private JButton backwardBtn = new JButton("Rewind");
 	private JButton openBtn = new JButton("Open");
 	private JTextField fileTextField = new JTextField(40);
+	
+	private final Timer timer = new Timer(100, null);
+	
 	private MigLayout myLayout = new MigLayout("",
 			"10 [] 10 [] 0 []",
 			"5 [] 0 [] 10 []");
@@ -46,7 +56,7 @@ public class EditorPanel extends JPanel{
         mediaPlayerComponent = new EmbeddedMediaPlayerComponent();
 
     	/**
-    	 * When the play button is clicked the video should be started and the play button
+    	 * When the play button is clicked the video is started and the play button
     	 * turns into a pause button
     	 * Also the stop button is activated when video is playing and will get rid of the 
     	 * video so that another video can be loaded in
@@ -54,27 +64,32 @@ public class EditorPanel extends JPanel{
         playBtn.addActionListener(new ActionListener(){
         	@Override
         	public void actionPerformed(ActionEvent arg0) {
-    			// If the media player is already playing audio then the button click 
-    			// should pause the video
+    			// If the media player is already playing audio/video then the button click 
+    			// should pause it
     			if (mediaPlayerComponent.getMediaPlayer().isPlaying()) {
     				mediaPlayerComponent.getMediaPlayer().pause();
     				playBtn.setText("Play");
-    			// If the video is already pause then the button click will continue to play it
+    				timer.stop();
+    			// If the video is already pause then the button click 
+    			// will continue to play it
     			} else if (mediaPlayerComponent.getMediaPlayer().isPlayable()) {
     				mediaPlayerComponent.getMediaPlayer().play();
     				playBtn.setText("Pause");
+    				timer.start();
     			// Otherwise we will ask the user for the file they want to play and 
     			// start playing that
     			} else {
-    				// Ensures there is a video selected to play. Otherwise warn the user
+    				// If file already selected just play that
     				if (!fileTextField.getText().equals("")) {
 	    				playMusic();
 	    				playBtn.setText("Pause");
+	    				timer.start();
     				} else {
     					chooseFile();
     				}
     			}
     			stopBtn.setEnabled(true);
+    			sliderSetup();
         	}
         });
         stopBtn.addActionListener(new ActionListener(){
@@ -87,6 +102,7 @@ public class EditorPanel extends JPanel{
 					mediaPlayerComponent.getMediaPlayer().stop();
 				} 
 				stopBtn.setEnabled(false);
+				timer.stop();
 			}      	
         });
     	//When the open button is clicked the file chooser appears
@@ -99,10 +115,19 @@ public class EditorPanel extends JPanel{
         
         stopBtn.setEnabled(false);
         
+        vidPosSlider.setMajorTickSpacing(10);
+		vidPosSlider.setMinorTickSpacing(1);
+		vidPosSlider.setPaintTicks(true);
+		vidPosSlider.addChangeListener(sliderChangeListener);
+		
+		timer.addActionListener(timerListener);
+		
+        
         add(title, "wrap, center");
         // This media  player has massive preferred size in 
         // order to force it to fill the screen
         add(mediaPlayerComponent, "grow, wrap, height 200:10000:, width 600:10000:");
+        add(vidPosSlider, "wrap, grow");
         add(backwardBtn, "split 4, grow");
         add(playBtn, "grow");
         add(stopBtn, "grow");
@@ -112,6 +137,51 @@ public class EditorPanel extends JPanel{
         
 	}
 	
+	/**
+	 * This method is used to change the JSlider to the size of the actual 
+	 * media that will be playing
+	 */
+	private void sliderSetup() {
+		MediaMeta mediaData = new MediaPlayerFactory().getMediaMeta(
+				fileTextField.getText(), true);
+		vidPosSlider.setMinimum(0);
+		vidPosSlider.setMaximum((int)mediaData.getLength());
+		vidPosSlider.setMajorTickSpacing((int)mediaData.getLength()/10);
+		vidPosSlider.setMinorTickSpacing((int)mediaData.getLength()/100);
+		vidPosSlider.setPaintTicks(true);
+	}
+	
+	
+	private int currentTime = 0;
+	/** 
+	 * This listens for timer events then updates the slider to the video position
+	 */
+	ActionListener timerListener = new ActionListener() {
+	    @Override 
+	    public void actionPerformed(ActionEvent e) {
+	    	currentTime = (int)mediaPlayerComponent.getMediaPlayer().getTime();
+	    	vidPosSlider.setValue(currentTime);
+	    }
+	};
+	
+	/**
+	 * This listener is used to change the video position based on the user
+	 * moving the slider
+	 */
+	ChangeListener sliderChangeListener = new ChangeListener() {
+		@Override
+		public void stateChanged(ChangeEvent arg0) {
+		    if (vidPosSlider.getValue() > currentTime+200 || 
+		    		vidPosSlider.getValue() < currentTime-200) {
+		    	mediaPlayerComponent.getMediaPlayer().setTime(vidPosSlider.getValue());
+		    }
+		}
+	};
+	
+	/** 
+	 * Used to choose a media file to play
+	 * Used from both open and play button
+	 */
 	private void chooseFile() {
 		final JFileChooser fc = new JFileChooser();
         fc.showOpenDialog(fc);

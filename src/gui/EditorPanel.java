@@ -3,10 +3,12 @@ package gui;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
@@ -37,14 +39,20 @@ public class EditorPanel extends JPanel{
 	private JButton forwardBtn = new JButton("Fast Forward");
 	private JButton backwardBtn = new JButton("Rewind");
 	private JButton openBtn = new JButton("Open");
+	private JButton openAudioBtn = new JButton("Open Audio");
+	private JLabel audioTitle = new JLabel("Audio");
+	private JButton replaceBtn = new JButton("Replace");
+	private JButton overlayBtn = new JButton("Overlay");
+	private JButton stripBtn = new JButton("Strip");
 	private JTextField fileTextField = new JTextField(40);
-	
+	private JTextField audioTextField = new JTextField(40);
+
 	private final Timer timer = new Timer(100, null);
-	
+
 	private MigLayout myLayout = new MigLayout("",
 			"10 [] 10 [] 0 []",
 			"5 [] 0 [] 10 []");
-	
+
 	EditorPanel () {
 		this.setLayout(myLayout);
 		
@@ -113,6 +121,29 @@ public class EditorPanel extends JPanel{
         	}
         });
         
+        openAudioBtn.addActionListener(new ActionListener(){
+        	@Override
+        	public void actionPerformed(ActionEvent arg0) {
+        		final JFileChooser fc = new JFileChooser();
+                fc.showOpenDialog(fc);
+               audioTextField.setText(fc.getSelectedFile().getAbsolutePath().toString());
+        	}
+        });
+        
+        stripBtn.addActionListener(new ActionListener(){
+        	@Override
+        	public void actionPerformed(ActionEvent arg0) {
+        		audioEdit("strip");
+        	}
+        });
+        
+        replaceBtn.addActionListener(new ActionListener(){
+        	@Override
+        	public void actionPerformed(ActionEvent arg0) {
+        		audioEdit("replace");
+        	}
+        });
+        
         stopBtn.setEnabled(false);
         
         vidPosSlider.setMajorTickSpacing(10);
@@ -124,6 +155,9 @@ public class EditorPanel extends JPanel{
 		
         
         add(title, "wrap, center");
+        //moved the open file stuff to the top for now
+        add(fileTextField, "split 2, grow");
+        add(openBtn, "wrap");
         // This media  player has massive preferred size in 
         // order to force it to fill the screen
         add(mediaPlayerComponent, "grow, wrap, height 200:10000:, width 600:10000:");
@@ -132,9 +166,15 @@ public class EditorPanel extends JPanel{
         add(playBtn, "grow");
         add(stopBtn, "grow");
         add(forwardBtn, "grow, wrap");
-        add(fileTextField, "split 2, grow");
-        add(openBtn);
         
+        //audio components
+        add(audioTitle, "wrap");
+        add(audioTextField, "split 2");
+        add(openAudioBtn, "wrap");
+        add(replaceBtn, "split 3");
+        add(overlayBtn);
+        add(stripBtn);
+
 	}
 	
 	/**
@@ -199,5 +239,37 @@ public class EditorPanel extends JPanel{
 		mediaPlayerComponent.getMediaPlayer().stop();
 	}
 	
+	public void audioEdit(String option) {
+		final JFileChooser fc = new JFileChooser();
+        fc.showSaveDialog(fc);
+        String file = fc.getSelectedFile().getAbsolutePath().toString();
+    	String cmd;
+    	String message;
+    	if (option.equals("strip")){
+    		cmd = "avconv -i " + fileTextField.getText() + " -an -c:v copy " + file;
+    		message = "Audio track removed";
+    	}
+    	else{
+    		cmd = "avconv -i " +  fileTextField.getText() + " -i " + audioTextField.getText() +
+    				" -map 0:0 -map 1:0 -codec copy " + file;
+    		message = "Audio track replaced";
+    	}
+    	System.out.println(cmd);
+        try {
+        	ProcessBuilder builder = new ProcessBuilder("/bin/bash", "-c", cmd);
+			Process process = builder.start();
+			process.waitFor();
+			if (process.exitValue()==0)
+				JOptionPane.showMessageDialog(null, message, "Done", JOptionPane.DEFAULT_OPTION);
+			else
+				JOptionPane.showMessageDialog(null, "Error occurred.", "Error", JOptionPane.WARNING_MESSAGE);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 		
 }

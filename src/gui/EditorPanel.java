@@ -10,8 +10,10 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 
+import audio.OverlayWorker;
 import net.miginfocom.swing.MigLayout;
 import uk.co.caprica.vlcj.component.EmbeddedMediaPlayerComponent;
 
@@ -39,6 +41,7 @@ public class EditorPanel extends JPanel{
 	private JButton stripBtn = new JButton("Strip");
 	private JTextField fileTextField = new JTextField(40);
 	private JTextField audioTextField = new JTextField(40);
+	private JProgressBar progBar = new JProgressBar();
 	private MigLayout myLayout = new MigLayout("",
 			"10 [] 10 [] 0 []",
 			"5 [] 0 [] 10 []");
@@ -128,6 +131,13 @@ public class EditorPanel extends JPanel{
         	}
         });
         
+        overlayBtn.addActionListener(new ActionListener(){
+        	@Override
+        	public void actionPerformed(ActionEvent arg0) {
+        		audioEdit("overlay");
+        	}
+        });
+        
         stopBtn.setEnabled(false);
         
         add(title, "wrap, center");
@@ -148,8 +158,8 @@ public class EditorPanel extends JPanel{
         add(openAudioBtn, "wrap");
         add(replaceBtn, "split 3");
         add(overlayBtn);
-        add(stripBtn);
-
+        add(stripBtn, "wrap");
+        add(progBar, "split 3, grow");
 	}
 	
 	private void chooseFile() {
@@ -173,33 +183,9 @@ public class EditorPanel extends JPanel{
 		final JFileChooser fc = new JFileChooser();
         fc.showSaveDialog(fc);
         String file = fc.getSelectedFile().getAbsolutePath().toString();
-    	String cmd;
-    	String message;
-    	if (option.equals("strip")){
-    		cmd = "avconv -i " + fileTextField.getText() + " -an -c:v copy " + file;
-    		message = "Audio track removed";
-    	}
-    	else{
-    		cmd = "avconv -i " +  fileTextField.getText() + " -i " + audioTextField.getText() +
-    				" -map 0:0 -map 1:0 -codec copy " + file;
-    		message = "Audio track replaced";
-    	}
-    	System.out.println(cmd);
-        try {
-        	ProcessBuilder builder = new ProcessBuilder("/bin/bash", "-c", cmd);
-			Process process = builder.start();
-			process.waitFor();
-			if (process.exitValue()==0)
-				JOptionPane.showMessageDialog(null, message, "Done", JOptionPane.DEFAULT_OPTION);
-			else
-				JOptionPane.showMessageDialog(null, "Error occurred.", "Error", JOptionPane.WARNING_MESSAGE);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    	OverlayWorker worker = new OverlayWorker(fileTextField.getText(), audioTextField.getText(),
+    							option, file, progBar);
+    	worker.execute();
 	}
 		
 }

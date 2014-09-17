@@ -47,7 +47,8 @@ public class EditorPanel extends JPanel{
 	private JTextField fileTextField = new JTextField(40);
 	private JTextField audioTextField = new JTextField(40);
 
-	private final Timer timer = new Timer(100, null);
+	private final Timer sliderTimer = new Timer(100, null);
+	private final Timer videoMovementTimer = new Timer(100, null);
 
 	private MigLayout myLayout = new MigLayout("",
 			"10 [] 10 [] 0 []",
@@ -72,18 +73,19 @@ public class EditorPanel extends JPanel{
         playBtn.addActionListener(new ActionListener(){
         	@Override
         	public void actionPerformed(ActionEvent arg0) {
+        		currentMove = videoMovement.Nothing;
     			// If the media player is already playing audio/video then the button click 
     			// should pause it
     			if (mediaPlayerComponent.getMediaPlayer().isPlaying()) {
     				mediaPlayerComponent.getMediaPlayer().pause();
     				playBtn.setText("Play");
-    				timer.stop();
+    				sliderTimer.stop();
     			// If the video is already pause then the button click 
     			// will continue to play it
     			} else if (mediaPlayerComponent.getMediaPlayer().isPlayable()) {
     				mediaPlayerComponent.getMediaPlayer().play();
     				playBtn.setText("Pause");
-    				timer.start();
+    				sliderTimer.start();
     			// Otherwise we will ask the user for the file they want to play and 
     			// start playing that
     			} else {
@@ -91,7 +93,7 @@ public class EditorPanel extends JPanel{
     				if (!fileTextField.getText().equals("")) {
 	    				playMusic();
 	    				playBtn.setText("Pause");
-	    				timer.start();
+	    				sliderTimer.start();
     				} else {
     					chooseFile();
     				}
@@ -103,6 +105,7 @@ public class EditorPanel extends JPanel{
         stopBtn.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				currentMove = videoMovement.Nothing;
 				if (mediaPlayerComponent.getMediaPlayer().isPlaying()) {
 					mediaPlayerComponent.getMediaPlayer().stop();
 					playBtn.setText("Play");
@@ -110,7 +113,8 @@ public class EditorPanel extends JPanel{
 					mediaPlayerComponent.getMediaPlayer().stop();
 				} 
 				stopBtn.setEnabled(false);
-				timer.stop();
+				sliderTimer.stop();
+				vidPosSlider.setValue(0);
 			}      	
         });
     	//When the open button is clicked the file chooser appears
@@ -144,6 +148,28 @@ public class EditorPanel extends JPanel{
         	}
         });
         
+        forwardBtn.addActionListener(new ActionListener(){
+        	@Override
+        	public void actionPerformed(ActionEvent arg0) {
+        		if (currentMove == videoMovement.Forward) {
+        			currentMove = videoMovement.Nothing;
+        		} else {
+        			currentMove = videoMovement.Forward;
+        		}
+        	}
+        });
+        
+        backwardBtn.addActionListener(new ActionListener(){
+        	@Override
+        	public void actionPerformed(ActionEvent arg0) {
+        		if (currentMove == videoMovement.Back) {
+        			currentMove = videoMovement.Nothing;
+        		} else {
+        			currentMove = videoMovement.Back;
+        		}
+        	}
+        });
+        
         stopBtn.setEnabled(false);
         
         vidPosSlider.setMajorTickSpacing(10);
@@ -151,7 +177,9 @@ public class EditorPanel extends JPanel{
 		vidPosSlider.setPaintTicks(true);
 		vidPosSlider.addChangeListener(sliderChangeListener);
 		
-		timer.addActionListener(timerListener);
+		sliderTimer.addActionListener(timerListener);
+		videoMovementTimer.addActionListener(secondTimerListener);
+		videoMovementTimer.start();
 		
         
         add(title, "wrap, center");
@@ -217,6 +245,26 @@ public class EditorPanel extends JPanel{
 		    }
 		}
 	};
+	
+	// TODO make forward and rewind work
+	enum videoMovement {
+		Forward, Back, Nothing
+	}
+	private videoMovement currentMove = videoMovement.Nothing;
+	ActionListener secondTimerListener = new ActionListener() {
+	    @Override 
+	    public void actionPerformed(ActionEvent e) {
+	    	if (currentMove == videoMovement.Forward) {
+	    		mediaPlayerComponent.getMediaPlayer().setTime(
+	    				mediaPlayerComponent.getMediaPlayer().getTime() + 200);
+	    	} else if (currentMove == videoMovement.Back) {
+	    		mediaPlayerComponent.getMediaPlayer().setTime(
+	    				mediaPlayerComponent.getMediaPlayer().getTime() - 200);
+	    	}
+	    }
+	};
+	
+	
 	
 	/** 
 	 * Used to choose a media file to play

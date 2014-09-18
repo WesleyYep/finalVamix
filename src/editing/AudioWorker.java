@@ -73,7 +73,7 @@ public class AudioWorker extends SwingWorker<Void, String> {
 	@Override
 	public void process(List<String> chunks){
 		//get the maximum progress bar by multiplying fps by seconds
-		Pattern pattern = Pattern.compile("(\\d+) fps");
+		Pattern pattern = Pattern.compile(", (\\d+)(\\.\\d+)? fps");
 		Pattern pattern1 = Pattern.compile("(\\d\\d):(\\d\\d):(\\d\\d)\\.\\d\\d,");
 		Pattern pattern2 = Pattern.compile("frame= *(\\d+) fps=");
 		boolean gettingMax = true;

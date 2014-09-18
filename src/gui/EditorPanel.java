@@ -19,6 +19,7 @@ import javax.swing.Timer;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import editing.AudioWorker;
+import editing.TextWorker;
 import net.miginfocom.swing.MigLayout;
 import uk.co.caprica.vlcj.component.EmbeddedMediaPlayerComponent;
 import uk.co.caprica.vlcj.player.MediaMeta;
@@ -50,12 +51,12 @@ public class EditorPanel extends JPanel{
 	private JTextField fileTextField = new JTextField(40);
 	private JTextField audioTextField = new JTextField(40);
 	private JTextField textTextField = new JTextField(40);
-	private JProgressBar progBar = new JProgressBar();
+	private JProgressBar audioProgBar = new JProgressBar();
+	private JProgressBar textProgBar = new JProgressBar();
 	private final Timer sliderTimer = new Timer(100, null);
 	private final Timer videoMovementTimer = new Timer(100, null);
 	private JLabel textTitle = new JLabel("Text");
 	private JButton addTextBtn = new JButton("Add");
-	private JButton saveTextBtn = new JButton("Save");
 
 	private MigLayout myLayout = new MigLayout("",
 			"10 [] 10 [] 0 []",
@@ -199,7 +200,15 @@ public class EditorPanel extends JPanel{
         addTextBtn.addActionListener(new ActionListener(){
         	@Override
         	public void actionPerformed(ActionEvent arg0) {
-        		//
+				final JFileChooser fc = new JFileChooser();
+		        fc.showSaveDialog(fc);
+		        if (fc.getSelectedFile() != null){
+		            String outputFile = fc.getSelectedFile().getAbsolutePath().toString();
+		            String cmd = "avconv -i " + fileTextField.getText() + " -vf \"drawtext=fontfile='/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf':text='" +
+        						textTextField.getText() + "':x=0:y=0:fontsize=24:fontcolor=red\" -strict experimental -f mp4 -v debug " + outputFile;
+        			TextWorker worker = new TextWorker(cmd, textProgBar);
+		            worker.execute();
+		        }
         	}
         });
         
@@ -237,11 +246,11 @@ public class EditorPanel extends JPanel{
         replaceBtn.setEnabled(false);
         overlayBtn.setEnabled(false);
         add(stripBtn, "wrap");
-        add(progBar, "grow, wrap");
+        add(audioProgBar, "grow, wrap");
         add(textTitle, "wrap");
-        add(textTextField, "split 3");
-        add(addTextBtn);
-        add(saveTextBtn);
+        add(textTextField, "split 2");
+        add(addTextBtn, "wrap");
+        add(textProgBar, "grow, wrap");
 	}
 	
 	/**
@@ -339,7 +348,7 @@ public class EditorPanel extends JPanel{
 		        if (fc.getSelectedFile() != null){
 		            String audioFile = fc.getSelectedFile().getAbsolutePath().toString();
 			    	AudioWorker worker = new AudioWorker(fileTextField.getText(), audioTextField.getText(),
-			    							option, audioFile, progBar);
+			    							option, audioFile, audioProgBar);
 			    	worker.execute();
 		        }
     		}

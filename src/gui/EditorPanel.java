@@ -146,7 +146,13 @@ public class EditorPanel extends JPanel{
         stripBtn.addActionListener(new ActionListener(){
         	@Override
         	public void actionPerformed(ActionEvent arg0) {
-        		audioEdit("strip");
+        		
+        		String [] buttons = { "Audio", "Video"};
+        		if (JOptionPane.showOptionDialog(mediaPlayerComponent, "Would you like to save the audio only, or video only?", "Confirmation"
+        				,JOptionPane.INFORMATION_MESSAGE, 0, null, buttons, buttons[0]) == 0)
+           			audioEdit("stripVideo"); //remove the video
+        		else
+        			audioEdit("stripAudio"); //remove the audio
         	}
         });
         
@@ -293,9 +299,7 @@ public class EditorPanel extends JPanel{
 		final JFileChooser fc = new JFileChooser();
         fc.showOpenDialog(fc);
         if (fc.getSelectedFile() != null){
-        	if (correctFileType(fc.getSelectedFile().getAbsolutePath().toString(), "Media")
-        	|| correctFileType(fc.getSelectedFile().getAbsolutePath().toString(), "media")
-        	|| correctFileType(fc.getSelectedFile().getAbsolutePath().toString(), "Audio"))
+        	if (isMediaFile(fc.getSelectedFile().getAbsolutePath().toString()))
         		fileTextField.setText(fc.getSelectedFile().getAbsolutePath().toString());
         	else
         		JOptionPane.showMessageDialog(mediaPlayerComponent, "Please enter a valid media file name.");
@@ -314,22 +318,32 @@ public class EditorPanel extends JPanel{
 	}
 	
 	public void audioEdit(String option) {
-    	if (option.equals("strip") || correctFileType(audioTextField.getText(), "Audio")){
-			final JFileChooser fc = new JFileChooser();
-	        fc.showSaveDialog(fc);
-	        if (fc.getSelectedFile() != null){
-	            String audioFile = fc.getSelectedFile().getAbsolutePath().toString();
-		    	OverlayWorker worker = new OverlayWorker(fileTextField.getText(), audioTextField.getText(),
-		    							option, audioFile, progBar);
-		    	worker.execute();
-	        }
+    	if (option.startsWith("strip") || correctFileType(audioTextField.getText(), "Audio")){
+    		if (isMediaFile(fileTextField.getText())){
+				final JFileChooser fc = new JFileChooser();
+		        fc.showSaveDialog(fc);
+		        if (fc.getSelectedFile() != null){
+		            String audioFile = fc.getSelectedFile().getAbsolutePath().toString();
+			    	OverlayWorker worker = new OverlayWorker(fileTextField.getText(), audioTextField.getText(),
+			    							option, audioFile, progBar);
+			    	worker.execute();
+		        }
+    		}
+    		else
+    			JOptionPane.showMessageDialog(mediaPlayerComponent, "Please open a valid media file.");
     	}
     	else
 			JOptionPane.showMessageDialog(mediaPlayerComponent, "Please enter a valid audio file name.");
 	}
 	
+	private boolean isMediaFile(String input){
+		return correctFileType(input, "Media")
+	        	|| correctFileType(input, "media")
+	        	|| correctFileType(input, "Audio");
+	}
+	
 	/**
-	 * This method is used to check that the file is a valid audio file
+	 * This method is used to check that the file is a valid file type
 	 * @return true if the user input matches expected file type, false if not
 	 */
 	private boolean correctFileType(String file, String expected) {

@@ -33,10 +33,15 @@ public class OverlayWorker extends SwingWorker<Void, String> {
 	@Override
 	protected Void doInBackground() {
     	String cmd;
-    	if (option.equals("strip")){
+    	if (option.equals("stripAudio")){
     		cmd = "avconv -i " + videoFile + " -an -c:v copy -f mp4 " + file;
     		message = "Audio track removed";
     	}
+    	else  if (option.equals("stripVideo")){
+    		cmd = "avconv -i " + videoFile + " -vn -c:v copy -f mp3 " + file;
+    		message = "Video track removed";
+
+    	}	
     	else if (option.equals("overlay")){
     		cmd = "avconv -i " +  videoFile + " -i " + audioFile +
     				" -filter_complex amix=inputs=2 -strict experimental -v debug -f mp4 " + file;
@@ -47,7 +52,7 @@ public class OverlayWorker extends SwingWorker<Void, String> {
     				" -map 0:v -map 1:a -codec copy -f mp4 " + file;
     		message = "Audio track replaced";
     	}
-    //	System.out.println(cmd);
+    	//System.out.println(cmd);
         	ProcessBuilder builder = new ProcessBuilder("/bin/bash", "-c", cmd);
 			try {
 				process = builder.start();
@@ -56,7 +61,6 @@ public class OverlayWorker extends SwingWorker<Void, String> {
 				BufferedReader br = new BufferedReader(new InputStreamReader(stderr));
 				String line;
 				while ((line = br.readLine()) != null){
-		//			System.out.println(line);
 					publish(line);
 				}
 			} catch (IOException e) {

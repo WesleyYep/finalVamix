@@ -53,3 +53,5 @@ I've roughly implemented the strip, replace, and overlay features. The overlay f
 Yeah, I've ignored basically all usability issues at the moment, so yeah, any incorrect user input or cancellation will probably crash the whole program. I'll work on that in the next few days.
 I agree that the gui is looking a bit messy, I'm not even sure if the audio buttons and progressbars will show up if the screen is too small. I'm not sure what the final layout should be, but something similar to your original sketch would probably be good. We may have to expand the size of the frame though.
 Looks like we've done quite a lot in the last few days though! It's looking good :)
+
+----- Minor error fixing. It should no longer require the user to enter a .mp4 extension. Also there should be some checking to ensure that files are of the correct types. Also, cancelling file choosing will no longer throw errors hopefully.

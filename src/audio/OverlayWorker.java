@@ -34,17 +34,17 @@ public class OverlayWorker extends SwingWorker<Void, String> {
 	protected Void doInBackground() {
     	String cmd;
     	if (option.equals("strip")){
-    		cmd = "avconv -i " + videoFile + " -an -c:v copy " + file;
+    		cmd = "avconv -i " + videoFile + " -an -c:v copy -f mp4 " + file;
     		message = "Audio track removed";
     	}
     	else if (option.equals("overlay")){
     		cmd = "avconv -i " +  videoFile + " -i " + audioFile +
-    				" -filter_complex amix=inputs=2 -strict experimental " + file;
+    				" -filter_complex amix=inputs=2 -strict experimental -v debug -f mp4 " + file;
     		message = "Audio and video overlaid.";
     	}
     	else{
     		cmd = "avconv -i " +  videoFile + " -i " + audioFile +
-    				" -map 0:0 -map 1:0 -codec copy -v debug " + file;
+    				" -map 0:v -map 1:a -codec copy -f mp4 " + file;
     		message = "Audio track replaced";
     	}
     //	System.out.println(cmd);

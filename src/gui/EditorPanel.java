@@ -3,9 +3,15 @@ package gui;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JSlider;
@@ -128,7 +134,12 @@ public class EditorPanel extends JPanel{
         	public void actionPerformed(ActionEvent arg0) {
         		final JFileChooser fc = new JFileChooser();
                 fc.showOpenDialog(fc);
-               audioTextField.setText(fc.getSelectedFile().getAbsolutePath().toString());
+                if (fc.getSelectedFile() != null){
+                    String fileName = fc.getSelectedFile().getAbsolutePath().toString();
+                	audioTextField.setText(fileName);
+                	replaceBtn.setEnabled(true);
+                	overlayBtn.setEnabled(true);
+                }
         	}
         });
         
@@ -207,6 +218,8 @@ public class EditorPanel extends JPanel{
         add(openAudioBtn, "wrap");
         add(replaceBtn, "split 3");
         add(overlayBtn);
+        replaceBtn.setEnabled(false);
+        overlayBtn.setEnabled(false);
         add(stripBtn, "wrap");
         add(progBar, "split 3, grow");
 	}
@@ -279,7 +292,14 @@ public class EditorPanel extends JPanel{
 	private void chooseFile() {
 		final JFileChooser fc = new JFileChooser();
         fc.showOpenDialog(fc);
-        fileTextField.setText(fc.getSelectedFile().getAbsolutePath().toString());
+        if (fc.getSelectedFile() != null){
+        	if (correctFileType(fc.getSelectedFile().getAbsolutePath().toString(), "Media")
+        	|| correctFileType(fc.getSelectedFile().getAbsolutePath().toString(), "media")
+        	|| correctFileType(fc.getSelectedFile().getAbsolutePath().toString(), "Audio"))
+        		fileTextField.setText(fc.getSelectedFile().getAbsolutePath().toString());
+        	else
+        		JOptionPane.showMessageDialog(mediaPlayerComponent, "Please enter a valid media file name.");
+        }
 	}
 	
 	private void playMusic() {
@@ -294,12 +314,39 @@ public class EditorPanel extends JPanel{
 	}
 	
 	public void audioEdit(String option) {
-		final JFileChooser fc = new JFileChooser();
-        fc.showSaveDialog(fc);
-        String file = fc.getSelectedFile().getAbsolutePath().toString();
-    	OverlayWorker worker = new OverlayWorker(fileTextField.getText(), audioTextField.getText(),
-    							option, file, progBar);
-    	worker.execute();
+    	if (option.equals("strip") || correctFileType(audioTextField.getText(), "Audio")){
+			final JFileChooser fc = new JFileChooser();
+	        fc.showSaveDialog(fc);
+	        if (fc.getSelectedFile() != null){
+	            String audioFile = fc.getSelectedFile().getAbsolutePath().toString();
+		    	OverlayWorker worker = new OverlayWorker(fileTextField.getText(), audioTextField.getText(),
+		    							option, audioFile, progBar);
+		    	worker.execute();
+	        }
+    	}
+    	else
+			JOptionPane.showMessageDialog(mediaPlayerComponent, "Please enter a valid audio file name.");
 	}
+	
+	/**
+	 * This method is used to check that the file is a valid audio file
+	 * @return true if the user input matches expected file type, false if not
+	 */
+	private boolean correctFileType(String file, String expected) {
+		//use the file command in linux
+		ProcessBuilder processBuilder = new ProcessBuilder("file", "-b", file);
+		try {
+			Process process = processBuilder.start();
+			process.waitFor();
+			InputStream stdout = process.getInputStream();
+			BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
+			return (br.readLine().contains(expected));		
+		} catch (IOException e) {
+			//
+		} catch (InterruptedException e) {
+			//
+		}
+		return false;
+	}	
 		
 }

@@ -55,3 +55,8 @@ I agree that the gui is looking a bit messy, I'm not even sure if the audio butt
 Looks like we've done quite a lot in the last few days though! It's looking good :)
 
 ----- Minor error fixing. It should no longer require the user to enter a .mp4 extension. Also there should be some checking to ensure that files are of the correct types. Also, cancelling file choosing will no longer throw errors hopefully.
+
+----- Added the option to save either the audio or video when using
+the strip button. Some more minor error checking and file type
+checking added.
+

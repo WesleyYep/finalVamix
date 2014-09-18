@@ -61,4 +61,7 @@ the strip button. Some more minor error checking and file type
 checking added.
 
 --renamed audio package to editing. renamed OverlayWorker to
-AudioWorker. Added TextWorker in same package (currently blank)
+AudioWorker. Added TextWorker in same package. There is now a
+prototype text editor. It just adds texts with no options at the
+moment, using the TextWoker.
+

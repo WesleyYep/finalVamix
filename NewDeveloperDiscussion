@@ -60,3 +60,5 @@ Looks like we've done quite a lot in the last few days though! It's looking good
 the strip button. Some more minor error checking and file type
 checking added.
 
+--renamed audio package to editing. renamed OverlayWorker to
+AudioWorker. Added TextWorker in same package (currently blank)

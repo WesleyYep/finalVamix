@@ -7,7 +7,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -19,8 +18,7 @@ import javax.swing.JTextField;
 import javax.swing.Timer;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
-import audio.OverlayWorker;
+import editing.AudioWorker;
 import net.miginfocom.swing.MigLayout;
 import uk.co.caprica.vlcj.component.EmbeddedMediaPlayerComponent;
 import uk.co.caprica.vlcj.player.MediaMeta;
@@ -51,9 +49,14 @@ public class EditorPanel extends JPanel{
 	private JButton stripBtn = new JButton("Strip");
 	private JTextField fileTextField = new JTextField(40);
 	private JTextField audioTextField = new JTextField(40);
+	private JTextField textTextField = new JTextField(40);
 	private JProgressBar progBar = new JProgressBar();
 	private final Timer sliderTimer = new Timer(100, null);
 	private final Timer videoMovementTimer = new Timer(100, null);
+	private JLabel textTitle = new JLabel("Text");
+	private JButton addTextBtn = new JButton("Add");
+	private JButton saveTextBtn = new JButton("Save");
+
 	private MigLayout myLayout = new MigLayout("",
 			"10 [] 10 [] 0 []",
 			"5 [] 0 [] 10 []");
@@ -193,6 +196,13 @@ public class EditorPanel extends JPanel{
         	}
         });
         
+        addTextBtn.addActionListener(new ActionListener(){
+        	@Override
+        	public void actionPerformed(ActionEvent arg0) {
+        		//
+        	}
+        });
+        
         stopBtn.setEnabled(false);
         
         vidPosSlider.setMajorTickSpacing(10);
@@ -227,7 +237,11 @@ public class EditorPanel extends JPanel{
         replaceBtn.setEnabled(false);
         overlayBtn.setEnabled(false);
         add(stripBtn, "wrap");
-        add(progBar, "split 3, grow");
+        add(progBar, "grow, wrap");
+        add(textTitle, "wrap");
+        add(textTextField, "split 3");
+        add(addTextBtn);
+        add(saveTextBtn);
 	}
 	
 	/**
@@ -324,7 +338,7 @@ public class EditorPanel extends JPanel{
 		        fc.showSaveDialog(fc);
 		        if (fc.getSelectedFile() != null){
 		            String audioFile = fc.getSelectedFile().getAbsolutePath().toString();
-			    	OverlayWorker worker = new OverlayWorker(fileTextField.getText(), audioTextField.getText(),
+			    	AudioWorker worker = new AudioWorker(fileTextField.getText(), audioTextField.getText(),
 			    							option, audioFile, progBar);
 			    	worker.execute();
 		        }

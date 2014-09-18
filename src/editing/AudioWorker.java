@@ -1,4 +1,4 @@
-package audio;
+package editing;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,7 +11,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
 
-public class OverlayWorker extends SwingWorker<Void, String> {
+public class AudioWorker extends SwingWorker<Void, String> {
 	private Process process;
 	private String videoFile;
 	private String audioFile;
@@ -22,7 +22,7 @@ public class OverlayWorker extends SwingWorker<Void, String> {
 	private int fps = 0;
 	private int secs = 0;
 	
-	public OverlayWorker(String videoFile, String audioFile, String option, String file, JProgressBar progBar) {
+	public AudioWorker(String videoFile, String audioFile, String option, String file, JProgressBar progBar) {
 		this.videoFile = videoFile;
 		this.audioFile = audioFile;
 		this.option = option;

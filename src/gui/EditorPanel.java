@@ -152,10 +152,11 @@ public class EditorPanel extends JPanel{
         	public void actionPerformed(ActionEvent arg0) {
         		
         		String [] buttons = { "Audio", "Video"};
-        		if (JOptionPane.showOptionDialog(mediaPlayerComponent, "Would you like to save the audio only, or video only?", "Confirmation"
-        				,JOptionPane.INFORMATION_MESSAGE, 0, null, buttons, buttons[0]) == 0)
-           			audioEdit("stripVideo"); //remove the video
-        		else
+        		int choice = JOptionPane.showOptionDialog(mediaPlayerComponent, "Would you like to save the audio only, or video only?", "Confirmation"
+        				,JOptionPane.INFORMATION_MESSAGE, 0, null, buttons, buttons[0]);
+           		if (choice == 0)
+        			audioEdit("stripVideo"); //remove the video
+        		else if (choice == 1)
         			audioEdit("stripAudio"); //remove the audio
         	}
         });

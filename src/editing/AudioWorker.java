@@ -110,6 +110,10 @@ public class AudioWorker extends SwingWorker<Void, String> {
 			progBar.setValue(progBar.getMaximum());
 		if (process.exitValue()==0)
 			JOptionPane.showMessageDialog(null, message, "Done", JOptionPane.DEFAULT_OPTION);
+		else if (option.equals("stripVideo"))
+			JOptionPane.showMessageDialog(null, "This media file has no audio track.", "Error", JOptionPane.WARNING_MESSAGE);
+		else if (option.equals("stripAudio"))
+			JOptionPane.showMessageDialog(null, "This media file has no video track.", "Error", JOptionPane.WARNING_MESSAGE);
 		else
 			JOptionPane.showMessageDialog(null, "Error occurred.", "Error", JOptionPane.WARNING_MESSAGE);
 		} catch (InterruptedException e) {

@@ -62,6 +62,7 @@ checking added.
 
 --renamed audio package to editing. renamed OverlayWorker to
 AudioWorker. Added TextWorker in same package. There is now a
-prototype text editor. It just adds texts with no options at the
-moment, using the TextWoker.
+prototype text editor.
+All the options should now work. Although currently only one font actually works. Also there is very little error checking at the moment.
+
 

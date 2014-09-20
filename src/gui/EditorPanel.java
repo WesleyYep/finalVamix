@@ -7,20 +7,31 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Calendar;
+
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JSlider;
+import javax.swing.JSpinner;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SpinnerDateModel;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.Timer;
+import javax.swing.JSpinner.DateEditor;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
 import editing.AudioWorker;
+import editing.GetAttributes;
 import editing.TextWorker;
 import net.miginfocom.swing.MigLayout;
+import uk.co.caprica.vlcj.binding.internal.libvlc_position_e;
 import uk.co.caprica.vlcj.component.EmbeddedMediaPlayerComponent;
 import uk.co.caprica.vlcj.player.MediaMeta;
 import uk.co.caprica.vlcj.player.MediaPlayerFactory;
@@ -50,12 +61,17 @@ public class EditorPanel extends JPanel{
 	private JButton stripBtn = new JButton("Strip");
 	private JTextField fileTextField = new JTextField(40);
 	private JTextField audioTextField = new JTextField(40);
-	private JTextField textTextField = new JTextField(40);
+	private JTextField textArea = new JTextField(40);
 	private JProgressBar audioProgBar = new JProgressBar();
 	private JProgressBar textProgBar = new JProgressBar();
 	private final Timer sliderTimer = new Timer(100, null);
 	private final Timer videoMovementTimer = new Timer(100, null);
 	private JLabel textTitle = new JLabel("Text");
+	private JComboBox<String> titleOrCredits;
+	private JComboBox<String> fontOption;
+	private JComboBox<String> colourOption;
+	private JSpinner fontSizeSpinner = new JSpinner();
+	private JSpinner timeForTextSpinner = new JSpinner();
 	private JButton addTextBtn = new JButton("Add");
 
 	private MigLayout myLayout = new MigLayout("",
@@ -150,7 +166,7 @@ public class EditorPanel extends JPanel{
         stripBtn.addActionListener(new ActionListener(){
         	@Override
         	public void actionPerformed(ActionEvent arg0) {
-        		
+        		audioProgBar.setValue(0);
         		String [] buttons = { "Audio", "Video"};
         		int choice = JOptionPane.showOptionDialog(mediaPlayerComponent, "Would you like to save the audio only, or video only?", "Confirmation"
         				,JOptionPane.INFORMATION_MESSAGE, 0, null, buttons, buttons[0]);
@@ -164,6 +180,7 @@ public class EditorPanel extends JPanel{
         replaceBtn.addActionListener(new ActionListener(){
         	@Override
         	public void actionPerformed(ActionEvent arg0) {
+        		audioProgBar.setValue(0);
         		audioEdit("replace");
         	}
         });
@@ -172,6 +189,7 @@ public class EditorPanel extends JPanel{
         overlayBtn.addActionListener(new ActionListener(){
         	@Override
         	public void actionPerformed(ActionEvent arg0) {
+        		audioProgBar.setValue(0);
         		audioEdit("overlay");
         	}
         });
@@ -204,10 +222,22 @@ public class EditorPanel extends JPanel{
 				final JFileChooser fc = new JFileChooser();
 		        fc.showSaveDialog(fc);
 		        if (fc.getSelectedFile() != null){
+		        	int dur = GetAttributes.getDuration(fileTextField.getText());
+		        	int fps = GetAttributes.getFPS(fileTextField.getText());
 		            String outputFile = fc.getSelectedFile().getAbsolutePath().toString();
-		            String cmd = "avconv -i " + fileTextField.getText() + " -vf \"drawtext=fontfile='/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf':text='" +
-        						textTextField.getText() + "':x=0:y=0:fontsize=24:fontcolor=red\" -strict experimental -f mp4 -v debug " + outputFile;
-        			TextWorker worker = new TextWorker(cmd, textProgBar);
+		            String fontPath = getFontPath(fontOption.getSelectedItem().toString());
+		            String time = new DateEditor(timeForTextSpinner , "yy:mm:ss").getFormat().format(timeForTextSpinner.getValue());
+		            String[] timeArray = time.split(":");
+		            int timeInSecs = 60 * 60 *Integer.parseInt(timeArray[0]) + 60 * Integer.parseInt(timeArray[1]) + Integer.parseInt(timeArray[2]);
+		            String timeFunction;
+		            if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Title"))
+		            	timeFunction = "lt(t," + timeInSecs + ")";
+		            else
+		            	timeFunction = "gt(t," + (dur - timeInSecs) + ")";
+		            String cmd = "avconv -i " + fileTextField.getText() + " -vf \"drawtext=fontfile='" + fontPath + "':text='" + textArea.getText() +
+		            			"':x=0:y=0:fontsize=" + fontSizeSpinner.getValue() + ":fontcolor=" + colourOption.getSelectedItem() + 
+		            			":draw='" + timeFunction + "'\" -strict experimental -f mp4 -v debug " + outputFile;
+        			TextWorker worker = new TextWorker(cmd, textProgBar, dur, fps);
 		            worker.execute();
 		        }
         	}
@@ -223,8 +253,22 @@ public class EditorPanel extends JPanel{
 		sliderTimer.addActionListener(timerListener);
 		videoMovementTimer.addActionListener(secondTimerListener);
 		videoMovementTimer.start();
+		mediaPlayerComponent.setFont(new Font("Arial", 24, Font.BOLD));
 		
-        
+        titleOrCredits = new JComboBox<String>(new String[]{"Title", "Credits"});
+        fontOption = new JComboBox<String>(new String[]{"DejaVuSans", "Arial", "Comic Sans", "Times New Roman"});
+        colourOption = new JComboBox<String>(new String[]{"Red", "Orange", "Yellow", "Green", "Blue"});
+        fontSizeSpinner.setEditor(new JSpinner.NumberEditor(fontSizeSpinner , "00"));
+        fontSizeSpinner.setModel(new SpinnerNumberModel(0, 0, 64, 1));
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.YEAR, 100); //to allow it to go up to 99, rather than stop at 24
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+        SpinnerDateModel timeModel = new SpinnerDateModel();
+		timeModel.setValue(calendar.getTime());
+		timeForTextSpinner.setModel(timeModel);
+		timeForTextSpinner.setEditor(new DateEditor(timeForTextSpinner , "yy:mm:ss"));
+		
         add(title, "wrap, center");
         //moved the open file stuff to the top for now
         add(fileTextField, "split 2, grow");
@@ -248,8 +292,18 @@ public class EditorPanel extends JPanel{
         overlayBtn.setEnabled(false);
         add(stripBtn, "wrap");
         add(audioProgBar, "grow, wrap");
+        //text components
         add(textTitle, "wrap");
-        add(textTextField, "split 2");
+        add(textArea, "split 2");
+        add(titleOrCredits, "wrap");
+        add(new JLabel("Font: "), "split 9");
+        add(fontOption);
+        add(new JLabel("Colour: "));
+        add(colourOption);
+        add(new JLabel("Size: "));
+        add(fontSizeSpinner);
+        add(new JLabel("Duration: "));
+        add(timeForTextSpinner);
         add(addTextBtn, "wrap");
         add(textProgBar, "grow, wrap");
 	}
@@ -331,6 +385,7 @@ public class EditorPanel extends JPanel{
 	}
 	
 	private void playMusic() {
+		mediaPlayerComponent.getMediaPlayer().setVideoTitleDisplay(libvlc_position_e.center, 0);
 		mediaPlayerComponent.getMediaPlayer().playMedia(fileTextField.getText());
 	}
 
@@ -347,9 +402,11 @@ public class EditorPanel extends JPanel{
 				final JFileChooser fc = new JFileChooser();
 		        fc.showSaveDialog(fc);
 		        if (fc.getSelectedFile() != null){
+		        	int dur = GetAttributes.getDuration(fileTextField.getText());
+		        	int fps = GetAttributes.getFPS(fileTextField.getText());
 		            String audioFile = fc.getSelectedFile().getAbsolutePath().toString();
 			    	AudioWorker worker = new AudioWorker(fileTextField.getText(), audioTextField.getText(),
-			    							option, audioFile, audioProgBar);
+			    							option, audioFile, audioProgBar, dur, fps);
 			    	worker.execute();
 		        }
     		}
@@ -387,4 +444,21 @@ public class EditorPanel extends JPanel{
 		return false;
 	}	
 		
+	private String getFontPath(String fontName) {
+		//use the locate command in linux
+		String cmd = "locate " + fontName + ".ttf";
+		ProcessBuilder builder = new ProcessBuilder("/bin/bash", "-c", cmd);
+		try {
+			Process process = builder.start();
+			process.waitFor();
+			InputStream stdout = process.getInputStream();
+			BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
+			return (br.readLine());		
+		} catch (IOException e) {
+			//
+		} catch (InterruptedException e) {
+			//
+		}
+		return "";
+	}	
 }

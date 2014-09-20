@@ -18,15 +18,17 @@ public class TextWorker extends SwingWorker<Void, String> {
 	private int fps = 0;
 	private int secs = 0;
 	
-	public TextWorker(String cmd, JProgressBar progBar) {
+	public TextWorker(String cmd, JProgressBar progressBar, int dur, int fps) {
 		this.cmd = cmd;
-		this.progBar = progBar;
+		this.progBar = progressBar;
+		progBar.setMaximum(dur*fps);
 	}
 	
 	@Override
 	protected Void doInBackground() {
         	ProcessBuilder builder = new ProcessBuilder("/bin/bash", "-c", cmd);
 			try {
+				System.out.println(cmd);
 				process = builder.start();
 				//retrieve output from the errorstream
 				InputStream stderr = process.getErrorStream();
@@ -44,35 +46,12 @@ public class TextWorker extends SwingWorker<Void, String> {
 	
 	@Override
 	public void process(List<String> chunks){
-			//get the maximum progress bar by multiplying fps by seconds
-			Pattern pattern = Pattern.compile(", (\\d+)(\\.\\d+)? fps");
-			Pattern pattern1 = Pattern.compile("(\\d\\d):(\\d\\d):(\\d\\d)\\.\\d\\d,");
-			Pattern pattern2 = Pattern.compile("frame= *(\\d+) fps=");
-			boolean gettingMax = true;
+			Pattern pattern = Pattern.compile("frame= *(\\d+) fps=");
 			for (String line : chunks){
 				Matcher m = pattern.matcher(line);
-				Matcher m1 = pattern1.matcher(line);
-				Matcher m2 = pattern2.matcher(line);
-				//search for fps
-				if (gettingMax && fps == 0 && m.find()){
-				    fps = Integer.parseInt(m.group(1));
-				    System.out.println(fps);
-				    progBar.setMaximum(fps*secs);
-				}
-				//search for seconds, the duration of the Video
-				else if (gettingMax && m1.find()){
-					int newSecs = Integer.parseInt(m1.group(1)) * 60 * 60 + Integer.parseInt(m1.group(2)) * 60 
-							+ Integer.parseInt(m1.group(3));
-					if (newSecs > secs){
-						secs = newSecs;
-						 System.out.println(secs);
-						progBar.setMaximum(fps*secs);
-					}
-				}
 				//search for frame number
-				if (m2.find()){
-					progBar.setValue(Integer.parseInt(m2.group(1)));
-					gettingMax = false;
+				if (m.find()){
+					progBar.setValue(Integer.parseInt(m.group(1)));
 				}
 			}
 	}

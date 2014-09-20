@@ -19,15 +19,15 @@ public class AudioWorker extends SwingWorker<Void, String> {
 	private String file;
 	private JProgressBar progBar;
 	private String message = "";
-	private int fps = 0;
-	private int secs = 0;
 	
-	public AudioWorker(String videoFile, String audioFile, String option, String file, JProgressBar progBar) {
+	public AudioWorker(String videoFile, String audioFile, String option, String file, JProgressBar progressBar,
+						int duration, int fps){
 		this.videoFile = videoFile;
 		this.audioFile = audioFile;
 		this.option = option;
 		this.file = file;
-		this.progBar = progBar;
+		this.progBar = progressBar;
+		progBar.setMaximum(fps*duration);
 	}
 	
 	@Override
@@ -52,7 +52,7 @@ public class AudioWorker extends SwingWorker<Void, String> {
     				" -map 0:v -map 1:a -codec copy -f mp4 " + file;
     		message = "Audio track replaced";
     	}
-    	//System.out.println(cmd);
+    	System.out.println(cmd);
         	ProcessBuilder builder = new ProcessBuilder("/bin/bash", "-c", cmd);
 			try {
 				process = builder.start();
@@ -72,33 +72,13 @@ public class AudioWorker extends SwingWorker<Void, String> {
 	
 	@Override
 	public void process(List<String> chunks){
-		//get the maximum progress bar by multiplying fps by seconds
-		Pattern pattern = Pattern.compile(", (\\d+)(\\.\\d+)? fps");
-		Pattern pattern1 = Pattern.compile("(\\d\\d):(\\d\\d):(\\d\\d)\\.\\d\\d,");
-		Pattern pattern2 = Pattern.compile("frame= *(\\d+) fps=");
-		boolean gettingMax = true;
+		Pattern pattern = Pattern.compile("frame= *(\\d+) fps=");
 		for (String line : chunks){
 			Matcher m = pattern.matcher(line);
-			Matcher m1 = pattern1.matcher(line);
-			Matcher m2 = pattern2.matcher(line);
-			//search for fps
-			if (gettingMax && fps == 0 && m.find()){
-			    fps = Integer.parseInt(m.group(1));
-			    progBar.setMaximum(fps*secs);
-			}
-			//search for seconds, the duration of the Video
-			else if (gettingMax && m1.find()){
-				int newSecs = Integer.parseInt(m1.group(1)) * 60 * 60 + Integer.parseInt(m1.group(2)) * 60 
-						+ Integer.parseInt(m1.group(3));
-				if (newSecs > secs){
-					secs = newSecs;
-					progBar.setMaximum(fps*secs);
-				}
-			}
 			//search for frame number
-			if (m2.find()){
-				progBar.setValue(Integer.parseInt(m2.group(1)));
-				gettingMax = false;
+			if (m.find()){
+				progBar.setValue(Integer.parseInt(m.group(1)));
+//				gettingMax = false;
 			}
 		}
 	}

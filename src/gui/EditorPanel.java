@@ -73,6 +73,8 @@ public class EditorPanel extends JPanel{
 	private JSpinner fontSizeSpinner = new JSpinner();
 	private JSpinner timeForTextSpinner = new JSpinner();
 	private JButton addTextBtn = new JButton("Add");
+	private String titleText;
+	private String creditsText;
 
 	private MigLayout myLayout = new MigLayout("",
 			"10 [] 10 [] 0 []",
@@ -146,6 +148,13 @@ public class EditorPanel extends JPanel{
         	@Override
         	public void actionPerformed(ActionEvent arg0) {
         		chooseFile();
+        		
+        		titleText = GetAttributes.getTitle(fileTextField.getText());
+        		creditsText = GetAttributes.getCredits(fileTextField.getText());
+				if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Title"))
+	            	textArea.setText(titleText);
+				else if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Credits"))
+	            	textArea.setText(creditsText);
         	}
         });
         
@@ -229,18 +238,33 @@ public class EditorPanel extends JPanel{
 		            String time = new DateEditor(timeForTextSpinner , "yy:mm:ss").getFormat().format(timeForTextSpinner.getValue());
 		            String[] timeArray = time.split(":");
 		            int timeInSecs = 60 * 60 *Integer.parseInt(timeArray[0]) + 60 * Integer.parseInt(timeArray[1]) + Integer.parseInt(timeArray[2]);
-		            String timeFunction;
-		            if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Title"))
+		            String timeFunction, metadata;
+		            if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Title")){
 		            	timeFunction = "lt(t," + timeInSecs + ")";
-		            else
+		            	metadata = "title=\"" + textArea.getText() + "\"";
+		            }
+		            else{
 		            	timeFunction = "gt(t," + (dur - timeInSecs) + ")";
-		            String cmd = "avconv -i " + fileTextField.getText() + " -vf \"drawtext=fontfile='" + fontPath + "':text='" + textArea.getText() +
+		            	metadata = "comment=\"" + textArea.getText() + "\"";
+		            }
+		            String cmd = "avconv -i " + fileTextField.getText() + " -metadata " + metadata + " -vf \"drawtext=fontfile='" + fontPath + "':text='" + textArea.getText() +
 		            			"':x=0:y=0:fontsize=" + fontSizeSpinner.getValue() + ":fontcolor=" + colourOption.getSelectedItem() + 
 		            			":draw='" + timeFunction + "'\" -strict experimental -f mp4 -v debug " + outputFile;
         			TextWorker worker = new TextWorker(cmd, textProgBar, dur, fps);
 		            worker.execute();
 		        }
         	}
+        });
+
+        titleOrCredits = new JComboBox<String>(new String[]{"Title", "Credits"});
+        titleOrCredits.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Title"))
+	            	textArea.setText(titleText);
+				else if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Credits"))
+	            	textArea.setText(creditsText);
+			}
         });
         
         stopBtn.setEnabled(false);
@@ -255,7 +279,6 @@ public class EditorPanel extends JPanel{
 		videoMovementTimer.start();
 		mediaPlayerComponent.setFont(new Font("Arial", 24, Font.BOLD));
 		
-        titleOrCredits = new JComboBox<String>(new String[]{"Title", "Credits"});
         fontOption = new JComboBox<String>(new String[]{"DejaVuSans", "Arial", "Comic Sans", "Times New Roman"});
         colourOption = new JComboBox<String>(new String[]{"Red", "Orange", "Yellow", "Green", "Blue"});
         fontSizeSpinner.setEditor(new JSpinner.NumberEditor(fontSizeSpinner , "00"));

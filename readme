@@ -1,3 +1,4 @@
 To make everything work you will need to include the following in the eclipse project
 - vlcj
 - MigLayout
+- Images for buttons (put in assets folder)

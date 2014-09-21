@@ -7,9 +7,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -19,10 +19,11 @@ import javax.swing.JTextField;
 import javax.swing.Timer;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
 import Popups.AudioSection;
 import Popups.TextSection;
+import editing.GetAttributes;
 import net.miginfocom.swing.MigLayout;
+import uk.co.caprica.vlcj.binding.internal.libvlc_position_e;
 import uk.co.caprica.vlcj.component.EmbeddedMediaPlayerComponent;
 import uk.co.caprica.vlcj.player.MediaMeta;
 import uk.co.caprica.vlcj.player.MediaPlayerFactory;
@@ -58,10 +59,22 @@ public class EditorPanel extends JPanel{
 	private final Timer videoMovementTimer = new Timer(100, null);
 //	private JLabel textTitle = new JLabel("Text");
 //	private JButton addTextBtn = new JButton("Add");
+	// TODO get rid of some stuff here
+//	private JTextField audioTextField = new JTextField(40);
+	private JTextField textArea = new JTextField(40);
+//	private JLabel textTitle = new JLabel("Text");
+	private JComboBox<String> titleOrCredits;
+//	private JComboBox<String> fontOption;
+//	private JComboBox<String> colourOption;
+//	private JSpinner fontSizeSpinner = new JSpinner();
+//	private JSpinner timeForTextSpinner = new JSpinner();
+//	private JButton addTextBtn = new JButton("Add");
+	private String titleText;
+	private String creditsText;
 
 	private MigLayout myLayout = new MigLayout("",
 			"10 [] 10 [] 0 []",
-			"5 [] 5 [] 10 []");
+			"5 [] 5 []");
 
 	EditorPanel () {
 		this.setLayout(myLayout);
@@ -131,6 +144,13 @@ public class EditorPanel extends JPanel{
         	@Override
         	public void actionPerformed(ActionEvent arg0) {
         		chooseFile();
+        		
+        		titleText = GetAttributes.getTitle(fileTextField.getText());
+        		creditsText = GetAttributes.getCredits(fileTextField.getText());
+				if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Title"))
+	            	textArea.setText(titleText);
+				else if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Credits"))
+	            	textArea.setText(creditsText);
         	}
         });
         
@@ -234,8 +254,21 @@ public class EditorPanel extends JPanel{
 		sliderTimer.addActionListener(timerListener);
 		videoMovementTimer.addActionListener(secondTimerListener);
 		videoMovementTimer.start();
+		mediaPlayerComponent.setFont(new Font("Arial", 24, Font.BOLD));
 		
-        
+//        fontOption = new JComboBox<String>(new String[]{"DejaVuSans", "Arial", "Comic Sans", "Times New Roman"});
+//        colourOption = new JComboBox<String>(new String[]{"Red", "Orange", "Yellow", "Green", "Blue"});
+//        fontSizeSpinner.setEditor(new JSpinner.NumberEditor(fontSizeSpinner , "00"));
+//        fontSizeSpinner.setModel(new SpinnerNumberModel(0, 0, 64, 1));
+//		Calendar calendar = Calendar.getInstance();
+//		calendar.set(Calendar.YEAR, 100); //to allow it to go up to 99, rather than stop at 24
+//		calendar.set(Calendar.MINUTE, 0);
+//		calendar.set(Calendar.SECOND, 0);
+//        SpinnerDateModel timeModel = new SpinnerDateModel();
+//		timeModel.setValue(calendar.getTime());
+//		timeForTextSpinner.setModel(timeModel);
+//		timeForTextSpinner.setEditor(new DateEditor(timeForTextSpinner , "yy:mm:ss"));
+		
 //        add(title, "wrap, center");
         //moved the open file stuff to the top for now
         add(fileTextField, "split 2, grow");
@@ -265,8 +298,19 @@ public class EditorPanel extends JPanel{
 //        overlayBtn.setEnabled(false);
 //        add(stripBtn, "wrap");
 //        add(audioProgBar, "grow, wrap");
+        
+//        //text components
 //        add(textTitle, "wrap");
-//        add(textTextField, "split 2");
+//        add(textArea, "split 2");
+//        add(titleOrCredits, "wrap");
+//        add(new JLabel("Font: "), "split 9");
+//        add(fontOption);
+//        add(new JLabel("Colour: "));
+//        add(colourOption);
+//        add(new JLabel("Size: "));
+//        add(fontSizeSpinner);
+//        add(new JLabel("Duration: "));
+//        add(timeForTextSpinner);
 //        add(addTextBtn, "wrap");
 //        add(textProgBar, "grow, wrap");
 	}
@@ -348,6 +392,7 @@ public class EditorPanel extends JPanel{
 	}
 	
 	private void playMusic() {
+		mediaPlayerComponent.getMediaPlayer().setVideoTitleDisplay(libvlc_position_e.center, 0);
 		mediaPlayerComponent.getMediaPlayer().playMedia(fileTextField.getText());
 	}
 
@@ -364,9 +409,11 @@ public class EditorPanel extends JPanel{
 //				final JFileChooser fc = new JFileChooser();
 //		        fc.showSaveDialog(fc);
 //		        if (fc.getSelectedFile() != null){
+//		        	int dur = GetAttributes.getDuration(fileTextField.getText());
+//		        	int fps = GetAttributes.getFPS(fileTextField.getText());
 //		            String audioFile = fc.getSelectedFile().getAbsolutePath().toString();
 //			    	AudioWorker worker = new AudioWorker(fileTextField.getText(), audioTextField.getText(),
-//			    							option, audioFile, audioProgBar);
+//			    							option, audioFile, audioProgBar, dur, fps);
 //			    	worker.execute();
 //		        }
 //    		}
@@ -376,7 +423,7 @@ public class EditorPanel extends JPanel{
 //    	else
 //			JOptionPane.showMessageDialog(mediaPlayerComponent, "Please enter a valid audio file name.");
 //	}
-//	
+	
 	public boolean isMediaFile(String input){
 		return correctFileType(input, "Media")
 	        	|| correctFileType(input, "media")
@@ -412,4 +459,21 @@ public class EditorPanel extends JPanel{
 	}
 	
 		
+//	private String getFontPath(String fontName) {
+//		//use the locate command in linux
+//		String cmd = "locate " + fontName + ".ttf";
+//		ProcessBuilder builder = new ProcessBuilder("/bin/bash", "-c", cmd);
+//		try {
+//			Process process = builder.start();
+//			process.waitFor();
+//			InputStream stdout = process.getInputStream();
+//			BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
+//			return (br.readLine());		
+//		} catch (IOException e) {
+//			//
+//		} catch (InterruptedException e) {
+//			//
+//		}
+//		return "";
+//	}	
 }

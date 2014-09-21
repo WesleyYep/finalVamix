@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import editing.AudioWorker;
+import editing.GetAttributes;
 import gui.CustomButton;
 import gui.EditorPanel;
 
@@ -115,10 +116,12 @@ public class AudioSection extends JPanel{
 				final JFileChooser fc = new JFileChooser();
 		        fc.showSaveDialog(fc);
 		        if (fc.getSelectedFile() != null){
+		        	int dur = GetAttributes.getDuration(editorPanel.getMediaName());
+		        	int fps = GetAttributes.getFPS(editorPanel.getMediaName());
 		            String audioFile = fc.getSelectedFile().getAbsolutePath().toString();
 		            loadScreen.prepare();
-			    	AudioWorker worker = new AudioWorker(editorPanel.getMediaName(), 
-			    			audioTextField.getText(), option, audioFile, loadScreen.getProgBar());
+			    	AudioWorker worker = new AudioWorker(editorPanel.getMediaName(), audioTextField.getText(),
+			    							option, audioFile, loadScreen.getProgBar(), dur, fps);
 			    	worker.execute();
 		        }
     		}

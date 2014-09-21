@@ -65,13 +65,16 @@ AudioWorker. Added TextWorker in same package. There is now a
 prototype text editor. It just adds texts with no options at the
 moment, using the TextWoker.
 
+prototype text editor.
+All the options should now work. Although currently only one font actually works. Also there is very little error checking at the moment.
+Text Editor now keeps a record of saved title and credits
+
 **** I have completely changed the gui so that it now looks nice (however there is further work to do)
 Basically the main buttons are all in the editor tab and when clicked stuff will popup (such as a progress bar)
 Also the source folder of the font was a slightly different name for me so i had to change it to get the text working
 *******IMPORTANT************
 You need to include some pictures which I have added to make the buttons look nicer. I will send them to you on facebook and they should then be in a folder called assets which should be a source folder in eclipse
 Please try it out and make sure i havent broken anything
-
 
 
 

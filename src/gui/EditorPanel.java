@@ -7,19 +7,21 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.Timer;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import editing.AudioWorker;
-import editing.TextWorker;
+
+import Popups.AudioSection;
+import Popups.TextSection;
 import net.miginfocom.swing.MigLayout;
 import uk.co.caprica.vlcj.component.EmbeddedMediaPlayerComponent;
 import uk.co.caprica.vlcj.player.MediaMeta;
@@ -30,37 +32,36 @@ import uk.co.caprica.vlcj.player.MediaPlayerFactory;
  * 
  * @author Mathew and Wesley
  */
+@SuppressWarnings("serial")
 public class EditorPanel extends JPanel{
 
-	/** An unused ID here only to get rid of the warning */
-	private static final long serialVersionUID = 1075006905710700282L;
 
 	private JLabel title = new JLabel ("Lets get editing");
 	private final EmbeddedMediaPlayerComponent mediaPlayerComponent;
 	private JSlider vidPosSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
-	private JButton playBtn = new JButton("Play");
-	private JButton stopBtn = new JButton("Stop");
-	private JButton forwardBtn = new JButton("Fast Forward");
-	private JButton backwardBtn = new JButton("Rewind");
+	private JButton playBtn = new CustomButton("Play");
+	private JButton stopBtn = new CustomButton("Stop");
+	private JButton forwardBtn = new CustomButton("Fast Forward");
+	private JButton backwardBtn = new CustomButton("Rewind");
 	private JButton openBtn = new JButton("Open");
-	private JButton openAudioBtn = new JButton("Open Audio");
-	private JLabel audioTitle = new JLabel("Audio");
-	private JButton replaceBtn = new JButton("Replace");
-	private JButton overlayBtn = new JButton("Overlay");
-	private JButton stripBtn = new JButton("Strip");
+//	private JButton openAudioBtn = new JButton("Open Audio");
+//	private JLabel audioTitle = new JLabel("Audio");
+//	private JButton replaceBtn = new JButton("Replace");
+//	private JButton overlayBtn = new JButton("Overlay");
+//	private JButton stripBtn = new CustomButton("Strip");
 	private JTextField fileTextField = new JTextField(40);
-	private JTextField audioTextField = new JTextField(40);
-	private JTextField textTextField = new JTextField(40);
-	private JProgressBar audioProgBar = new JProgressBar();
-	private JProgressBar textProgBar = new JProgressBar();
+//	private JTextField audioTextField = new JTextField(40);
+//	private JTextField textTextField = new JTextField(40);
+//	private JProgressBar audioProgBar = new JProgressBar();
+//	private JProgressBar textProgBar = new JProgressBar();
 	private final Timer sliderTimer = new Timer(100, null);
 	private final Timer videoMovementTimer = new Timer(100, null);
-	private JLabel textTitle = new JLabel("Text");
-	private JButton addTextBtn = new JButton("Add");
+//	private JLabel textTitle = new JLabel("Text");
+//	private JButton addTextBtn = new JButton("Add");
 
 	private MigLayout myLayout = new MigLayout("",
 			"10 [] 10 [] 0 []",
-			"5 [] 0 [] 10 []");
+			"5 [] 5 [] 10 []");
 
 	EditorPanel () {
 		this.setLayout(myLayout);
@@ -133,48 +134,52 @@ public class EditorPanel extends JPanel{
         	}
         });
         
-        openAudioBtn.addActionListener(new ActionListener(){
-        	@Override
-        	public void actionPerformed(ActionEvent arg0) {
-        		final JFileChooser fc = new JFileChooser();
-                fc.showOpenDialog(fc);
-                if (fc.getSelectedFile() != null){
-                    String fileName = fc.getSelectedFile().getAbsolutePath().toString();
-                	audioTextField.setText(fileName);
-                	replaceBtn.setEnabled(true);
-                	overlayBtn.setEnabled(true);
-                }
-        	}
-        });
-        
-        stripBtn.addActionListener(new ActionListener(){
-        	@Override
-        	public void actionPerformed(ActionEvent arg0) {
-        		
-        		String [] buttons = { "Audio", "Video"};
-        		int choice = JOptionPane.showOptionDialog(mediaPlayerComponent, "Would you like to save the audio only, or video only?", "Confirmation"
-        				,JOptionPane.INFORMATION_MESSAGE, 0, null, buttons, buttons[0]);
-           		if (choice == 0)
-        			audioEdit("stripVideo"); //remove the video
-        		else if (choice == 1)
-        			audioEdit("stripAudio"); //remove the audio
-        	}
-        });
-        
-        replaceBtn.addActionListener(new ActionListener(){
-        	@Override
-        	public void actionPerformed(ActionEvent arg0) {
-        		audioEdit("replace");
-        	}
-        });
-        
-
-        overlayBtn.addActionListener(new ActionListener(){
-        	@Override
-        	public void actionPerformed(ActionEvent arg0) {
-        		audioEdit("overlay");
-        	}
-        });
+//        openAudioBtn.addActionListener(new ActionListener(){
+//        	@Override
+//        	public void actionPerformed(ActionEvent arg0) {
+//        		final JFileChooser fc = new JFileChooser();
+//                fc.showOpenDialog(fc);
+//                if (fc.getSelectedFile() != null){
+//                    String fileName = fc.getSelectedFile().getAbsolutePath().toString();
+//                	audioTextField.setText(fileName);
+//                	replaceBtn.setEnabled(true);
+//                	overlayBtn.setEnabled(true);
+//                }
+//        	}
+//        });
+//        
+//        stripBtn.addActionListener(new ActionListener(){
+//        	@Override
+//        	public void actionPerformed(ActionEvent arg0) {
+//        		// TODO
+//        		JFrame stripPopup = new StripAudio("Strip options");
+//        		stripPopup.setVisible(true);
+//        		
+////        		String [] buttons = { "Audio", "Video"};
+////        		int choice = JOptionPane.showOptionDialog(mediaPlayerComponent, 
+////        				"Would you like to save the audio only, or video only?", "Confirmation"
+////        				,JOptionPane.INFORMATION_MESSAGE, 0, null, buttons, buttons[0]);
+////           		if (choice == 0)
+////        			audioEdit("stripVideo"); //remove the video
+////        		else if (choice == 1)
+////        			audioEdit("stripAudio"); //remove the audio
+//        	}
+//        });
+//        
+//        replaceBtn.addActionListener(new ActionListener(){
+//        	@Override
+//        	public void actionPerformed(ActionEvent arg0) {
+//        		audioEdit("replace");
+//        	}
+//        });
+//        
+//
+//        overlayBtn.addActionListener(new ActionListener(){
+//        	@Override
+//        	public void actionPerformed(ActionEvent arg0) {
+//        		audioEdit("overlay");
+//        	}
+//        });
         
         forwardBtn.addActionListener(new ActionListener(){
         	@Override
@@ -198,22 +203,28 @@ public class EditorPanel extends JPanel{
         	}
         });
         
-        addTextBtn.addActionListener(new ActionListener(){
-        	@Override
-        	public void actionPerformed(ActionEvent arg0) {
-				final JFileChooser fc = new JFileChooser();
-		        fc.showSaveDialog(fc);
-		        if (fc.getSelectedFile() != null){
-		            String outputFile = fc.getSelectedFile().getAbsolutePath().toString();
-		            String cmd = "avconv -i " + fileTextField.getText() + " -vf \"drawtext=fontfile='/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf':text='" +
-        						textTextField.getText() + "':x=0:y=0:fontsize=24:fontcolor=red\" -strict experimental -f mp4 -v debug " + outputFile;
-        			TextWorker worker = new TextWorker(cmd, textProgBar);
-		            worker.execute();
-		        }
-        	}
-        });
+//        addTextBtn.addActionListener(new ActionListener(){
+//        	@Override
+//        	public void actionPerformed(ActionEvent arg0) {
+//				final JFileChooser fc = new JFileChooser();
+//		        fc.showSaveDialog(fc);
+//		        if (fc.getSelectedFile() != null){
+//		            String outputFile = fc.getSelectedFile().getAbsolutePath().toString();
+//		            String cmd = "avconv -i " + fileTextField.getText() + " -vf \"drawtext="
+//		            		+ "fontfile='/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf':text='" +
+//        						textTextField.getText() + "':x=0:y=0:fontsize=24:fontcolor=red\" "
+//        								+ "-strict experimental -f mp4 -v debug " + outputFile;
+//        			TextWorker worker = new TextWorker(cmd, textProgBar);
+//		            worker.execute();
+//		        }
+//        	}
+//        });
         
         stopBtn.setEnabled(false);
+        playBtn.setIcon(new ImageIcon("assets/player_play.png"));
+        stopBtn.setIcon(new ImageIcon("assets/agt_action_fail1.png"));
+        forwardBtn.setIcon(new ImageIcon("assets/player_fwd.png"));
+        backwardBtn.setIcon(new ImageIcon("assets/player_start.png"));
         
         vidPosSlider.setMajorTickSpacing(10);
 		vidPosSlider.setMinorTickSpacing(1);
@@ -225,7 +236,7 @@ public class EditorPanel extends JPanel{
 		videoMovementTimer.start();
 		
         
-        add(title, "wrap, center");
+//        add(title, "wrap, center");
         //moved the open file stuff to the top for now
         add(fileTextField, "split 2, grow");
         add(openBtn, "wrap");
@@ -233,25 +244,31 @@ public class EditorPanel extends JPanel{
         // order to force it to fill the screen
         add(mediaPlayerComponent, "grow, wrap, height 200:10000:, width 600:10000:");
         add(vidPosSlider, "wrap, grow");
-        add(backwardBtn, "split 4, grow");
-        add(playBtn, "grow");
-        add(stopBtn, "grow");
-        add(forwardBtn, "grow, wrap");
+        
+        JPanel mainControlPanel = new JPanel();
+        mainControlPanel.add(backwardBtn, "split 4");
+        mainControlPanel.add(playBtn);
+        mainControlPanel.add(stopBtn);
+        mainControlPanel.add(forwardBtn);
+        
+        add(new AudioSection(this, mediaPlayerComponent), "split 3");
+        add(mainControlPanel, "grow, center");
+        add(new TextSection(this), "right, wrap");
         
         //audio components
-        add(audioTitle, "wrap");
-        add(audioTextField, "split 2");
-        add(openAudioBtn, "wrap");
-        add(replaceBtn, "split 3");
-        add(overlayBtn);
-        replaceBtn.setEnabled(false);
-        overlayBtn.setEnabled(false);
-        add(stripBtn, "wrap");
-        add(audioProgBar, "grow, wrap");
-        add(textTitle, "wrap");
-        add(textTextField, "split 2");
-        add(addTextBtn, "wrap");
-        add(textProgBar, "grow, wrap");
+//        add(audioTitle, "wrap");
+//        add(audioTextField, "split 2");
+//        add(openAudioBtn, "wrap");
+//        add(replaceBtn, "split 3");
+//        add(overlayBtn);
+//        replaceBtn.setEnabled(false);
+//        overlayBtn.setEnabled(false);
+//        add(stripBtn, "wrap");
+//        add(audioProgBar, "grow, wrap");
+//        add(textTitle, "wrap");
+//        add(textTextField, "split 2");
+//        add(addTextBtn, "wrap");
+//        add(textProgBar, "grow, wrap");
 	}
 	
 	/**
@@ -295,7 +312,7 @@ public class EditorPanel extends JPanel{
 		}
 	};
 	
-	// TODO make forward and rewind work
+	
 	enum videoMovement {
 		Forward, Back, Nothing
 	}
@@ -341,26 +358,26 @@ public class EditorPanel extends JPanel{
 		mediaPlayerComponent.getMediaPlayer().stop();
 	}
 	
-	public void audioEdit(String option) {
-    	if (option.startsWith("strip") || correctFileType(audioTextField.getText(), "Audio")){
-    		if (isMediaFile(fileTextField.getText())){
-				final JFileChooser fc = new JFileChooser();
-		        fc.showSaveDialog(fc);
-		        if (fc.getSelectedFile() != null){
-		            String audioFile = fc.getSelectedFile().getAbsolutePath().toString();
-			    	AudioWorker worker = new AudioWorker(fileTextField.getText(), audioTextField.getText(),
-			    							option, audioFile, audioProgBar);
-			    	worker.execute();
-		        }
-    		}
-    		else
-    			JOptionPane.showMessageDialog(mediaPlayerComponent, "Please open a valid media file.");
-    	}
-    	else
-			JOptionPane.showMessageDialog(mediaPlayerComponent, "Please enter a valid audio file name.");
-	}
-	
-	private boolean isMediaFile(String input){
+//	public void audioEdit(String option) {
+//    	if (option.startsWith("strip") || correctFileType(audioTextField.getText(), "Audio")){
+//    		if (isMediaFile(fileTextField.getText())){
+//				final JFileChooser fc = new JFileChooser();
+//		        fc.showSaveDialog(fc);
+//		        if (fc.getSelectedFile() != null){
+//		            String audioFile = fc.getSelectedFile().getAbsolutePath().toString();
+//			    	AudioWorker worker = new AudioWorker(fileTextField.getText(), audioTextField.getText(),
+//			    							option, audioFile, audioProgBar);
+//			    	worker.execute();
+//		        }
+//    		}
+//    		else
+//    			JOptionPane.showMessageDialog(mediaPlayerComponent, "Please open a valid media file.");
+//    	}
+//    	else
+//			JOptionPane.showMessageDialog(mediaPlayerComponent, "Please enter a valid audio file name.");
+//	}
+//	
+	public boolean isMediaFile(String input){
 		return correctFileType(input, "Media")
 	        	|| correctFileType(input, "media")
 	        	|| correctFileType(input, "Audio");
@@ -386,5 +403,13 @@ public class EditorPanel extends JPanel{
 		}
 		return false;
 	}	
+	
+	
+	
+	// TODO Matt messing with the GUI
+	public String getMediaName() {
+		return fileTextField.getText();
+	}
+	
 		
 }

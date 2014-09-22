@@ -1,8 +1,11 @@
 package gui;
 
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +15,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -42,10 +46,20 @@ public class EditorPanel extends JPanel{
 	private JLabel title = new JLabel ("Lets get editing");
 	private final EmbeddedMediaPlayerComponent mediaPlayerComponent;
 	private JSlider vidPosSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
-	private JButton playBtn = new CustomButton("Play");
-	private JButton stopBtn = new CustomButton("Stop");
-	private JButton forwardBtn = new CustomButton("Fast Forward");
-	private JButton backwardBtn = new CustomButton("Rewind");
+	private CustomButton fullScreenBtn = new CustomButton(
+			new ImageIcon("assets/full_screen.png"), 30,30);
+	private CustomButton playBtn = new CustomButton(
+			new ImageIcon("assets/player_play.png"), 60, 60, new ImageIcon("assets/pause.png"));
+	private CustomButton stopBtn = new CustomButton(
+			new ImageIcon("assets/agt_action_fail1.png"), 50, 50);
+	private CustomButton forwardBtn = new CustomButton(
+			new ImageIcon("assets/player_fwd.png"), 40, 40);
+	private CustomButton backwardBtn = new CustomButton(
+			new ImageIcon("assets/player_start.png"), 40, 40);
+	private JSlider volumeSlider = new JSlider(0, 200, 100);
+	private CustomButton soundBtn = new CustomButton
+    		(new ImageIcon("assets/volume_loud.png"), 30, 30, 
+    				new ImageIcon("assets/volume_silent2.png"));
 	private JButton openBtn = new JButton("Open");
 	private JTextField fileTextField = new JTextField(40);
 	private final Timer sliderTimer = new Timer(100, null);
@@ -80,13 +94,13 @@ public class EditorPanel extends JPanel{
     			// should pause it
     			if (mediaPlayerComponent.getMediaPlayer().isPlaying()) {
     				mediaPlayerComponent.getMediaPlayer().pause();
-    				playBtn.setText("Play");
+    				playBtn.changeIcon();
     				sliderTimer.stop();
     			// If the video is already pause then the button click 
     			// will continue to play it
     			} else if (mediaPlayerComponent.getMediaPlayer().isPlayable()) {
     				mediaPlayerComponent.getMediaPlayer().play();
-    				playBtn.setText("Pause");
+    				playBtn.changeIcon();
     				sliderTimer.start();
     			// Otherwise we will ask the user for the file they want to play and 
     			// start playing that
@@ -94,7 +108,7 @@ public class EditorPanel extends JPanel{
     				// If file already selected just play that
     				if (!fileTextField.getText().equals("")) {
 	    				playMusic();
-	    				playBtn.setText("Pause");
+	    				playBtn.changeIcon();
 	    				sliderTimer.start();
     				} else {
     					chooseFile();
@@ -110,7 +124,7 @@ public class EditorPanel extends JPanel{
 				currentMove = videoMovement.Nothing;
 				if (mediaPlayerComponent.getMediaPlayer().isPlaying()) {
 					mediaPlayerComponent.getMediaPlayer().stop();
-					playBtn.setText("Play");
+					playBtn.changeIcon();
 				} else if (mediaPlayerComponent.getMediaPlayer().isPlayable()) {
 					mediaPlayerComponent.getMediaPlayer().stop();
 				} 
@@ -156,18 +170,74 @@ public class EditorPanel extends JPanel{
         	}
         });
         
+        soundBtn.addActionListener(new ActionListener() {
+        	@Override
+        	public void actionPerformed(ActionEvent arg0) {
+        		// TODO
+        		if (mediaPlayerComponent.getMediaPlayer().getVolume() == 0) {
+        			volumeSlider.setValue(100);
+        		} else {
+        			volumeSlider.setValue(0);
+        		}
+        		soundBtn.changeIcon();
+        		
+        	}
+        	
+        });
+        fullScreenBtn.addActionListener(new ActionListener() {
+        	@Override
+        	public void actionPerformed(ActionEvent arg0) {
+        		final EmbeddedMediaPlayerComponent mediaPlayer = new EmbeddedMediaPlayerComponent();
+        		class FirstFrame extends JFrame implements WindowListener {
+        			FirstFrame() {
+        				this.addWindowListener(this);
+        			}
+        		    @Override
+        		    public void windowClosed(WindowEvent e) {
+        		        // Stop the media player (otherwise you will gear it continuing
+        		    	mediaPlayer.getMediaPlayer().stop();
+        		        dispose();
+        		    }
+					@Override
+					public void windowActivated(WindowEvent arg0) {}
+					@Override
+					public void windowClosing(WindowEvent arg0) {}
+					@Override
+					public void windowDeactivated(WindowEvent arg0) {}
+					@Override
+					public void windowDeiconified(WindowEvent arg0) {}
+					@Override
+					public void windowIconified(WindowEvent arg0) {}
+					@Override
+					public void windowOpened(WindowEvent arg0) {}
+        		}
+        	    JFrame f = new FirstFrame();
+        	    f.setSize(800, 600);
+
+        	    
+        	    f.add(mediaPlayer);
+        	    f.setVisible(true);
+        	    f.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        	    
+        	    mediaPlayer.getMediaPlayer().playMedia(fileTextField.getText());
+        	}
+        });
+        
+        volumeSlider.addChangeListener(new ChangeListener() {
+
+			@Override
+			public void stateChanged(ChangeEvent arg0) {
+				// TODO Auto-generated method stub
+				mediaPlayerComponent.getMediaPlayer().setVolume(volumeSlider.getValue());
+			}
+        });
         
         stopBtn.setEnabled(false);
-        playBtn.setIcon(new ImageIcon("assets/player_play.png"));
-        stopBtn.setIcon(new ImageIcon("assets/agt_action_fail1.png"));
-        forwardBtn.setIcon(new ImageIcon("assets/player_fwd.png"));
-        backwardBtn.setIcon(new ImageIcon("assets/player_start.png"));
         
         vidPosSlider.setMajorTickSpacing(10);
 		vidPosSlider.setMinorTickSpacing(1);
 		vidPosSlider.setPaintTicks(true);
 		vidPosSlider.addChangeListener(sliderChangeListener);
-//		vidPosSlider.setBackground(new Color(100,100,100));
 		
 		sliderTimer.addActionListener(timerListener);
 		videoMovementTimer.addActionListener(secondTimerListener);
@@ -184,37 +254,35 @@ public class EditorPanel extends JPanel{
         sidePane.setLayout(new MigLayout());
         sidePane.add(new AudioSection(this, mediaPlayerComponent), "growx, wrap");
         sidePane.add(new TextSection(this), "grow");
-//        sidePane.setBackground(new Color(100,100,100));
         
         add(sidePane, "cell 0 1 1 3, grow");
+        
         // This media  player has massive preferred size in 
         // order to force it to fill the screen
-        
         add(mediaPlayerComponent, "cell 1 1, grow, wrap, height 200:10000:, width 400:10000:");
         add(vidPosSlider, "cell 1 2, wrap, grow");
-//        JPanel mediaPanel = new JPanel();
-//        mediaPanel.setLayout(new FlowLayout());
-//        mediaPanel.add(mediaPlayerComponent);
-//        mediaPanel.add(vidPosSlider);
-//        add(mediaPanel, "wrap, grow");
         
         JPanel mainControlPanel = new JPanel();
-        mainControlPanel.add(backwardBtn, "split 4");
+//        mainControlPanel.setLayout(new MigLayout("", " [] [][]", ""));
+        mainControlPanel.add(fullScreenBtn);
+        mainControlPanel.add(backwardBtn, "cell 0 0, split 5");
         mainControlPanel.add(playBtn);
         mainControlPanel.add(stopBtn);
         mainControlPanel.add(forwardBtn);
-//        mainControlPanel.setBackground(new Color(200,200,200));
-//        mainControlPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
+        mainControlPanel.add(soundBtn, "cell 1 0, top");
+        mainControlPanel.add(volumeSlider, "cell 1 0");
         
-        // Audio options
-//        add(new AudioSection(this, mediaPlayerComponent), "split 3");
-        // Basic video control (play, pause etc)
+        volumeSlider.setOrientation(JSlider.VERTICAL);
+        volumeSlider.setPreferredSize(new Dimension(17, 60));
+        
         add(mainControlPanel, "cell 1 3, grow, center");
-        // Text options
-//        add(new TextSection(this), "right, wrap");
         
         
 	}
+	
+	
+	
+	
 	
 	/**
 	 * This method is used to change the JSlider to the size of the actual 
@@ -331,12 +399,11 @@ public class EditorPanel extends JPanel{
 		return false;
 	}	
 	
-	
-	
-	// Used by the Audio/text sections to allow them to get the media file being played
+	/**
+	 *  Used by the Audio/text sections to allow them to get the media file being played
+	 * @return The string which comes straight from the filetextfield
+	 */
 	public String getMediaName() {
 		return fileTextField.getText();
 	}
-	
-	
 }

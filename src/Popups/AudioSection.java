@@ -60,8 +60,6 @@ public class AudioSection extends JPanel{
 		setBorder(BorderFactory.createTitledBorder(
 				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
 				new Color(250, 150, 150, 250), new Color(250, 150, 50, 250)), "Audio"));
-//		setBorder(new TextBubbleBorder(Color.BLACK,2,16,16);
-//		this.setBackground(new Color(80,80,80));
 		
 		add(audioTextField, "grow, split 2");
 		add(openAudioBtn, "wrap");

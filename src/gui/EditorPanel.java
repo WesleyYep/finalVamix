@@ -46,7 +46,8 @@ public class EditorPanel extends JPanel{
 	private JLabel title = new JLabel ("Lets get editing");
 	private final EmbeddedMediaPlayerComponent mediaPlayerComponent;
 	private JSlider vidPosSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
-	private JButton fullScreenBtn = new JButton("full screen");
+	private CustomButton fullScreenBtn = new CustomButton(
+			new ImageIcon("assets/full_screen.png"), 30,30);
 	private CustomButton playBtn = new CustomButton(
 			new ImageIcon("assets/player_play.png"), 60, 60, new ImageIcon("assets/pause.png"));
 	private CustomButton stopBtn = new CustomButton(
@@ -180,15 +181,6 @@ public class EditorPanel extends JPanel{
         		}
         		soundBtn.changeIcon();
         		
-        		// code from: https://forum.videolan.org/viewtopic.php?f=32&t=85597
-//        		Canvas c = new Canvas();
-//        	    c.setBackground(Color.black);
-//        	    CanvasVideoSurface c2 = new CanvasVideoSurface(c, new LinuxVideoSurfaceAdapter());
-//
-//        	    JPanel p = new JPanel();
-//        	    p.setLayout(new BorderLayout());
-//        	    p.add(c, BorderLayout.CENTER);
-        		
         	}
         	
         });
@@ -202,58 +194,32 @@ public class EditorPanel extends JPanel{
         			}
         		    @Override
         		    public void windowClosed(WindowEvent e) {
-        		        //make second frame
+        		        // Stop the media player (otherwise you will gear it continuing
         		    	mediaPlayer.getMediaPlayer().stop();
         		        dispose();
         		    }
 					@Override
-					public void windowActivated(WindowEvent arg0) {
-						// TODO Auto-generated method stub
-						
-					}
+					public void windowActivated(WindowEvent arg0) {}
 					@Override
-					public void windowClosing(WindowEvent arg0) {
-						// TODO Auto-generated method stub
-						mediaPlayer.getMediaPlayer().stop();
-					}
+					public void windowClosing(WindowEvent arg0) {}
 					@Override
-					public void windowDeactivated(WindowEvent arg0) {
-						// TODO Auto-generated method stub
-						mediaPlayer.getMediaPlayer().stop();
-
-					}
+					public void windowDeactivated(WindowEvent arg0) {}
 					@Override
-					public void windowDeiconified(WindowEvent arg0) {
-						// TODO Auto-generated method stub
-						
-					}
+					public void windowDeiconified(WindowEvent arg0) {}
 					@Override
-					public void windowIconified(WindowEvent arg0) {
-						// TODO Auto-generated method stub
-						
-					}
+					public void windowIconified(WindowEvent arg0) {}
 					@Override
-					public void windowOpened(WindowEvent arg0) {
-						// TODO Auto-generated method stub
-						
-					}
+					public void windowOpened(WindowEvent arg0) {}
         		}
         	    JFrame f = new FirstFrame();
-//        	    f.setContentPane(p);
-//        	    f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         	    f.setSize(800, 600);
 
         	    
         	    f.add(mediaPlayer);
         	    f.setVisible(true);
-        	    
         	    f.setExtendedState(JFrame.MAXIMIZED_BOTH);
-        	 // mediaPlayer.setFullScreen(true);
-//        	 f.setUndecorated(true);
-//        	 f.setVisible(true);
-        	 mediaPlayer.getMediaPlayer().playMedia(fileTextField.getText());
-        		
-        		
+        	    
+        	    mediaPlayer.getMediaPlayer().playMedia(fileTextField.getText());
         	}
         });
         
@@ -308,7 +274,6 @@ public class EditorPanel extends JPanel{
         
         volumeSlider.setOrientation(JSlider.VERTICAL);
         volumeSlider.setPreferredSize(new Dimension(17, 60));
-//        mainControlPanel.add(volumeLabel, "cell 1 1");
         
         add(mainControlPanel, "cell 1 3, grow, center");
         

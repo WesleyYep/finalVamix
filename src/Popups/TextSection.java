@@ -20,7 +20,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
-import javax.swing.JTextField;
+import javax.swing.JTextArea;
 import javax.swing.SpinnerDateModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.JSpinner.DateEditor;
@@ -36,13 +36,16 @@ import net.miginfocom.swing.MigLayout;
 @SuppressWarnings("serial")
 public class TextSection extends JPanel{
 	
-	private JTextField textArea = new JTextField();
+	private JTextArea textArea = new JTextArea(" -- Enter Text Here -- ", 10, 50);
 	private JButton addTextBtn = new JButton("Add text to Video");
 	private JComboBox<String> titleOrCredits;
 	private JComboBox<String> fontOption;
 	private JComboBox<String> colourOption;
 	private JSpinner fontSizeSpinner = new JSpinner();
 	private JSpinner timeForTextSpinner = new JSpinner();
+	
+	private JTextArea newTextArea = new JTextArea("Preview area", 10, 50);
+	
 	private String titleText;
 	private String creditsText;
 	
@@ -64,10 +67,11 @@ public class TextSection extends JPanel{
         colourOption = new JComboBox<String>(new String[]{"Red", "Orange", "Yellow", "Green", "Blue"});
         fontSizeSpinner.setEditor(new JSpinner.NumberEditor(fontSizeSpinner , "00"));
         fontSizeSpinner.setModel(new SpinnerNumberModel(0, 0, 64, 1));
+        fontSizeSpinner.setValue(18);
 		Calendar calendar = Calendar.getInstance();
 		calendar.set(Calendar.YEAR, 100); //to allow it to go up to 99, rather than stop at 24
 		calendar.set(Calendar.MINUTE, 0);
-		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.SECOND, 20);
         SpinnerDateModel timeModel = new SpinnerDateModel();
 		timeModel.setValue(calendar.getTime());
 		timeForTextSpinner.setModel(timeModel);
@@ -75,20 +79,25 @@ public class TextSection extends JPanel{
 		
 		
 		setLayout(new MigLayout());
-		setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
-				new Color(150, 150, 250, 250), new Color(50, 50, 150, 250)));
+		setBorder(BorderFactory.createTitledBorder(
+				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
+				new Color(150, 150, 250, 250), new Color(50, 50, 150, 250)), "Text"));
 		
-		add(textArea, "grow, split 2");
-		add(titleOrCredits, "wrap");
-		add(new JLabel("Font: "), "split 4");
-		add(fontOption);
-		add(new JLabel("Colour: "));
-		add(colourOption, "wrap");
-		add(new JLabel("Size: "), "split 4");
-		add(fontSizeSpinner);
-		add(new JLabel("Duration: "));
-		add(timeForTextSpinner, "wrap");
-		add(addTextBtn, "grow, wrap");	
+		textArea.setBorder(BorderFactory.createEtchedBorder());
+		newTextArea.setBorder(BorderFactory.createEtchedBorder());
+		
+		add(textArea, "cell 0 0 2 1, grow");
+		add(titleOrCredits, "cell 0 1 2 1, grow");
+		add(new JLabel("Font: "), "cell 0 2");
+		add(fontOption, "cell 1 2, grow");
+		add(new JLabel("Colour: "), "cell 0 3");
+		add(colourOption, "cell 1 3, grow");
+		add(new JLabel("Size: "), "cell 0 4");
+		add(fontSizeSpinner, "cell 1 4, grow");
+		add(new JLabel("Duration: "), "cell 0 5");
+		add(timeForTextSpinner, "cell 1 5, grow");
+		add(addTextBtn, "cell 0 6 2 1, grow, wrap");
+		add(newTextArea, "cell 0 7 2 1, grow");
 		
 		addTextBtn.addActionListener(new ActionListener(){
         	@Override

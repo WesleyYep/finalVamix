@@ -11,7 +11,6 @@ import java.io.InputStreamReader;
 
 import editing.AudioWorker;
 import editing.GetAttributes;
-import gui.CustomButton;
 import gui.EditorPanel;
 
 import javax.swing.BorderFactory;
@@ -33,11 +32,11 @@ import net.miginfocom.swing.MigLayout;
 @SuppressWarnings("serial")
 public class AudioSection extends JPanel{
 
-	private JTextField audioTextField = new JTextField();
+	private JTextField audioTextField = new JTextField(40);
 	private JButton openAudioBtn = new JButton("Open");
 	private JButton replaceBtn = new JButton("Replace");
 	private JButton overlayBtn = new JButton("Overlay");
-	private JButton stripBtn = new CustomButton("Strip");
+	private JButton stripBtn = new JButton("Strip");
 	
 	// Retrieved on construction
 	private EditorPanel editorPanel;
@@ -58,9 +57,11 @@ public class AudioSection extends JPanel{
 		mediaPlayer = mpc;
 		
 		setLayout(new MigLayout());
-		setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
-				new Color(150, 250, 150, 250), new Color(50, 250, 50, 250)));
-		this.setBackground(new Color(50,50,50));
+		setBorder(BorderFactory.createTitledBorder(
+				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
+				new Color(150, 250, 150, 250), new Color(50, 250, 50, 250)), "Audio"));
+//		setBorder(new TextBubbleBorder(Color.BLACK,2,16,16);
+//		this.setBackground(new Color(80,80,80));
 		
 		add(audioTextField, "grow, split 2");
 		add(openAudioBtn, "wrap");

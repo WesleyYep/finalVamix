@@ -1,6 +1,5 @@
 package gui;
 
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -20,7 +18,6 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.Timer;
-import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -58,13 +55,13 @@ public class EditorPanel extends JPanel{
 	private String titleText;
 	private String creditsText;
 
-	private MigLayout myLayout = new MigLayout("", "10 [] 10 []", "5 [] 5 []");
+	private MigLayout myLayout = new MigLayout("", "10 [] [] 10", "5 [] [] [] [] 5");
 
 	EditorPanel () {
 		this.setLayout(myLayout);
 		
 		title.setFont (new Font("Serif", Font.BOLD, 48));
-		setBackground(new Color(100,100,100));
+//		setBackground(new Color(100,100,100));
 
 		// This is the video player
         mediaPlayerComponent = new EmbeddedMediaPlayerComponent();
@@ -170,7 +167,7 @@ public class EditorPanel extends JPanel{
 		vidPosSlider.setMinorTickSpacing(1);
 		vidPosSlider.setPaintTicks(true);
 		vidPosSlider.addChangeListener(sliderChangeListener);
-		vidPosSlider.setBackground(new Color(100,100,100));
+//		vidPosSlider.setBackground(new Color(100,100,100));
 		
 		sliderTimer.addActionListener(timerListener);
 		videoMovementTimer.addActionListener(secondTimerListener);
@@ -179,7 +176,7 @@ public class EditorPanel extends JPanel{
 		
 		
         // The open file stuff is at top
-        add(fileTextField, "split 2, grow");
+        add(fileTextField, "cell 0 0 2 1, split 2, grow");
         add(openBtn, "wrap");
         
         JPanel sidePane = new JPanel();
@@ -187,14 +184,14 @@ public class EditorPanel extends JPanel{
         sidePane.setLayout(new MigLayout());
         sidePane.add(new AudioSection(this, mediaPlayerComponent), "growx, wrap");
         sidePane.add(new TextSection(this), "grow");
-        sidePane.setBackground(new Color(100,100,100));
+//        sidePane.setBackground(new Color(100,100,100));
         
-        add(sidePane, "grow, split 2");
+        add(sidePane, "cell 0 1 1 3, grow");
         // This media  player has massive preferred size in 
         // order to force it to fill the screen
         
-        add(mediaPlayerComponent, "grow, wrap, height 200:10000:, width 400:10000:");
-        add(vidPosSlider, "wrap, grow");
+        add(mediaPlayerComponent, "cell 1 1, grow, wrap, height 200:10000:, width 400:10000:");
+        add(vidPosSlider, "cell 1 2, wrap, grow");
 //        JPanel mediaPanel = new JPanel();
 //        mediaPanel.setLayout(new FlowLayout());
 //        mediaPanel.add(mediaPlayerComponent);
@@ -206,13 +203,13 @@ public class EditorPanel extends JPanel{
         mainControlPanel.add(playBtn);
         mainControlPanel.add(stopBtn);
         mainControlPanel.add(forwardBtn);
-        mainControlPanel.setBackground(new Color(200,200,200));
-        mainControlPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
+//        mainControlPanel.setBackground(new Color(200,200,200));
+//        mainControlPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
         
         // Audio options
 //        add(new AudioSection(this, mediaPlayerComponent), "split 3");
         // Basic video control (play, pause etc)
-        add(mainControlPanel, "grow, center");
+        add(mainControlPanel, "cell 1 3, grow, center");
         // Text options
 //        add(new TextSection(this), "right, wrap");
         

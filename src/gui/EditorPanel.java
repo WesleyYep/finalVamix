@@ -4,6 +4,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,6 +15,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -43,6 +46,7 @@ public class EditorPanel extends JPanel{
 	private JLabel title = new JLabel ("Lets get editing");
 	private final EmbeddedMediaPlayerComponent mediaPlayerComponent;
 	private JSlider vidPosSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
+	private JButton fullScreenBtn = new JButton("full screen");
 	private CustomButton playBtn = new CustomButton(
 			new ImageIcon("assets/player_play.png"), 60, 60, new ImageIcon("assets/pause.png"));
 	private CustomButton stopBtn = new CustomButton(
@@ -168,14 +172,89 @@ public class EditorPanel extends JPanel{
         soundBtn.addActionListener(new ActionListener() {
         	@Override
         	public void actionPerformed(ActionEvent arg0) {
+        		// TODO
         		if (mediaPlayerComponent.getMediaPlayer().getVolume() == 0) {
         			volumeSlider.setValue(100);
         		} else {
         			volumeSlider.setValue(0);
         		}
         		soundBtn.changeIcon();
+        		
+        		// code from: https://forum.videolan.org/viewtopic.php?f=32&t=85597
+//        		Canvas c = new Canvas();
+//        	    c.setBackground(Color.black);
+//        	    CanvasVideoSurface c2 = new CanvasVideoSurface(c, new LinuxVideoSurfaceAdapter());
+//
+//        	    JPanel p = new JPanel();
+//        	    p.setLayout(new BorderLayout());
+//        	    p.add(c, BorderLayout.CENTER);
+        		
         	}
         	
+        });
+        fullScreenBtn.addActionListener(new ActionListener() {
+        	@Override
+        	public void actionPerformed(ActionEvent arg0) {
+        		final EmbeddedMediaPlayerComponent mediaPlayer = new EmbeddedMediaPlayerComponent();
+        		class FirstFrame extends JFrame implements WindowListener {
+        			FirstFrame() {
+        				this.addWindowListener(this);
+        			}
+        		    @Override
+        		    public void windowClosed(WindowEvent e) {
+        		        //make second frame
+        		    	mediaPlayer.getMediaPlayer().stop();
+        		        dispose();
+        		    }
+					@Override
+					public void windowActivated(WindowEvent arg0) {
+						// TODO Auto-generated method stub
+						
+					}
+					@Override
+					public void windowClosing(WindowEvent arg0) {
+						// TODO Auto-generated method stub
+						mediaPlayer.getMediaPlayer().stop();
+					}
+					@Override
+					public void windowDeactivated(WindowEvent arg0) {
+						// TODO Auto-generated method stub
+						mediaPlayer.getMediaPlayer().stop();
+
+					}
+					@Override
+					public void windowDeiconified(WindowEvent arg0) {
+						// TODO Auto-generated method stub
+						
+					}
+					@Override
+					public void windowIconified(WindowEvent arg0) {
+						// TODO Auto-generated method stub
+						
+					}
+					@Override
+					public void windowOpened(WindowEvent arg0) {
+						// TODO Auto-generated method stub
+						
+					}
+        		}
+        	    JFrame f = new FirstFrame();
+//        	    f.setContentPane(p);
+//        	    f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        	    f.setSize(800, 600);
+
+        	    
+        	    f.add(mediaPlayer);
+        	    f.setVisible(true);
+        	    
+        	    f.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        	 // mediaPlayer.setFullScreen(true);
+//        	 f.setUndecorated(true);
+//        	 f.setVisible(true);
+        	 mediaPlayer.getMediaPlayer().playMedia(fileTextField.getText());
+        		
+        		
+        	}
         });
         
         volumeSlider.addChangeListener(new ChangeListener() {
@@ -219,6 +298,7 @@ public class EditorPanel extends JPanel{
         
         JPanel mainControlPanel = new JPanel();
 //        mainControlPanel.setLayout(new MigLayout("", " [] [][]", ""));
+        mainControlPanel.add(fullScreenBtn);
         mainControlPanel.add(backwardBtn, "cell 0 0, split 5");
         mainControlPanel.add(playBtn);
         mainControlPanel.add(stopBtn);
@@ -234,6 +314,10 @@ public class EditorPanel extends JPanel{
         
         
 	}
+	
+	
+	
+	
 	
 	/**
 	 * This method is used to change the JSlider to the size of the actual 

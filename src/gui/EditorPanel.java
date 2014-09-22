@@ -1,5 +1,6 @@
 package gui;
 
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -50,8 +51,10 @@ public class EditorPanel extends JPanel{
 			new ImageIcon("assets/player_fwd.png"), 40, 40);
 	private CustomButton backwardBtn = new CustomButton(
 			new ImageIcon("assets/player_start.png"), 40, 40);
-//	private ImageIcon pauseIcon = new ImageIcon("assets/pause.png");
-//	private ImageIcon playIcon = new ImageIcon("assets/player_play.png");
+	private JSlider volumeSlider = new JSlider(0, 200, 100);
+	private CustomButton soundBtn = new CustomButton
+    		(new ImageIcon("assets/volume_loud.png"), 30, 30, 
+    				new ImageIcon("assets/volume_silent2.png"));
 	private JButton openBtn = new JButton("Open");
 	private JTextField fileTextField = new JTextField(40);
 	private final Timer sliderTimer = new Timer(100, null);
@@ -86,15 +89,12 @@ public class EditorPanel extends JPanel{
     			// should pause it
     			if (mediaPlayerComponent.getMediaPlayer().isPlaying()) {
     				mediaPlayerComponent.getMediaPlayer().pause();
-//    				playBtn.setText("Play");
-//    				playBtn.setIcon(playIcon);
     				playBtn.changeIcon();
     				sliderTimer.stop();
     			// If the video is already pause then the button click 
     			// will continue to play it
     			} else if (mediaPlayerComponent.getMediaPlayer().isPlayable()) {
     				mediaPlayerComponent.getMediaPlayer().play();
-//    				playBtn.setText("Pause");
     				playBtn.changeIcon();
     				sliderTimer.start();
     			// Otherwise we will ask the user for the file they want to play and 
@@ -103,7 +103,6 @@ public class EditorPanel extends JPanel{
     				// If file already selected just play that
     				if (!fileTextField.getText().equals("")) {
 	    				playMusic();
-//	    				playBtn.setText("Pause");
 	    				playBtn.changeIcon();
 	    				sliderTimer.start();
     				} else {
@@ -120,7 +119,7 @@ public class EditorPanel extends JPanel{
 				currentMove = videoMovement.Nothing;
 				if (mediaPlayerComponent.getMediaPlayer().isPlaying()) {
 					mediaPlayerComponent.getMediaPlayer().stop();
-					playBtn.setText("Play");
+					playBtn.changeIcon();
 				} else if (mediaPlayerComponent.getMediaPlayer().isPlayable()) {
 					mediaPlayerComponent.getMediaPlayer().stop();
 				} 
@@ -166,20 +165,34 @@ public class EditorPanel extends JPanel{
         	}
         });
         
+        soundBtn.addActionListener(new ActionListener() {
+        	@Override
+        	public void actionPerformed(ActionEvent arg0) {
+        		if (mediaPlayerComponent.getMediaPlayer().getVolume() == 0) {
+        			volumeSlider.setValue(100);
+        		} else {
+        			volumeSlider.setValue(0);
+        		}
+        		soundBtn.changeIcon();
+        	}
+        	
+        });
+        
+        volumeSlider.addChangeListener(new ChangeListener() {
+
+			@Override
+			public void stateChanged(ChangeEvent arg0) {
+				// TODO Auto-generated method stub
+				mediaPlayerComponent.getMediaPlayer().setVolume(volumeSlider.getValue());
+			}
+        });
         
         stopBtn.setEnabled(false);
-//        ImageIcon image1 = new ImageIcon("assets/player_play.png");
-//        Image timage1 = image1.getImage().getScaledInstance( 40, 40,  java.awt.Image.SCALE_SMOOTH ) ;
-//        playBtn.setIcon(new ImageIcon(timage1));
-//        stopBtn.setIcon(new ImageIcon("assets/agt_action_fail1.png"));
-//        forwardBtn.setIcon(new ImageIcon("assets/player_fwd.png"));
-//        backwardBtn.setIcon(new ImageIcon("assets/player_start.png"));
         
         vidPosSlider.setMajorTickSpacing(10);
 		vidPosSlider.setMinorTickSpacing(1);
 		vidPosSlider.setPaintTicks(true);
 		vidPosSlider.addChangeListener(sliderChangeListener);
-//		vidPosSlider.setBackground(new Color(100,100,100));
 		
 		sliderTimer.addActionListener(timerListener);
 		videoMovementTimer.addActionListener(secondTimerListener);
@@ -196,37 +209,28 @@ public class EditorPanel extends JPanel{
         sidePane.setLayout(new MigLayout());
         sidePane.add(new AudioSection(this, mediaPlayerComponent), "growx, wrap");
         sidePane.add(new TextSection(this), "grow");
-//        sidePane.setBackground(new Color(100,100,100));
         
         add(sidePane, "cell 0 1 1 3, grow");
+        
         // This media  player has massive preferred size in 
         // order to force it to fill the screen
-        
         add(mediaPlayerComponent, "cell 1 1, grow, wrap, height 200:10000:, width 400:10000:");
         add(vidPosSlider, "cell 1 2, wrap, grow");
-//        JPanel mediaPanel = new JPanel();
-//        mediaPanel.setLayout(new FlowLayout());
-//        mediaPanel.add(mediaPlayerComponent);
-//        mediaPanel.add(vidPosSlider);
-//        add(mediaPanel, "wrap, grow");
         
         JPanel mainControlPanel = new JPanel();
-        mainControlPanel.add(backwardBtn, "split 4");
+//        mainControlPanel.setLayout(new MigLayout("", " [] [][]", ""));
+        mainControlPanel.add(backwardBtn, "cell 0 0, split 5");
         mainControlPanel.add(playBtn);
         mainControlPanel.add(stopBtn);
         mainControlPanel.add(forwardBtn);
-//        Image scaledImage = pauseIcon.getImage().getScaledInstance( 60, 60,  java.awt.Image.SCALE_SMOOTH );
-//        pauseIcon = new ImageIcon(scaledImage);
+        mainControlPanel.add(soundBtn, "cell 1 0, top");
+        mainControlPanel.add(volumeSlider, "cell 1 0");
         
-//        mainControlPanel.setBackground(new Color(200,200,200));
-//        mainControlPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
+        volumeSlider.setOrientation(JSlider.VERTICAL);
+        volumeSlider.setPreferredSize(new Dimension(17, 60));
+//        mainControlPanel.add(volumeLabel, "cell 1 1");
         
-        // Audio options
-//        add(new AudioSection(this, mediaPlayerComponent), "split 3");
-        // Basic video control (play, pause etc)
         add(mainControlPanel, "cell 1 3, grow, center");
-        // Text options
-//        add(new TextSection(this), "right, wrap");
         
         
 	}
@@ -346,12 +350,11 @@ public class EditorPanel extends JPanel{
 		return false;
 	}	
 	
-	
-	
-	// Used by the Audio/text sections to allow them to get the media file being played
+	/**
+	 *  Used by the Audio/text sections to allow them to get the media file being played
+	 * @return The string which comes straight from the filetextfield
+	 */
 	public String getMediaName() {
 		return fileTextField.getText();
 	}
-	
-	
 }

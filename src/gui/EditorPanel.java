@@ -42,10 +42,16 @@ public class EditorPanel extends JPanel{
 	private JLabel title = new JLabel ("Lets get editing");
 	private final EmbeddedMediaPlayerComponent mediaPlayerComponent;
 	private JSlider vidPosSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
-	private JButton playBtn = new CustomButton("Play");
-	private JButton stopBtn = new CustomButton("Stop");
-	private JButton forwardBtn = new CustomButton("Fast Forward");
-	private JButton backwardBtn = new CustomButton("Rewind");
+	private CustomButton playBtn = new CustomButton(
+			new ImageIcon("assets/player_play.png"), 60, 60, new ImageIcon("assets/pause.png"));
+	private CustomButton stopBtn = new CustomButton(
+			new ImageIcon("assets/agt_action_fail1.png"), 50, 50);
+	private CustomButton forwardBtn = new CustomButton(
+			new ImageIcon("assets/player_fwd.png"), 40, 40);
+	private CustomButton backwardBtn = new CustomButton(
+			new ImageIcon("assets/player_start.png"), 40, 40);
+//	private ImageIcon pauseIcon = new ImageIcon("assets/pause.png");
+//	private ImageIcon playIcon = new ImageIcon("assets/player_play.png");
 	private JButton openBtn = new JButton("Open");
 	private JTextField fileTextField = new JTextField(40);
 	private final Timer sliderTimer = new Timer(100, null);
@@ -80,13 +86,16 @@ public class EditorPanel extends JPanel{
     			// should pause it
     			if (mediaPlayerComponent.getMediaPlayer().isPlaying()) {
     				mediaPlayerComponent.getMediaPlayer().pause();
-    				playBtn.setText("Play");
+//    				playBtn.setText("Play");
+//    				playBtn.setIcon(playIcon);
+    				playBtn.changeIcon();
     				sliderTimer.stop();
     			// If the video is already pause then the button click 
     			// will continue to play it
     			} else if (mediaPlayerComponent.getMediaPlayer().isPlayable()) {
     				mediaPlayerComponent.getMediaPlayer().play();
-    				playBtn.setText("Pause");
+//    				playBtn.setText("Pause");
+    				playBtn.changeIcon();
     				sliderTimer.start();
     			// Otherwise we will ask the user for the file they want to play and 
     			// start playing that
@@ -94,7 +103,8 @@ public class EditorPanel extends JPanel{
     				// If file already selected just play that
     				if (!fileTextField.getText().equals("")) {
 	    				playMusic();
-	    				playBtn.setText("Pause");
+//	    				playBtn.setText("Pause");
+	    				playBtn.changeIcon();
 	    				sliderTimer.start();
     				} else {
     					chooseFile();
@@ -158,10 +168,12 @@ public class EditorPanel extends JPanel{
         
         
         stopBtn.setEnabled(false);
-        playBtn.setIcon(new ImageIcon("assets/player_play.png"));
-        stopBtn.setIcon(new ImageIcon("assets/agt_action_fail1.png"));
-        forwardBtn.setIcon(new ImageIcon("assets/player_fwd.png"));
-        backwardBtn.setIcon(new ImageIcon("assets/player_start.png"));
+//        ImageIcon image1 = new ImageIcon("assets/player_play.png");
+//        Image timage1 = image1.getImage().getScaledInstance( 40, 40,  java.awt.Image.SCALE_SMOOTH ) ;
+//        playBtn.setIcon(new ImageIcon(timage1));
+//        stopBtn.setIcon(new ImageIcon("assets/agt_action_fail1.png"));
+//        forwardBtn.setIcon(new ImageIcon("assets/player_fwd.png"));
+//        backwardBtn.setIcon(new ImageIcon("assets/player_start.png"));
         
         vidPosSlider.setMajorTickSpacing(10);
 		vidPosSlider.setMinorTickSpacing(1);
@@ -203,6 +215,9 @@ public class EditorPanel extends JPanel{
         mainControlPanel.add(playBtn);
         mainControlPanel.add(stopBtn);
         mainControlPanel.add(forwardBtn);
+//        Image scaledImage = pauseIcon.getImage().getScaledInstance( 60, 60,  java.awt.Image.SCALE_SMOOTH );
+//        pauseIcon = new ImageIcon(scaledImage);
+        
 //        mainControlPanel.setBackground(new Color(200,200,200));
 //        mainControlPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
         

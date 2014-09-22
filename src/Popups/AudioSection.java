@@ -59,7 +59,7 @@ public class AudioSection extends JPanel{
 		setLayout(new MigLayout());
 		setBorder(BorderFactory.createTitledBorder(
 				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
-				new Color(150, 250, 150, 250), new Color(50, 250, 50, 250)), "Audio"));
+				new Color(250, 150, 150, 250), new Color(250, 150, 50, 250)), "Audio"));
 //		setBorder(new TextBubbleBorder(Color.BLACK,2,16,16);
 //		this.setBackground(new Color(80,80,80));
 		

@@ -4,6 +4,7 @@ import editing.GetAttributes;
 import editing.TextWorker;
 import gui.EditorPanel;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -12,6 +13,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Calendar;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -22,6 +24,7 @@ import javax.swing.JTextField;
 import javax.swing.SpinnerDateModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.JSpinner.DateEditor;
+import javax.swing.border.EtchedBorder;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -72,6 +75,9 @@ public class TextSection extends JPanel{
 		
 		
 		setLayout(new MigLayout());
+		setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
+				new Color(150, 150, 250, 250), new Color(50, 50, 150, 250)));
+		
 		add(textArea, "grow, split 2");
 		add(titleOrCredits, "wrap");
 		add(new JLabel("Font: "), "split 4");

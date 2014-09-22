@@ -1,5 +1,6 @@
 package Popups;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,11 +14,13 @@ import editing.GetAttributes;
 import gui.CustomButton;
 import gui.EditorPanel;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.border.EtchedBorder;
 
 import uk.co.caprica.vlcj.component.EmbeddedMediaPlayerComponent;
 import net.miginfocom.swing.MigLayout;
@@ -55,6 +58,10 @@ public class AudioSection extends JPanel{
 		mediaPlayer = mpc;
 		
 		setLayout(new MigLayout());
+		setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
+				new Color(150, 250, 150, 250), new Color(50, 250, 50, 250)));
+		this.setBackground(new Color(50,50,50));
+		
 		add(audioTextField, "grow, split 2");
 		add(openAudioBtn, "wrap");
 		add(replaceBtn, "grow, split 3");

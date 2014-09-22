@@ -64,9 +64,9 @@ public class TextWorker extends SwingWorker<Void, String> {
 		try {
 			process.waitFor();
 			progBar.setValue(progBar.getMaximum());
-		if (process.exitValue()==0)
+		if (process.exitValue()==0 && cmd.startsWith("avconv"))
 			JOptionPane.showMessageDialog(null, "Text added successfully", "Done", JOptionPane.DEFAULT_OPTION);
-		else
+		else if (process.exitValue() > 0)
 			JOptionPane.showMessageDialog(null, "Error occurred.", "Error", JOptionPane.WARNING_MESSAGE);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block

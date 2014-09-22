@@ -1,35 +1,47 @@
 package editing;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.JOptionPane;
+
 public class GetAttributes{ 
 	
 	public static int getDuration(String inputFile){
 		Pattern pattern = Pattern.compile("Duration: (\\d\\d):(\\d\\d):(\\d\\d)\\.\\d\\d, ");
-		return Integer.parseInt(processLinuxCmd(inputFile, pattern, "dur"));
+		try {
+			return Integer.parseInt(processLinuxCmd(inputFile, pattern, "dur"));
+		}catch (FileNotFoundException e) {
+			return -1;
+		}
 	}
 	
 	public static int getFPS(String inputFile){
 		Pattern pattern = Pattern.compile(", (\\d+)(\\.\\d+)? fps");
-		return Integer.parseInt(processLinuxCmd(inputFile, pattern, "fps"));
+		try {
+			return Integer.parseInt(processLinuxCmd(inputFile, pattern, "fps"));
+		} catch (FileNotFoundException e) {
+			JOptionPane.showMessageDialog(null, "Invalid input file", "Done", JOptionPane.DEFAULT_OPTION);
+			return -1;
+		}
 	}
 	
-	public static String getTitle(String inputFile){
-		Pattern pattern = Pattern.compile("title.*: (.*)");
-		return processLinuxCmd(inputFile, pattern, "title");
-	}
+//	public static String getTitle(String inputFile){
+//		Pattern pattern = Pattern.compile("title.*: (.*)");
+//		return processLinuxCmd(inputFile, pattern, "title");
+//	}
+//	
+//	public static String getCredits(String inputFile){
+//		Pattern pattern = Pattern.compile("comment.*: (.*)");
+//		return processLinuxCmd(inputFile, pattern, "credits");
+//	}
 	
-	public static String getCredits(String inputFile){
-		Pattern pattern = Pattern.compile("comment.*: (.*)");
-		return processLinuxCmd(inputFile, pattern, "credits");
-	}
-	
-	private static String processLinuxCmd(String inputFile, Pattern p, String option){
+	private static String processLinuxCmd(String inputFile, Pattern p, String option) throws FileNotFoundException{
 		String cmd = "avconv -i " + inputFile;
 		ProcessBuilder builder = new ProcessBuilder("/bin/bash", "-c", cmd);
 		try {	
@@ -62,7 +74,7 @@ public class GetAttributes{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return "";
+		throw new FileNotFoundException();
 	}
 	
 }

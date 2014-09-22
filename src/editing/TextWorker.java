@@ -11,12 +11,15 @@ import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
 
+/** 
+ * The swing worker used to perform the text manipulation in the background
+ * @author Mathew and Wesley
+ *
+ */
 public class TextWorker extends SwingWorker<Void, String> {
 	private Process process;
 	private JProgressBar progBar;
 	private String cmd;
-//	private int fps = 0;
-//	private int secs = 0;
 	
 	public TextWorker(String cmd, JProgressBar progressBar, int dur, int fps) {
 		this.cmd = cmd;
@@ -30,7 +33,7 @@ public class TextWorker extends SwingWorker<Void, String> {
 			try {
 				System.out.println(cmd);
 				process = builder.start();
-				//retrieve output from the errorstream
+				//retrieve output from the error stream
 				InputStream stderr = process.getErrorStream();
 				BufferedReader br = new BufferedReader(new InputStreamReader(stderr));
 				String line;

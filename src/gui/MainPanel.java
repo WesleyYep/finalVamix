@@ -11,10 +11,8 @@ import javax.swing.JPanel;
  * 
  * @author The Team of Awesome
  */
+@SuppressWarnings("serial")
 public class MainPanel extends JPanel {
-
-	/** Another ID here purely to get rid of the warning */
-	private static final long serialVersionUID = -8438576029794021570L;
 	
 	private JLabel title = new JLabel("Welcome to VAMIX");
 	

@@ -25,16 +25,16 @@ import javax.swing.JSpinner.DateEditor;
 
 import net.miginfocom.swing.MigLayout;
 
+/**
+ * This panel contains all the controls and functionality for audio manipulation
+ * @author Mathew and Wesley
+ *
+ */
 @SuppressWarnings("serial")
 public class TextSection extends JPanel{
 	
 	private JTextField textArea = new JTextField();
 	private JButton addTextBtn = new JButton("Add text to Video");
-//	private JButton fontBtn = new JButton("Font");
-//	private JButton sizeBtn = new JButton("Size");
-//	private JButton colourBtn = new JButton("Colour");
-	
-//	private JLabel textTitle = new JLabel("Text");
 	private JComboBox<String> titleOrCredits;
 	private JComboBox<String> fontOption;
 	private JComboBox<String> colourOption;
@@ -47,6 +47,11 @@ public class TextSection extends JPanel{
 	
 	private LoadingScreen loadScreen = new LoadingScreen();
 
+	/**
+	 * The constructor sets up the GUI and adds listeners
+	 * @param ep The EditorPanel that this is housed in. This is used to get the name
+	 * 		of the currently playing media.
+	 */
 	public TextSection(EditorPanel ep) {
 		
 		editorPanel = ep;
@@ -77,12 +82,7 @@ public class TextSection extends JPanel{
 		add(fontSizeSpinner);
 		add(new JLabel("Duration: "));
 		add(timeForTextSpinner, "wrap");
-		
-		
-		add(addTextBtn, "grow, wrap");
-//		add(fontBtn, "grow, split 3");
-//		add(sizeBtn, "grow");
-//		add(colourBtn, "grow, wrap");		
+		add(addTextBtn, "grow, wrap");	
 		
 		addTextBtn.addActionListener(new ActionListener(){
         	@Override
@@ -116,7 +116,6 @@ public class TextSection extends JPanel{
         	}
         });
 
-        titleOrCredits = new JComboBox<String>(new String[]{"Title", "Credits"});
         titleOrCredits.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -129,6 +128,11 @@ public class TextSection extends JPanel{
 		
 	}
 	
+	/**
+	 * This method is used to locate the input font file within the users computer
+	 * @param fontName The font to be located
+	 * @return Returns a string which is the path to the font file
+	 */
 	private String getFontPath(String fontName) {
 		//use the locate command in linux
 		String cmd = "locate " + fontName + ".ttf";

@@ -12,12 +12,9 @@ import javax.swing.JTextField;
 
 import net.miginfocom.swing.MigLayout;
 
+@SuppressWarnings("serial")
 public class StripAudio extends JFrame {
 	
-	/**
-	 * Here purely to get rid of the warning around not having an ID
-	 */
-	private static final long serialVersionUID = 3615791480914733000L;
 
 	private JLabel topMsg = new JLabel("Strip the audio from your video");
 	private JTextField audioTextField = new JTextField(40);

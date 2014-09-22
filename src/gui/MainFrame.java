@@ -14,11 +14,9 @@ import javax.swing.UIManager;
 
 import gui.MainFrame;
 
+@SuppressWarnings("serial")
 public class MainFrame extends JFrame{
 // Please do not hack the main frame
-
-	/** This is an auto generated ID to get rid of the warning*/
-	private static final long serialVersionUID = 4714864527745266449L;
 
 	private JTabbedPane mainMenu;
 	EditorPanel editorPanel;

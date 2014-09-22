@@ -16,6 +16,7 @@ import javax.swing.JProgressBar;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle;
+
 import download.Bubba;
 
 /**
@@ -26,10 +27,8 @@ import download.Bubba;
  * 
  * @author group 27
  */
+@SuppressWarnings("serial")
 public class DownloadPanel extends JPanel implements ActionListener{
-
-	/** An unused ID here only to get rid of the warning */
-	private static final long serialVersionUID = 2890178349343322712L;
 
 	private JLabel title = new JLabel ("Yeah, cool");
 

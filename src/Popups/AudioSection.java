@@ -1,5 +1,6 @@
 package Popups;
 
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -21,6 +22,11 @@ import javax.swing.JTextField;
 import uk.co.caprica.vlcj.component.EmbeddedMediaPlayerComponent;
 import net.miginfocom.swing.MigLayout;
 
+/**
+ * This panel contains all the controls and functionality for audio manipulation
+ * @author Mathew and Wesley
+ *
+ */
 @SuppressWarnings("serial")
 public class AudioSection extends JPanel{
 
@@ -30,16 +36,21 @@ public class AudioSection extends JPanel{
 	private JButton overlayBtn = new JButton("Overlay");
 	private JButton stripBtn = new CustomButton("Strip");
 	
-//	private JProgressBar progBar;
+	// Retrieved on construction
 	private EditorPanel editorPanel;
-	private EmbeddedMediaPlayerComponent mediaPlayer;
+	private Component mediaPlayer;
 	
 	private LoadingScreen loadScreen = new LoadingScreen();
 	
+	/**
+	 * The constructor that sets up the GUI and adds listeners to the buttons
+	 * @param ep The EditorPanel that this is housed in. This is used to get the name
+	 * 		of the currently playing media.
+	 * @param mpc The MediaPlayer component used to center the pop up windows
+	 */
 	public AudioSection(EditorPanel ep, 
 			EmbeddedMediaPlayerComponent mpc) {
 		
-//		progBar = progressBar;
 		editorPanel = ep;
 		mediaPlayer = mpc;
 		
@@ -71,20 +82,14 @@ public class AudioSection extends JPanel{
         stripBtn.addActionListener(new ActionListener(){
         	@Override
         	public void actionPerformed(ActionEvent arg0) {
-        		// TODO
-//        		JFrame stripPopup;
-        		
+        		        		
         		String [] buttons = { "Audio", "Video"};
         		int choice = JOptionPane.showOptionDialog(mediaPlayer, 
         				"Would you like to save the audio only, or video only?", "Confirmation"
         				,JOptionPane.INFORMATION_MESSAGE, 0, null, buttons, buttons[0]);
         		if (choice == 0) {
-//        			stripPopup = new StripAudio("Strip options", true);
-//        			stripPopup.setVisible(true);
         			audioEdit("stripVideo"); //remove the video
         		} else if (choice == 1) {
-//        			stripPopup = new StripAudio("Strip options", false);
-//        			stripPopup.setVisible(true);
         			audioEdit("stripAudio"); //remove the audio
         		}
         	}
@@ -104,12 +109,14 @@ public class AudioSection extends JPanel{
         		audioEdit("overlay");
         	}
         });
-		
-		
 	}
 	
-	
-	
+	/**
+	 * This method is used to let the user choose the save location and then 
+	 * start the audioWorker performing the audio task (corresponding to the option parameter)
+	 * in the background
+	 * @param option String used to distinguish between different audio worker tasks
+	 */
 	public void audioEdit(String option) {
     	if (option.startsWith("strip") || correctFileType(audioTextField.getText(), "Audio")){
     		if (editorPanel.isMediaFile(editorPanel.getMediaName())){

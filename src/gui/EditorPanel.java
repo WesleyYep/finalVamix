@@ -64,8 +64,8 @@ public class EditorPanel extends JPanel{
 	private JTextField fileTextField = new JTextField(40);
 	private final Timer sliderTimer = new Timer(100, null);
 	private final Timer videoMovementTimer = new Timer(100, null);
-	private JTextField textArea = new JTextField(40);
-	private JComboBox<String> titleOrCredits;
+//	private JTextField textArea = new JTextField(40);
+//	private JComboBox<String> titleOrCredits;
 //	private String titleText;
 //	private String creditsText;
 

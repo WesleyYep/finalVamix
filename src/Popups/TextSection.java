@@ -63,6 +63,7 @@ public class TextSection extends JPanel{
 		editorPanel = ep;
 		
 		titleOrCredits = new JComboBox<String>(new String[]{"Title", "Credits"});
+//		titleOrCredits.setSelectedIndex(1);
 		fontOption = new JComboBox<String>(new String[]{"DejaVuSans", "Arial", "Comic Sans", "Times New Roman"});
         colourOption = new JComboBox<String>(new String[]{"Red", "Orange", "Yellow", "Green", "Blue"});
         fontSizeSpinner.setEditor(new JSpinner.NumberEditor(fontSizeSpinner , "00"));

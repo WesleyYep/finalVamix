@@ -28,6 +28,7 @@ import javax.swing.event.ChangeListener;
 import Popups.AudioSection;
 import Popups.TextSection;
 import editing.GetAttributes;
+import editing.ProjectFile.ProjectSettings;
 import net.miginfocom.swing.MigLayout;
 import uk.co.caprica.vlcj.binding.internal.libvlc_position_e;
 import uk.co.caprica.vlcj.component.EmbeddedMediaPlayerComponent;
@@ -174,12 +175,13 @@ public class EditorPanel extends JPanel{
         	@Override
         	public void actionPerformed(ActionEvent arg0) {
         		// TODO
-        		if (mediaPlayerComponent.getMediaPlayer().getVolume() == 0) {
+        		if (volumeSlider.getValue() == 0) {
         			volumeSlider.setValue(100);
+        			soundBtn.changeIcon();
         		} else {
         			volumeSlider.setValue(0);
         		}
-        		soundBtn.changeIcon();
+        		
         		
         	}
         	
@@ -229,6 +231,9 @@ public class EditorPanel extends JPanel{
 			public void stateChanged(ChangeEvent arg0) {
 				// TODO Auto-generated method stub
 				mediaPlayerComponent.getMediaPlayer().setVolume(volumeSlider.getValue());
+				if (volumeSlider.getValue() == 0) {
+					soundBtn.changeIcon();
+				}
 			}
         });
         
@@ -405,5 +410,10 @@ public class EditorPanel extends JPanel{
 	 */
 	public String getMediaName() {
 		return fileTextField.getText();
+	}
+	
+	public void loadSettings(ProjectSettings projSettings) {
+		mediaPlayerComponent.getMediaPlayer().stop();
+		fileTextField.setText(projSettings._mediaFile);
 	}
 }

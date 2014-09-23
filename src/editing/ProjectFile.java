@@ -26,9 +26,9 @@ public class ProjectFile {
 		editorP = ep;
 	}
 	
-	public void writeFile(ProjectSettings projSettings) {
+	public void writeFile(ProjectSettings projSettings, String fileName) {
 		try {
-	          File projectFile = new File("example.txt"); // Need to change this
+	          File projectFile = new File(fileName); // Need to change this
 	          BufferedWriter output = new BufferedWriter(new FileWriter(projectFile));
 	          writeToFile(projSettings, output);
 	          output.close();

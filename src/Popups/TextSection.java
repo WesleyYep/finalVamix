@@ -43,7 +43,7 @@ import net.miginfocom.swing.MigLayout;
 @SuppressWarnings("serial")
 public class TextSection extends JPanel{
 	
-	private JTextArea textArea = new JTextArea(" -- Enter Text Here -- ", 10, 50);
+	private JTextArea textArea = new JTextArea(" -- Enter Text Here -- ", 5, 50);
 	private JButton addTextBtn = new JButton("Add text to Video");
 	private JButton previewBtn = new JButton("Preview");
 	private JComboBox<String> titleOrCredits;
@@ -54,7 +54,7 @@ public class TextSection extends JPanel{
 	private String titleText;
 	private String creditsText;
 	
-	private JTextArea newTextArea = new JTextArea("Preview area", 10, 50);
+//	private JTextArea newTextArea = new JTextArea("Preview area", 5, 50);
 	
 	private JSpinner xSpinner = new JSpinner();
 	private JSpinner ySpinner = new JSpinner();
@@ -106,7 +106,7 @@ public class TextSection extends JPanel{
 				new Color(150, 150, 250, 250), new Color(50, 50, 150, 250)), "Text"));
 		
 		textArea.setBorder(BorderFactory.createEtchedBorder());
-		newTextArea.setBorder(BorderFactory.createEtchedBorder());
+//		newTextArea.setBorder(BorderFactory.createEtchedBorder());
 		
 		add(textArea, "cell 0 0 2 1, grow");
 		add(titleOrCredits, "cell 0 1 2 1, grow");
@@ -126,7 +126,7 @@ public class TextSection extends JPanel{
 		add(timeForTextSpinner, "cell 1 7, grow");
 		add(previewBtn, "cell 0 8, grow");
 		add(addTextBtn, "cell 1 8, grow");
-		add(newTextArea, "cell 0 9 2 1, grow");
+//		add(newTextArea, "cell 0 9 2 1, grow");
 		
 		addTextBtn.addActionListener(new ActionListener(){
         	@Override

@@ -167,6 +167,12 @@ public class AudioSection extends JPanel{
 		return false;
 	}	
 	
+	public String getAudioString() {
+		return audioTextField.getText();
+	}
+	public void setAudioString(String audioString) {
+		audioTextField.setText(audioString);
+	}
 	
 	
 }

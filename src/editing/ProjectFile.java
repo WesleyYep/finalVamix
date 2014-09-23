@@ -45,6 +45,8 @@ public class ProjectFile {
 		output.write(ps._title_credits + "\n");
 		output.write(ps._fontOption + "\n");
 		output.write(ps._colourOption + "\n");
+		output.write(ps._x + "\n");
+		output.write(ps._y + "\n");
 		output.write(ps._fontSize + "\n");
 		output.write(ps._duration + "\n");
 	}
@@ -63,13 +65,28 @@ public class ProjectFile {
 		}
 	}
 	private void readTheFile(BufferedReader input) throws IOException {
-		
+		// TODO
 		String mediaName = input.readLine();
+		String audioName = input.readLine();
+		String titleText = "";
+		String tempText;
+		while (!(tempText = input.readLine()).equals("***")) {
+			titleText += tempText + "\n";
+		}
+		String creditsText = "";
+		while (!(tempText = input.readLine()).equals("***")) {
+			creditsText += tempText + "\n";
+		}
+		String titleOrCredits = input.readLine();
+		String font = input.readLine();
+		String colour = input.readLine();
+		String x = input.readLine();
+		String y = input.readLine();
+		String fontSize = input.readLine();
 		
-		
-		ProjectSettings settings = new ProjectSettings( mediaName,  null,  null, 
-				 null,  1,  0,  3, 
-				 null,  null);
+		ProjectSettings settings = new ProjectSettings( mediaName,  audioName,  titleText, 
+				 creditsText,  Integer.parseInt(titleOrCredits),  Integer.parseInt(font),  Integer.parseInt(colour), 
+				 Integer.parseInt(x), Integer.parseInt(y), Integer.parseInt(fontSize),  null);
 		editorP.loadSettings(settings);
 	}
 	
@@ -87,12 +104,14 @@ public class ProjectFile {
 		public int _title_credits;
 		public int _fontOption;
 		public int _colourOption;
-		public String _fontSize;
+		public int _x;
+		public int _y;
+		public Integer _fontSize;
 		public String _duration;
 		
 		public ProjectSettings(String mediaName, String audioName, String titleText, 
 				String creditsText, int titleOrCredits, int fontOption, int colourOption, 
-				String fontSize, String duration) {
+				int x, int y, Integer fontSize, String duration) {
 			_mediaFile = mediaName;
 			_audioFile = audioName;
 			_titleText = titleText;
@@ -100,6 +119,8 @@ public class ProjectFile {
 			 _title_credits = titleOrCredits;
 			 _fontOption = fontOption;
 			 _colourOption  = colourOption;
+			 _x = x;
+			 _y = y;
 			 _fontSize = fontSize;
 			 _duration = duration;
 		}

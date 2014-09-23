@@ -64,11 +64,14 @@ public class EditorPanel extends JPanel{
 	private JTextField fileTextField = new JTextField(40);
 	private final Timer sliderTimer = new Timer(100, null);
 	private final Timer videoMovementTimer = new Timer(100, null);
-	
 	private JButton loadBtn = new JButton("Load");
 	private JButton saveBtn = new JButton("Save");
 	
 	private ProjectFile projFile = ProjectFile.getInstance(this);
+	
+	
+	private AudioSection audioSection;
+	private TextSection textSection;
 //	private JTextField textArea = new JTextField(40);
 //	private JComboBox<String> titleOrCredits;
 //	private String titleText;
@@ -246,8 +249,7 @@ public class EditorPanel extends JPanel{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
-				projFile.writeFile(projFile.new ProjectSettings( fileTextField.getText(),  
-						null,  null, null,  1,  0,  3, null,  null));
+				projFile.writeFile(createProjectSettings());
 			}
         });
         
@@ -280,8 +282,10 @@ public class EditorPanel extends JPanel{
         JPanel sidePane = new JPanel();
         
         sidePane.setLayout(new MigLayout());
-        sidePane.add(new AudioSection(this, mediaPlayerComponent), "growx, wrap");
-        sidePane.add(new TextSection(this), "grow");
+        audioSection = new AudioSection(this, mediaPlayerComponent);
+        sidePane.add(audioSection, "growx, wrap");
+        textSection = new TextSection(this);
+        sidePane.add(textSection, "grow");
         
         add(sidePane, "cell 0 1 1 3, grow");
         
@@ -442,5 +446,14 @@ public class EditorPanel extends JPanel{
 	public void loadSettings(ProjectSettings projSettings) {
 		mediaPlayerComponent.getMediaPlayer().stop();
 		fileTextField.setText(projSettings._mediaFile);
+		audioSection.setAudioString(projSettings._audioFile);
+		textSection.loadProjectSettings(projSettings);
+	}
+	
+	private ProjectSettings createProjectSettings() {
+		ProjectSettings settings = textSection.createProjectSettings();
+		settings._mediaFile = fileTextField.getText();
+		settings._audioFile = audioSection.getAudioString();
+		return settings;
 	}
 }

@@ -77,5 +77,8 @@ You need to include some pictures which I have added to make the buttons look ni
 Please try it out and make sure i havent broken anything
 
 
+--- I've merged my changes. Hopefully it still works, although let
+me know if I've screwed up. Added a x and y option to the
+textsection, along with a preview avplay option.
 
 

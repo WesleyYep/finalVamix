@@ -51,6 +51,16 @@ public class CustomButton extends JButton {
 		setSize(width, height);
 	}
 	
+	public CustomButton(String text, ImageIcon image, int width, int height) {
+		super(text);
+		initialiser();
+		Image scaledImage = image.getImage().getScaledInstance( width, height,  java.awt.Image.SCALE_SMOOTH );
+		_mainImage = new ImageIcon(scaledImage);
+		setIcon(_mainImage);
+		setMargin(new Insets(0,0,0,0));
+		setSize(width, height);
+	}
+	
 	public void changeIcon() {
 		if (_secondImage != null) {
 			if (_mainInUse) {

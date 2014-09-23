@@ -81,4 +81,9 @@ Please try it out and make sure i havent broken anything
 me know if I've screwed up. Added a x and y option to the
 textsection, along with a preview avplay option.
 
+*** Added load/saving of project but can't work out saveing/loading the duration (as it uses that calendar and what not)
+(also previously added fullscreen and volume)
+apart from that its looking really good :)
+
+-- the duration loading should work now. Also theres a limit to the number of words (currently 20). Also the TextArea is in a scroll pane now.
 

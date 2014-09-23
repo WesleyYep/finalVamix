@@ -1,5 +1,6 @@
 package gui;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -11,9 +12,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -21,13 +22,16 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.Timer;
+import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import Popups.AudioSection;
 import Popups.TextSection;
-import editing.GetAttributes;
+import editing.ProjectFile;
+import editing.ProjectFile.ProjectSettings;
 import net.miginfocom.swing.MigLayout;
 import uk.co.caprica.vlcj.binding.internal.libvlc_position_e;
 import uk.co.caprica.vlcj.component.EmbeddedMediaPlayerComponent;
@@ -64,10 +68,13 @@ public class EditorPanel extends JPanel{
 	private JTextField fileTextField = new JTextField(40);
 	private final Timer sliderTimer = new Timer(100, null);
 	private final Timer videoMovementTimer = new Timer(100, null);
-//	private JTextField textArea = new JTextField(40);
-//	private JComboBox<String> titleOrCredits;
-//	private String titleText;
-//	private String creditsText;
+	private CustomButton loadBtn = new CustomButton("Load", new ImageIcon("assets/upload.png"), 25, 25);
+	private JButton saveBtn = new CustomButton("Save", new ImageIcon("assets/download.png"), 25, 25);
+	
+	private ProjectFile projFile = ProjectFile.getInstance(this);
+	
+	private AudioSection audioSection;
+	private TextSection textSection;
 
 	private MigLayout myLayout = new MigLayout("", "10 [] [] 10", "5 [] [] [] [] 5");
 
@@ -174,12 +181,13 @@ public class EditorPanel extends JPanel{
         	@Override
         	public void actionPerformed(ActionEvent arg0) {
         		// TODO
-        		if (mediaPlayerComponent.getMediaPlayer().getVolume() == 0) {
+        		if (volumeSlider.getValue() == 0) {
         			volumeSlider.setValue(100);
+        			soundBtn.changeIcon();
         		} else {
         			volumeSlider.setValue(0);
         		}
-        		soundBtn.changeIcon();
+        		
         		
         	}
         	
@@ -229,6 +237,35 @@ public class EditorPanel extends JPanel{
 			public void stateChanged(ChangeEvent arg0) {
 				// TODO Auto-generated method stub
 				mediaPlayerComponent.getMediaPlayer().setVolume(volumeSlider.getValue());
+				if (volumeSlider.getValue() == 0) {
+					soundBtn.changeIcon();
+				}
+			}
+        });
+        
+        saveBtn.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				String fileName;
+				final JFileChooser fc = new JFileChooser();
+		        fc.showSaveDialog(fc);
+		        fileName = fc.getSelectedFile().getAbsolutePath().toString();
+				projFile.writeFile(createProjectSettings(), fileName);
+			}
+        });
+        
+        loadBtn.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				String fileName;
+				final JFileChooser fc = new JFileChooser();
+		        fc.showOpenDialog(fc);
+		        fileName = fc.getSelectedFile().getAbsolutePath().toString();
+				projFile.readFile(fileName);
 			}
         });
         
@@ -249,11 +286,29 @@ public class EditorPanel extends JPanel{
         add(fileTextField, "cell 0 0 2 1, split 2, grow");
         add(openBtn, "wrap");
         
+        
+        loadBtn.setVerticalTextPosition(SwingConstants.CENTER);
+        loadBtn.setHorizontalTextPosition(SwingConstants.RIGHT);
+        saveBtn.setVerticalTextPosition(SwingConstants.CENTER);
+        saveBtn.setHorizontalTextPosition(SwingConstants.RIGHT);
+        JPanel projectPanel = new JPanel();
+        projectPanel.setBorder(BorderFactory.createTitledBorder(
+				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
+				new Color(50, 150, 50, 250), new Color(50, 150, 50, 250)), "Project"));
+        projectPanel.setLayout(new MigLayout());
+        projectPanel.add(loadBtn);
+        projectPanel.add(new CustomButton("   "), "grow");
+        projectPanel.add(saveBtn, "right");
+        
+        
         JPanel sidePane = new JPanel();
         
         sidePane.setLayout(new MigLayout());
-        sidePane.add(new AudioSection(this, mediaPlayerComponent), "growx, wrap");
-        sidePane.add(new TextSection(this), "grow");
+        audioSection = new AudioSection(this, mediaPlayerComponent);
+        sidePane.add(audioSection, "growx, wrap");
+        textSection = new TextSection(this);
+        sidePane.add(textSection, "grow, wrap");
+        sidePane.add(projectPanel, "grow");
         
         add(sidePane, "cell 0 1 1 3, grow");
         
@@ -262,8 +317,12 @@ public class EditorPanel extends JPanel{
         add(mediaPlayerComponent, "cell 1 1, grow, wrap, height 200:10000:, width 400:10000:");
         add(vidPosSlider, "cell 1 2, wrap, grow");
         
+        
+        
+        
         JPanel mainControlPanel = new JPanel();
 //        mainControlPanel.setLayout(new MigLayout("", " [] [][]", ""));
+//        mainControlPanel.add(projectPanel);
         mainControlPanel.add(fullScreenBtn);
         mainControlPanel.add(backwardBtn, "cell 0 0, split 5");
         mainControlPanel.add(playBtn);
@@ -271,6 +330,10 @@ public class EditorPanel extends JPanel{
         mainControlPanel.add(forwardBtn);
         mainControlPanel.add(soundBtn, "cell 1 0, top");
         mainControlPanel.add(volumeSlider, "cell 1 0");
+        
+        // TODO do something with these buttons
+//        mainControlPanel.add(loadBtn);
+//        mainControlPanel.add(saveBtn);
         
         volumeSlider.setOrientation(JSlider.VERTICAL);
         volumeSlider.setPreferredSize(new Dimension(17, 60));
@@ -405,5 +468,19 @@ public class EditorPanel extends JPanel{
 	 */
 	public String getMediaName() {
 		return fileTextField.getText();
+	}
+	
+	public void loadSettings(ProjectSettings projSettings) {
+		mediaPlayerComponent.getMediaPlayer().stop();
+		fileTextField.setText(projSettings._mediaFile);
+		audioSection.setAudioString(projSettings._audioFile);
+		textSection.loadProjectSettings(projSettings);
+	}
+	
+	private ProjectSettings createProjectSettings() {
+		ProjectSettings settings = textSection.createProjectSettings();
+		settings._mediaFile = fileTextField.getText();
+		settings._audioFile = audioSection.getAudioString();
+		return settings;
 	}
 }

@@ -1,7 +1,9 @@
 package Popups;
 
 import editing.GetAttributes;
+import editing.ProjectFile;
 import editing.TextWorker;
+import editing.ProjectFile.ProjectSettings;
 import gui.EditorPanel;
 
 import java.awt.Color;
@@ -11,7 +13,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.DateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -27,6 +31,9 @@ import javax.swing.SpinnerDateModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.JSpinner.DateEditor;
 import javax.swing.border.EtchedBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.DateFormatter;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -46,9 +53,12 @@ public class TextSection extends JPanel{
 	private JComboBox<String> colourOption;
 	private JSpinner fontSizeSpinner = new JSpinner();
 	private JSpinner timeForTextSpinner = new JSpinner();
-
 	private final JScrollPane textScroll = new JScrollPane(textArea);
-	private JTextArea newTextArea = new JTextArea("Preview area", 10, 50);
+	private String titleText;
+	private String creditsText;
+	
+//	private JTextArea newTextArea = new JTextArea("Preview area", 5, 50);
+
 	
 	private JSpinner xSpinner = new JSpinner();
 	private JSpinner ySpinner = new JSpinner();
@@ -70,6 +80,7 @@ public class TextSection extends JPanel{
 		editorPanel = ep;
 		
 		titleOrCredits = new JComboBox<String>(new String[]{"Title", "Credits"});
+//		titleOrCredits.setSelectedIndex(1);
 		fontOption = new JComboBox<String>(new String[]{"DejaVuSans", "Arial", "Comic Sans", "Times New Roman"});
         colourOption = new JComboBox<String>(new String[]{"Red", "Orange", "Yellow", "Green", "Blue"});
         fontSizeSpinner.setEditor(new JSpinner.NumberEditor(fontSizeSpinner , "00"));
@@ -99,7 +110,7 @@ public class TextSection extends JPanel{
 				new Color(150, 150, 250, 250), new Color(50, 50, 150, 250)), "Text"));
 		
 		textArea.setBorder(BorderFactory.createEtchedBorder());
-		newTextArea.setBorder(BorderFactory.createEtchedBorder());
+//		newTextArea.setBorder(BorderFactory.createEtchedBorder());
 		
 		add(textScroll, "cell 0 0 2 1, grow");
 		add(titleOrCredits, "cell 0 1 2 1, grow");
@@ -119,7 +130,7 @@ public class TextSection extends JPanel{
 		add(timeForTextSpinner, "cell 1 7, grow");
 		add(previewBtn, "cell 0 8, grow");
 		add(addTextBtn, "cell 1 8, grow");
-		add(newTextArea, "cell 0 9 2 1, grow");
+//		add(newTextArea, "cell 0 9 2 1, grow");
 		
 		addTextBtn.addActionListener(new ActionListener(){
         	@Override
@@ -142,15 +153,39 @@ public class TextSection extends JPanel{
 		
 		
 
-//        titleOrCredits.addActionListener(new ActionListener(){
-//			@Override
-//			public void actionPerformed(ActionEvent arg0) {
-//				if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Title"))
-//	            	textArea.setText(titleText);
-//				else if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Credits"))
-//	            	textArea.setText(creditsText);
-//			}
-//        });
+        titleOrCredits.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Title"))
+	            	textArea.setText(titleText);
+				else if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Credits"))
+	            	textArea.setText(creditsText);
+			}
+        });
+        textArea.getDocument().addDocumentListener(new DocumentListener() {
+
+			@Override
+			public void changedUpdate(DocumentEvent arg0) {}
+
+			@Override
+			public void insertUpdate(DocumentEvent arg0) {
+				if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Title")) {
+	            	titleText = textArea.getText();
+				} else if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Credits")) {
+					creditsText = textArea.getText();
+				}
+			}
+			@Override
+			public void removeUpdate(DocumentEvent arg0) {
+				if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Title")) {
+	            	titleText = textArea.getText();
+				} else if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Credits")) {
+					creditsText = textArea.getText();
+				}
+			}
+        	
+        	
+        });
 		
 	}
 	
@@ -205,4 +240,42 @@ public class TextSection extends JPanel{
 	}	
 	
 
+	public ProjectSettings createProjectSettings() {
+
+        String duration = new DateEditor(timeForTextSpinner , "yy:mm:ss").getFormat().format(timeForTextSpinner.getValue());
+		
+		return ProjectFile.getInstance(editorPanel).new ProjectSettings(null, null, titleText, 
+				 creditsText,  titleOrCredits.getSelectedIndex(),  fontOption.getSelectedIndex(),  colourOption.getSelectedIndex(), 
+				 (int)xSpinner.getValue(), (int)ySpinner.getValue(), 
+				 (Integer)fontSizeSpinner.getValue(),  duration);
+	}
+	public void loadProjectSettings(ProjectSettings ps) {
+		titleText = ps._titleText;
+		creditsText = ps._creditsText;
+		titleOrCredits.setSelectedIndex(ps._title_credits);
+		fontOption.setSelectedIndex(ps._fontOption);
+		colourOption.setSelectedIndex(ps._colourOption);
+		xSpinner.setValue(ps._x);
+		ySpinner.setValue(ps._y);
+		fontSizeSpinner.setValue(ps._fontSize);
+		
+		System.out.println(ps._duration);
+		
+		String duration = ps._duration;
+		String[] dur = duration.split(":");
+		
+		System.out.println(dur[0]);
+		System.out.println(dur[1]);
+		System.out.println(dur[2]);
+
+		
+		Calendar d = Calendar.getInstance();
+		d.set(Calendar.YEAR, Integer.parseInt(dur[0]));
+		d.set(Calendar.MINUTE, Integer.parseInt(dur[1]));
+		d.set(Calendar.SECOND, Integer.parseInt(dur[2]));
+		SpinnerDateModel timeModel = new SpinnerDateModel();
+		timeModel.setValue(d.getTime());
+		timeForTextSpinner.setModel(timeModel);
+		timeForTextSpinner.setEditor(new DateEditor(timeForTextSpinner , "yy:mm:ss"));
+	}
 }

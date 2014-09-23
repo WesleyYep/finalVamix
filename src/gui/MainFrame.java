@@ -24,7 +24,7 @@ public class MainFrame extends JFrame{
 	public MainFrame() {
 		// Set up the main frame
 		super("VAMIX: trailer editor");
-		setSize(900, 550);
+		setSize(1000, 600);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		// This is the minimum size that all the components will fit on the screen nicely
 		// TODO adjust this when we actually have a working gui

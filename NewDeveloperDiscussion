@@ -86,4 +86,4 @@ textsection, along with a preview avplay option.
 apart from that its looking really good :)
 
 -- the duration loading should work now. Also theres a limit to the number of words (currently 20). Also the TextArea is in a scroll pane now.
-
+Now I've added a few more fonts that should work. Fixed the scroll pane a little bit as well.

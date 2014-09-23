@@ -13,9 +13,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.text.DateFormat;
 import java.util.Calendar;
-import java.util.Date;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -33,7 +31,6 @@ import javax.swing.JSpinner.DateEditor;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.text.DateFormatter;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -81,8 +78,9 @@ public class TextSection extends JPanel{
 		
 		titleOrCredits = new JComboBox<String>(new String[]{"Title", "Credits"});
 //		titleOrCredits.setSelectedIndex(1);
-		fontOption = new JComboBox<String>(new String[]{"DejaVuSans", "Arial", "Comic Sans", "Times New Roman"});
-        colourOption = new JComboBox<String>(new String[]{"Red", "Orange", "Yellow", "Green", "Blue"});
+		fontOption = new JComboBox<String>(new String[]{"DejaVuSans", "DroidSans", "FreeSans", "LiberationSerif-Bold", "NanumGothic", "Padauk", 
+														"TakaoPGothic", "TibetanMachineUni", "Ubuntu-C"});
+        colourOption = new JComboBox<String>(new String[]{"Black", "White", "Red", "Orange", "Yellow", "Green", "Blue", "Purple"});
         fontSizeSpinner.setEditor(new JSpinner.NumberEditor(fontSizeSpinner , "00"));
         fontSizeSpinner.setModel(new SpinnerNumberModel(0, 0, 64, 1));
         fontSizeSpinner.setValue(18);
@@ -110,9 +108,10 @@ public class TextSection extends JPanel{
 				new Color(150, 150, 250, 250), new Color(50, 50, 150, 250)), "Text"));
 		
 		textArea.setBorder(BorderFactory.createEtchedBorder());
+		textArea.setLineWrap(true);
 //		newTextArea.setBorder(BorderFactory.createEtchedBorder());
 		
-		add(textScroll, "cell 0 0 2 1, grow");
+		add(textScroll, "cell 0 0 2 1, span");
 		add(titleOrCredits, "cell 0 1 2 1, grow");
 		add(new JLabel("Font: "), "cell 0 2");
 		add(fontOption, "cell 1 2, grow");

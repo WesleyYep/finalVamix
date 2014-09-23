@@ -40,7 +40,7 @@ import uk.co.caprica.vlcj.player.MediaPlayerFactory;
 
 /**
  * This screen is used for all your video editing needs
- * 
+ * The images used in the buttons have been taken from: http://www.softicons.com/
  * @author Mathew and Wesley
  */
 @SuppressWarnings("serial")

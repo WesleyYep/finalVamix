@@ -14,12 +14,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Calendar;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.SpinnerDateModel;
@@ -28,6 +31,7 @@ import javax.swing.JSpinner.DateEditor;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -38,7 +42,7 @@ import net.miginfocom.swing.MigLayout;
 @SuppressWarnings("serial")
 public class TextSection extends JPanel{
 	
-	private JTextArea textArea = new JTextArea(" -- Enter Text Here -- ", 5, 50);
+	private JTextArea textArea = new JTextArea(" -- Enter Text Here -- ", 20, 50);
 	private JButton addTextBtn = new JButton("Add text to Video");
 	private JButton previewBtn = new JButton("Preview");
 	private JComboBox<String> titleOrCredits;
@@ -46,10 +50,12 @@ public class TextSection extends JPanel{
 	private JComboBox<String> colourOption;
 	private JSpinner fontSizeSpinner = new JSpinner();
 	private JSpinner timeForTextSpinner = new JSpinner();
-	private String titleText;
-	private String creditsText;
+	private final JScrollPane textScroll = new JScrollPane(textArea);
+	private String titleText = " -- Enter Text Here -- ";
+	private String creditsText = "";
 	
 //	private JTextArea newTextArea = new JTextArea("Preview area", 5, 50);
+
 	
 	private JSpinner xSpinner = new JSpinner();
 	private JSpinner ySpinner = new JSpinner();
@@ -72,18 +78,19 @@ public class TextSection extends JPanel{
 		
 		titleOrCredits = new JComboBox<String>(new String[]{"Title", "Credits"});
 //		titleOrCredits.setSelectedIndex(1);
-		fontOption = new JComboBox<String>(new String[]{"DejaVuSans", "Arial", "Comic Sans", "Times New Roman"});
-        colourOption = new JComboBox<String>(new String[]{"Red", "Orange", "Yellow", "Green", "Blue"});
+		fontOption = new JComboBox<String>(new String[]{"DejaVuSans", "DroidSans", "FreeSans", "LiberationSerif-Bold", "NanumGothic", "Padauk", 
+														"TakaoPGothic", "TibetanMachineUni", "Ubuntu-C"});
+        colourOption = new JComboBox<String>(new String[]{"Black", "White", "Red", "Orange", "Yellow", "Green", "Blue", "Purple"});
         fontSizeSpinner.setEditor(new JSpinner.NumberEditor(fontSizeSpinner , "00"));
         fontSizeSpinner.setModel(new SpinnerNumberModel(0, 0, 64, 1));
         fontSizeSpinner.setValue(18);
         
         xSpinner.setEditor(new JSpinner.NumberEditor(xSpinner , "00"));
         xSpinner.setModel(new SpinnerNumberModel(0, 0, 380, 1));
-        xSpinner.setValue(18);
+        xSpinner.setValue(10);
         ySpinner.setEditor(new JSpinner.NumberEditor(ySpinner , "00"));
         ySpinner.setModel(new SpinnerNumberModel(0, 0, 380, 1));
-        ySpinner.setValue(18);
+        ySpinner.setValue(10);
         
 		Calendar calendar = Calendar.getInstance();
 		calendar.set(Calendar.YEAR, 100); //to allow it to go up to 99, rather than stop at 24
@@ -101,9 +108,10 @@ public class TextSection extends JPanel{
 				new Color(150, 150, 250, 250), new Color(50, 50, 150, 250)), "Text"));
 		
 		textArea.setBorder(BorderFactory.createEtchedBorder());
+		textArea.setLineWrap(true);
 //		newTextArea.setBorder(BorderFactory.createEtchedBorder());
 		
-		add(textArea, "cell 0 0 2 1, grow");
+		add(textScroll, "cell 0 0 2 1, span");
 		add(titleOrCredits, "cell 0 1 2 1, grow");
 		add(new JLabel("Font: "), "cell 0 2");
 		add(fontOption, "cell 1 2, grow");
@@ -181,6 +189,10 @@ public class TextSection extends JPanel{
 	}
 	
 	public void addTextToVideo(String option, String outputFile){
+		if (textArea.getText().split("\\s").length > 20){
+			JOptionPane.showMessageDialog(null, "Input text exceeds the 20 word limit.", "Error", JOptionPane.DEFAULT_OPTION);
+			return;
+		}
 		int dur = GetAttributes.getDuration(editorPanel.getMediaName());
     	int fps = GetAttributes.getFPS(editorPanel.getMediaName());
         String fontPath = getFontPath(fontOption.getSelectedItem().toString());
@@ -228,16 +240,13 @@ public class TextSection extends JPanel{
 	
 
 	public ProjectSettings createProjectSettings() {
-//		String duration = "";
-//		Date name = (Date) timeForTextSpinner.getValue();
-//		duration += name.getYear() + ":";
-//		duration += name.getMinutes() + ":";
-//		duration += name.getSeconds();
+
+        String duration = new DateEditor(timeForTextSpinner , "yy:mm:ss").getFormat().format(timeForTextSpinner.getValue());
 		
 		return ProjectFile.getInstance(editorPanel).new ProjectSettings(null, null, titleText, 
 				 creditsText,  titleOrCredits.getSelectedIndex(),  fontOption.getSelectedIndex(),  colourOption.getSelectedIndex(), 
 				 (int)xSpinner.getValue(), (int)ySpinner.getValue(), 
-				 (Integer)fontSizeSpinner.getValue(),  null);
+				 (Integer)fontSizeSpinner.getValue(),  duration);
 	}
 	public void loadProjectSettings(ProjectSettings ps) {
 		titleText = ps._titleText;
@@ -248,12 +257,24 @@ public class TextSection extends JPanel{
 		xSpinner.setValue(ps._x);
 		ySpinner.setValue(ps._y);
 		fontSizeSpinner.setValue(ps._fontSize);
-//		String duration = ps._duration;
-//		String[] dur = duration.split(":");
-//		Calendar d = Calendar.getInstance();
-//		d.set(Calendar.YEAR, Integer.parseInt(dur[0]));
-//		d.set(Calendar.MINUTE, Integer.parseInt(dur[1]));
-//		d.set(Calendar.SECOND, Integer.parseInt(dur[2]));
-//		timeForTextSpinner.getModel().setValue(d);
+		
+		System.out.println(ps._duration);
+		
+		String duration = ps._duration;
+		String[] dur = duration.split(":");
+		
+		System.out.println(dur[0]);
+		System.out.println(dur[1]);
+		System.out.println(dur[2]);
+
+		
+		Calendar d = Calendar.getInstance();
+		d.set(Calendar.YEAR, Integer.parseInt(dur[0]));
+		d.set(Calendar.MINUTE, Integer.parseInt(dur[1]));
+		d.set(Calendar.SECOND, Integer.parseInt(dur[2]));
+		SpinnerDateModel timeModel = new SpinnerDateModel();
+		timeModel.setValue(d.getTime());
+		timeForTextSpinner.setModel(timeModel);
+		timeForTextSpinner.setEditor(new DateEditor(timeForTextSpinner , "yy:mm:ss"));
 	}
 }

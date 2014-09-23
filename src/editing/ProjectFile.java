@@ -10,9 +10,12 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import javax.swing.JOptionPane;
+
 public class ProjectFile {
 	
 	private static ProjectFile instance;
+	private String fileStarter = "#$%^";
 	
 	private EditorPanel editorP;
 	
@@ -38,6 +41,7 @@ public class ProjectFile {
 	}
 	private void writeToFile(ProjectSettings ps, BufferedWriter output) 
 			throws IOException {
+		output.write(fileStarter + "\n");
 		output.write(ps._mediaFile + "\n");
 		output.write(ps._audioFile + "\n");
 		output.write(ps._titleText + "\n***\n"); // ** as it could be multiLine
@@ -52,7 +56,12 @@ public class ProjectFile {
 	}
 	
 	public void readFile(String file) {
-		
+		if (!editorP.isText(file)) {
+			JOptionPane.showMessageDialog(editorP,
+    				"This is not a valid VAMIX project file", "Error"
+    				,JOptionPane.ERROR_MESSAGE);
+			return;
+		}
         try {
         	File projectFile = new File(file); // Need to change this
 			BufferedReader input = new BufferedReader(new FileReader(projectFile));
@@ -61,11 +70,21 @@ public class ProjectFile {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
+			JOptionPane.showMessageDialog(editorP,
+    				"This is not a valid VAMIX project file", "Error"
+    				,JOptionPane.ERROR_MESSAGE);
 			e.printStackTrace();
 		}
 	}
 	private void readTheFile(BufferedReader input) throws IOException {
 		// TODO
+		String temp;
+		if (!(temp = input.readLine()).equals(fileStarter)) {
+			JOptionPane.showMessageDialog(editorP,
+    				"This is not a valid VAMIX project file", "Error"
+    				,JOptionPane.ERROR_MESSAGE);
+			return;
+		}
 		String mediaName = input.readLine();
 		String audioName = input.readLine();
 		String titleText = "";
@@ -84,9 +103,12 @@ public class ProjectFile {
 		String y = input.readLine();
 		String fontSize = input.readLine();
 		
+		String duration = input.readLine();
+		
+		
 		ProjectSettings settings = new ProjectSettings( mediaName,  audioName,  titleText, 
 				 creditsText,  Integer.parseInt(titleOrCredits),  Integer.parseInt(font),  Integer.parseInt(colour), 
-				 Integer.parseInt(x), Integer.parseInt(y), Integer.parseInt(fontSize),  null);
+				 Integer.parseInt(x), Integer.parseInt(y), Integer.parseInt(fontSize),  duration);
 		editorP.loadSettings(settings);
 	}
 	

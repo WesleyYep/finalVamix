@@ -73,13 +73,8 @@ public class EditorPanel extends JPanel{
 	
 	private ProjectFile projFile = ProjectFile.getInstance(this);
 	
-	
 	private AudioSection audioSection;
 	private TextSection textSection;
-//	private JTextField textArea = new JTextField(40);
-//	private JComboBox<String> titleOrCredits;
-//	private String titleText;
-//	private String creditsText;
 
 	private MigLayout myLayout = new MigLayout("", "10 [] [] 10", "5 [] [] [] [] 5");
 
@@ -424,7 +419,8 @@ public class EditorPanel extends JPanel{
         	if (isMediaFile(fc.getSelectedFile().getAbsolutePath().toString()))
         		fileTextField.setText(fc.getSelectedFile().getAbsolutePath().toString());
         	else
-        		JOptionPane.showMessageDialog(mediaPlayerComponent, "Please enter a valid media file name.");
+        		JOptionPane.showMessageDialog(mediaPlayerComponent, 
+        				"Please enter a valid media file name.");
         }
 	}
 	
@@ -443,7 +439,8 @@ public class EditorPanel extends JPanel{
 	public boolean isMediaFile(String input){
 		return correctFileType(input, "Media")
 	        	|| correctFileType(input, "media")
-	        	|| correctFileType(input, "Audio");
+	        	|| correctFileType(input, "Audio")
+	        	|| correctFileType(input, "video");
 	}
 	
 	/**
@@ -487,5 +484,9 @@ public class EditorPanel extends JPanel{
 		settings._mediaFile = fileTextField.getText();
 		settings._audioFile = audioSection.getAudioString();
 		return settings;
+	}
+	
+	public Boolean isText(String file) {
+		return (correctFileType(file, "ASCII text"));
 	}
 }

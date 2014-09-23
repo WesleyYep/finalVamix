@@ -26,7 +26,7 @@ public class GetAttributes{
 		try {
 			return Integer.parseInt(processLinuxCmd(inputFile, pattern, "fps"));
 		} catch (FileNotFoundException e) {
-			JOptionPane.showMessageDialog(null, "Invalid input file", "Done", JOptionPane.DEFAULT_OPTION);
+			JOptionPane.showMessageDialog(null, "Invalid input file", "Error", JOptionPane.DEFAULT_OPTION);
 			return -1;
 		}
 	}

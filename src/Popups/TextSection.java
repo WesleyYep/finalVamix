@@ -18,7 +18,9 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.SpinnerDateModel;
@@ -36,7 +38,7 @@ import net.miginfocom.swing.MigLayout;
 @SuppressWarnings("serial")
 public class TextSection extends JPanel{
 	
-	private JTextArea textArea = new JTextArea(" -- Enter Text Here -- ", 10, 50);
+	private JTextArea textArea = new JTextArea(" -- Enter Text Here -- ", 20, 50);
 	private JButton addTextBtn = new JButton("Add text to Video");
 	private JButton previewBtn = new JButton("Preview");
 	private JComboBox<String> titleOrCredits;
@@ -44,7 +46,8 @@ public class TextSection extends JPanel{
 	private JComboBox<String> colourOption;
 	private JSpinner fontSizeSpinner = new JSpinner();
 	private JSpinner timeForTextSpinner = new JSpinner();
-	
+
+	private final JScrollPane textScroll = new JScrollPane(textArea);
 	private JTextArea newTextArea = new JTextArea("Preview area", 10, 50);
 	
 	private JSpinner xSpinner = new JSpinner();
@@ -75,10 +78,10 @@ public class TextSection extends JPanel{
         
         xSpinner.setEditor(new JSpinner.NumberEditor(xSpinner , "00"));
         xSpinner.setModel(new SpinnerNumberModel(0, 0, 380, 1));
-        xSpinner.setValue(18);
+        xSpinner.setValue(10);
         ySpinner.setEditor(new JSpinner.NumberEditor(ySpinner , "00"));
         ySpinner.setModel(new SpinnerNumberModel(0, 0, 380, 1));
-        ySpinner.setValue(18);
+        ySpinner.setValue(10);
         
 		Calendar calendar = Calendar.getInstance();
 		calendar.set(Calendar.YEAR, 100); //to allow it to go up to 99, rather than stop at 24
@@ -98,7 +101,7 @@ public class TextSection extends JPanel{
 		textArea.setBorder(BorderFactory.createEtchedBorder());
 		newTextArea.setBorder(BorderFactory.createEtchedBorder());
 		
-		add(textArea, "cell 0 0 2 1, grow");
+		add(textScroll, "cell 0 0 2 1, grow");
 		add(titleOrCredits, "cell 0 1 2 1, grow");
 		add(new JLabel("Font: "), "cell 0 2");
 		add(fontOption, "cell 1 2, grow");
@@ -152,6 +155,10 @@ public class TextSection extends JPanel{
 	}
 	
 	public void addTextToVideo(String option, String outputFile){
+		if (textArea.getText().split("\\s").length > 20){
+			JOptionPane.showMessageDialog(null, "Input text exceeds the 20 word limit.", "Error", JOptionPane.DEFAULT_OPTION);
+			return;
+		}
 		int dur = GetAttributes.getDuration(editorPanel.getMediaName());
     	int fps = GetAttributes.getFPS(editorPanel.getMediaName());
         String fontPath = getFontPath(fontOption.getSelectedItem().toString());

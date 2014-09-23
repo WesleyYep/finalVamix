@@ -38,6 +38,7 @@ public class TextSection extends JPanel{
 	
 	private JTextArea textArea = new JTextArea(" -- Enter Text Here -- ", 10, 50);
 	private JButton addTextBtn = new JButton("Add text to Video");
+	private JButton previewBtn = new JButton("Preview");
 	private JComboBox<String> titleOrCredits;
 	private JComboBox<String> fontOption;
 	private JComboBox<String> colourOption;
@@ -46,8 +47,11 @@ public class TextSection extends JPanel{
 	
 	private JTextArea newTextArea = new JTextArea("Preview area", 10, 50);
 	
-	private String titleText;
-	private String creditsText;
+	private JSpinner xSpinner = new JSpinner();
+	private JSpinner ySpinner = new JSpinner();
+	
+//	private String titleText;
+//	private String creditsText;
 	
 	private EditorPanel editorPanel;
 	
@@ -69,6 +73,14 @@ public class TextSection extends JPanel{
         fontSizeSpinner.setEditor(new JSpinner.NumberEditor(fontSizeSpinner , "00"));
         fontSizeSpinner.setModel(new SpinnerNumberModel(0, 0, 64, 1));
         fontSizeSpinner.setValue(18);
+        
+        xSpinner.setEditor(new JSpinner.NumberEditor(xSpinner , "00"));
+        xSpinner.setModel(new SpinnerNumberModel(0, 0, 380, 1));
+        xSpinner.setValue(18);
+        ySpinner.setEditor(new JSpinner.NumberEditor(ySpinner , "00"));
+        ySpinner.setModel(new SpinnerNumberModel(0, 0, 380, 1));
+        ySpinner.setValue(18);
+        
 		Calendar calendar = Calendar.getInstance();
 		calendar.set(Calendar.YEAR, 100); //to allow it to go up to 99, rather than stop at 24
 		calendar.set(Calendar.MINUTE, 0);
@@ -95,10 +107,17 @@ public class TextSection extends JPanel{
 		add(colourOption, "cell 1 3, grow");
 		add(new JLabel("Size: "), "cell 0 4");
 		add(fontSizeSpinner, "cell 1 4, grow");
-		add(new JLabel("Duration: "), "cell 0 5");
-		add(timeForTextSpinner, "cell 1 5, grow");
-		add(addTextBtn, "cell 0 6 2 1, grow, wrap");
-		add(newTextArea, "cell 0 7 2 1, grow");
+		
+		add(new JLabel("X: "), "cell 0 5");
+		add(xSpinner, "cell 1 5, grow");
+		add(new JLabel("Y: "), "cell 0 6");
+		add(ySpinner, "cell 1 6, grow");
+		
+		add(new JLabel("Duration: "), "cell 0 7");
+		add(timeForTextSpinner, "cell 1 7, grow");
+		add(previewBtn, "cell 0 8, grow");
+		add(addTextBtn, "cell 1 8, grow");
+		add(newTextArea, "cell 0 9 2 1, grow");
 		
 		addTextBtn.addActionListener(new ActionListener(){
         	@Override
@@ -106,42 +125,54 @@ public class TextSection extends JPanel{
 				final JFileChooser fc = new JFileChooser();
 		        fc.showSaveDialog(fc);
 		        if (fc.getSelectedFile() != null){
-		        	int dur = GetAttributes.getDuration(editorPanel.getMediaName());
-		        	int fps = GetAttributes.getFPS(editorPanel.getMediaName());
 		            String outputFile = fc.getSelectedFile().getAbsolutePath().toString();
-		            String fontPath = getFontPath(fontOption.getSelectedItem().toString());
-		            String time = new DateEditor(timeForTextSpinner , "yy:mm:ss").getFormat().format(timeForTextSpinner.getValue());
-		            String[] timeArray = time.split(":");
-		            int timeInSecs = 60 * 60 *Integer.parseInt(timeArray[0]) + 60 * Integer.parseInt(timeArray[1]) + Integer.parseInt(timeArray[2]);
-		            String timeFunction, metadata;
-		            if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Title")){
-		            	timeFunction = "lt(t," + timeInSecs + ")";
-		            	metadata = "title=\"" + textArea.getText() + "\"";
-		            }
-		            else{
-		            	timeFunction = "gt(t," + (dur - timeInSecs) + ")";
-		            	metadata = "comment=\"" + textArea.getText() + "\"";
-		            }
-		            String cmd = "avconv -i " + editorPanel.getMediaName() + " -metadata " + metadata + " -vf \"drawtext=fontfile='" + fontPath + "':text='" + textArea.getText() +
-		            			"':x=0:y=0:fontsize=" + fontSizeSpinner.getValue() + ":fontcolor=" + colourOption.getSelectedItem() + 
-		            			":draw='" + timeFunction + "'\" -strict experimental -f mp4 -v debug " + outputFile;
-        			loadScreen.prepare();
-		            TextWorker worker = new TextWorker(cmd, loadScreen.getProgBar(), dur, fps);
-		            worker.execute();
+					addTextToVideo("avconv", outputFile);
 		        }
         	}
         });
-
-        titleOrCredits.addActionListener(new ActionListener(){
+		
+		previewBtn.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Title"))
-	            	textArea.setText(titleText);
-				else if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Credits"))
-	            	textArea.setText(creditsText);
+				addTextToVideo("avplay", "");
 			}
-        });
+		});
 		
+		
+
+//        titleOrCredits.addActionListener(new ActionListener(){
+//			@Override
+//			public void actionPerformed(ActionEvent arg0) {
+//				if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Title"))
+//	            	textArea.setText(titleText);
+//				else if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Credits"))
+//	            	textArea.setText(creditsText);
+//			}
+//        });
+		
+	}
+	
+	public void addTextToVideo(String option, String outputFile){
+		int dur = GetAttributes.getDuration(editorPanel.getMediaName());
+    	int fps = GetAttributes.getFPS(editorPanel.getMediaName());
+        String fontPath = getFontPath(fontOption.getSelectedItem().toString());
+        String time = new DateEditor(timeForTextSpinner , "yy:mm:ss").getFormat().format(timeForTextSpinner.getValue());
+        String[] timeArray = time.split(":");
+        int timeInSecs = 60 * 60 *Integer.parseInt(timeArray[0]) + 60 * Integer.parseInt(timeArray[1]) + Integer.parseInt(timeArray[2]);
+        String timeFunction;
+        if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Title"))
+        	timeFunction = "lt(t," + timeInSecs + ")";
+        else
+        	timeFunction = "gt(t," + (dur - timeInSecs) + ")";
+        String cmd = option + " -i " + editorPanel.getMediaName() + " -vf \"drawtext=fontfile='" + fontPath + "':text='" + textArea.getText() +
+        			"':x=" + xSpinner.getValue() + ":y=" + ySpinner.getValue() + ":fontsize=" + fontSizeSpinner.getValue() + ":fontcolor=" + colourOption.getSelectedItem() + 
+        			":draw='" + timeFunction + "'\" -strict experimental -f mp4 -v debug " + outputFile;
+		if (dur > 0 && fps > 0){
+	        if (option.equals("avconv"))
+				loadScreen.prepare();
+	        TextWorker worker = new TextWorker(cmd, loadScreen.getProgBar(), dur, fps);
+	        worker.execute();
+		}
 	}
 	
 	/**

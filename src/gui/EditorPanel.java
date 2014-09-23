@@ -67,8 +67,8 @@ public class EditorPanel extends JPanel{
 	private final Timer videoMovementTimer = new Timer(100, null);
 	private JTextField textArea = new JTextField(40);
 	private JComboBox<String> titleOrCredits;
-	private String titleText;
-	private String creditsText;
+//	private String titleText;
+//	private String creditsText;
 
 	private MigLayout myLayout = new MigLayout("", "10 [] [] 10", "5 [] [] [] [] 5");
 
@@ -140,12 +140,12 @@ public class EditorPanel extends JPanel{
         	public void actionPerformed(ActionEvent arg0) {
         		chooseFile();
         		
-        		titleText = GetAttributes.getTitle(fileTextField.getText());
-        		creditsText = GetAttributes.getCredits(fileTextField.getText());
-				if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Title"))
-	            	textArea.setText(titleText);
-				else if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Credits"))
-	            	textArea.setText(creditsText);
+     //   		titleText = GetAttributes.getTitle(fileTextField.getText());
+     //   		creditsText = GetAttributes.getCredits(fileTextField.getText());
+	 //			if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Title"))
+	 //           	textArea.setText(titleText);
+	 //			else if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Credits"))
+	 //           	textArea.setText(creditsText);
         	}
         });
         

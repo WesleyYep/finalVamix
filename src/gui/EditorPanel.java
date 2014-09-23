@@ -13,7 +13,6 @@ import java.io.InputStreamReader;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -27,7 +26,7 @@ import javax.swing.event.ChangeListener;
 
 import Popups.AudioSection;
 import Popups.TextSection;
-import editing.GetAttributes;
+import editing.ProjectFile;
 import editing.ProjectFile.ProjectSettings;
 import net.miginfocom.swing.MigLayout;
 import uk.co.caprica.vlcj.binding.internal.libvlc_position_e;
@@ -65,8 +64,13 @@ public class EditorPanel extends JPanel{
 	private JTextField fileTextField = new JTextField(40);
 	private final Timer sliderTimer = new Timer(100, null);
 	private final Timer videoMovementTimer = new Timer(100, null);
-	private JTextField textArea = new JTextField(40);
-	private JComboBox<String> titleOrCredits;
+	
+	private JButton loadBtn = new JButton("Load");
+	private JButton saveBtn = new JButton("Save");
+	
+	private ProjectFile projFile = ProjectFile.getInstance(this);
+//	private JTextField textArea = new JTextField(40);
+//	private JComboBox<String> titleOrCredits;
 //	private String titleText;
 //	private String creditsText;
 
@@ -237,6 +241,25 @@ public class EditorPanel extends JPanel{
 			}
         });
         
+        saveBtn.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				projFile.writeFile(projFile.new ProjectSettings( fileTextField.getText(),  
+						null,  null, null,  1,  0,  3, null,  null));
+			}
+        });
+        
+        loadBtn.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				projFile.readFile("example.txt");
+			}
+        });
+        
         stopBtn.setEnabled(false);
         
         vidPosSlider.setMajorTickSpacing(10);
@@ -276,6 +299,10 @@ public class EditorPanel extends JPanel{
         mainControlPanel.add(forwardBtn);
         mainControlPanel.add(soundBtn, "cell 1 0, top");
         mainControlPanel.add(volumeSlider, "cell 1 0");
+        
+        // TODO do something with these buttons
+        mainControlPanel.add(loadBtn);
+        mainControlPanel.add(saveBtn);
         
         volumeSlider.setOrientation(JSlider.VERTICAL);
         volumeSlider.setPreferredSize(new Dimension(17, 60));

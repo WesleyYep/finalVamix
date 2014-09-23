@@ -70,6 +70,7 @@ public class ProjectFile {
 		ProjectSettings settings = new ProjectSettings( mediaName,  null,  null, 
 				 null,  1,  0,  3, 
 				 null,  null);
+		editorP.loadSettings(settings);
 	}
 	
 	// TODO 

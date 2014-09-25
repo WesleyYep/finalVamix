@@ -46,7 +46,6 @@ import uk.co.caprica.vlcj.player.MediaPlayerFactory;
 @SuppressWarnings("serial")
 public class EditorPanel extends JPanel{
 
-
 	private JLabel title = new JLabel ("Lets get editing");
 	private final EmbeddedMediaPlayerComponent mediaPlayerComponent;
 	private JSlider vidPosSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
@@ -73,19 +72,15 @@ public class EditorPanel extends JPanel{
 			EditorPanel.class.getResource("/upload.png")), 25, 25);
 	private JButton saveBtn = new CustomButton("Save", new ImageIcon(
 			EditorPanel.class.getResource("/download.png")), 25, 25);
-	
 	private ProjectFile projFile = ProjectFile.getInstance(this);
-	
 	private AudioSection audioSection;
 	private TextSection textSection;
-
 	private MigLayout myLayout = new MigLayout("", "10 [] [] 10", "5 [] [] [] [] 5");
 
 	EditorPanel () {
 		this.setLayout(myLayout);
 		
 		title.setFont (new Font("Serif", Font.BOLD, 48));
-//		setBackground(new Color(100,100,100));
 
 		// This is the video player
         mediaPlayerComponent = new EmbeddedMediaPlayerComponent();
@@ -231,7 +226,6 @@ public class EditorPanel extends JPanel{
         });
         
         saveBtn.addActionListener(new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				String fileName;
@@ -245,7 +239,6 @@ public class EditorPanel extends JPanel{
         });
         
         loadBtn.addActionListener(new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				String fileName;
@@ -300,18 +293,12 @@ public class EditorPanel extends JPanel{
         sidePane.add(projectPanel, "grow");
         
         add(sidePane, "cell 0 1 1 3, grow");
-        
         // This media  player has massive preferred size in 
         // order to force it to fill the screen
         add(mediaPlayerComponent, "cell 1 1, grow, wrap, height 200:10000:, width 400:10000:");
         add(vidPosSlider, "cell 1 2, wrap, grow");
         
-        
-        
-        
         JPanel mainControlPanel = new JPanel();
-//        mainControlPanel.setLayout(new MigLayout("", " [] [][]", ""));
-//        mainControlPanel.add(projectPanel);
         mainControlPanel.add(fullScreenBtn);
         mainControlPanel.add(backwardBtn, "cell 0 0, split 5");
         mainControlPanel.add(playBtn);
@@ -320,15 +307,10 @@ public class EditorPanel extends JPanel{
         mainControlPanel.add(soundBtn, "cell 1 0, top");
         mainControlPanel.add(volumeSlider, "cell 1 0");
         
-        // TODO do something with these buttons
-//        mainControlPanel.add(loadBtn);
-//        mainControlPanel.add(saveBtn);
-        
         volumeSlider.setOrientation(JSlider.VERTICAL);
         volumeSlider.setPreferredSize(new Dimension(17, 60));
         
         add(mainControlPanel, "cell 1 3, grow, center");
-        
         
 	}
 	
@@ -435,6 +417,9 @@ public class EditorPanel extends JPanel{
 		mediaPlayerComponent.getMediaPlayer().stop();
 	}
 	
+	/** This method checks if a input file is a media file that can be played
+	 * @param input - the input file absolute file location
+	 */
 	public boolean isMediaFile(String input){
 		return isFileType(input, "Media")
 	        	|| isFileType(input, "media")

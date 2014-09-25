@@ -10,9 +10,14 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.Calendar;
 
 import javax.swing.BorderFactory;
@@ -35,7 +40,7 @@ import javax.swing.event.DocumentListener;
 import net.miginfocom.swing.MigLayout;
 
 /**
- * This panel contains all the controls and functionality for audio manipulation
+ * This panel contains all the controls and functionality for text manipulation
  * @author Mathew and Wesley
  *
  */
@@ -53,18 +58,9 @@ public class TextSection extends JPanel{
 	private final JScrollPane textScroll = new JScrollPane(textArea);
 	private String titleText = " -- Enter Text Here -- ";
 	private String creditsText = "";
-	
-//	private JTextArea newTextArea = new JTextArea("Preview area", 5, 50);
-
-	
 	private JSpinner xSpinner = new JSpinner();
 	private JSpinner ySpinner = new JSpinner();
-	
-//	private String titleText;
-//	private String creditsText;
-	
 	private EditorPanel editorPanel;
-	
 	private LoadingScreen loadScreen = new LoadingScreen();
 
 	/**
@@ -109,7 +105,6 @@ public class TextSection extends JPanel{
 		
 		textArea.setBorder(BorderFactory.createEtchedBorder());
 		textArea.setLineWrap(true);
-//		newTextArea.setBorder(BorderFactory.createEtchedBorder());
 		
 		add(textScroll, "cell 0 0 2 1, span");
 		add(titleOrCredits, "cell 0 1 2 1, grow");
@@ -119,20 +114,18 @@ public class TextSection extends JPanel{
 		add(colourOption, "cell 1 3, grow");
 		add(new JLabel("Size: "), "cell 0 4");
 		add(fontSizeSpinner, "cell 1 4, grow");
-		
 		add(new JLabel("X: "), "cell 0 5");
 		add(xSpinner, "cell 1 5, grow");
 		add(new JLabel("Y: "), "cell 0 6");
 		add(ySpinner, "cell 1 6, grow");
-		
 		add(new JLabel("Duration: "), "cell 0 7");
 		add(timeForTextSpinner, "cell 1 7, grow");
 		add(previewBtn, "cell 0 8, grow");
 		add(addTextBtn, "cell 1 8, grow");
-//		add(newTextArea, "cell 0 9 2 1, grow");
 		
+		//prompt the user to enter an output filename. Then add the text and save it.
 		addTextBtn.addActionListener(new ActionListener(){
-        	@Override
+			@Override
         	public void actionPerformed(ActionEvent arg0) {
 				final JFileChooser fc = new JFileChooser();
 		        fc.showSaveDialog(fc);
@@ -143,6 +136,7 @@ public class TextSection extends JPanel{
         	}
         });
 		
+		//preview the text using avplay
 		previewBtn.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -151,7 +145,7 @@ public class TextSection extends JPanel{
 		});
 		
 		
-
+		//display either the title text or credits text in the text area
         titleOrCredits.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -161,6 +155,7 @@ public class TextSection extends JPanel{
 	            	textArea.setText(creditsText);
 			}
         });
+        
         textArea.getDocument().addDocumentListener(new DocumentListener() {
 
 			@Override
@@ -188,6 +183,12 @@ public class TextSection extends JPanel{
 		
 	}
 	
+	/**
+	 * This method is called when either the add text or preview text button is clicked
+	 * This will use either avconv or avplay to add the text to the video.
+	 * @oparam option - name of the command: either avconv or avplay
+	 * @param outputFile - the user specified output file name
+	 */
 	public void addTextToVideo(String option, String outputFile){
 		if (textArea.getText().split("\\s").length > 20){
 			JOptionPane.showMessageDialog(null, "Input text exceeds the 20 word limit.", "Error", JOptionPane.DEFAULT_OPTION);
@@ -197,9 +198,11 @@ public class TextSection extends JPanel{
 			JOptionPane.showMessageDialog(null, "Font size exceeds the 72pt limit", "Error", JOptionPane.DEFAULT_OPTION);
 			return;
 		}
+		//get the duration and attributes for use in the progress bar
 		int dur = GetAttributes.getDuration(editorPanel.getMediaName());
     	int fps = GetAttributes.getFPS(editorPanel.getMediaName());
         String fontPath = getFontPath(fontOption.getSelectedItem().toString());
+        //get the time from the spinner, to work out the length of the title/credits
         String time = new DateEditor(timeForTextSpinner , "yy:mm:ss").getFormat().format(timeForTextSpinner.getValue());
         String[] timeArray = time.split(":");
         int timeInSecs = 60 * 60 *Integer.parseInt(timeArray[0]) + 60 * Integer.parseInt(timeArray[1]) + Integer.parseInt(timeArray[2]);
@@ -208,10 +211,21 @@ public class TextSection extends JPanel{
         	timeFunction = "lt(t," + timeInSecs + ")";
         else
         	timeFunction = "gt(t," + (dur - timeInSecs) + ")";
-        String cmd = option + " -i " + editorPanel.getMediaName() + " -vf \"drawtext=fontfile='" + fontPath + "':text='" + textArea.getText() +
+        //write text firstly to file, so special characters can be used
+        try {
+			BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(".text"), "utf-8"));
+			writer.write(textArea.getText());
+			writer.close();
+		} catch (UnsupportedEncodingException e) {
+		} catch (FileNotFoundException e) {
+		} catch (IOException e) {
+		}
+        //write the command
+        String cmd = option + " -i " + editorPanel.getMediaName() + " -vf \"drawtext=fontfile='" + fontPath + "':textfile='" + "/.text" +
         			"':x=" + xSpinner.getValue() + ":y=" + ySpinner.getValue() + ":fontsize=" + fontSizeSpinner.getValue() + ":fontcolor=" + colourOption.getSelectedItem() + 
         			":draw='" + timeFunction + "'\" -strict experimental -f mp4 -v debug " + outputFile;
-		if (dur > 0 && fps > 0){
+		//only carry out the command if the video file is valid
+        if (dur > 0 && fps > 0){
 	        if (option.equals("avconv"))
 				loadScreen.prepare();
 	        TextWorker worker = new TextWorker(cmd, loadScreen.getProgBar(), dur, fps);

@@ -164,9 +164,9 @@ public class AudioSection extends JPanel{
 			BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
 			return (br.readLine().contains(expected));		
 		} catch (IOException e) {
-			//
+			JOptionPane.showMessageDialog(null, "Error occurred.");
 		} catch (InterruptedException e) {
-			//
+			JOptionPane.showMessageDialog(null, "Error occurred.");
 		}
 		return false;
 	}	

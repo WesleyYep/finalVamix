@@ -63,8 +63,7 @@ public class AudioWorker extends SwingWorker<Void, String> {
 					publish(line);
 				}
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				JOptionPane.showMessageDialog(null, "Error occurred.");
 			}
 		return null;
 	}
@@ -96,8 +95,7 @@ public class AudioWorker extends SwingWorker<Void, String> {
 		else
 			JOptionPane.showMessageDialog(null, "Error occurred.", "Error", JOptionPane.WARNING_MESSAGE);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Error occurred.");
 		}
 		
     }	

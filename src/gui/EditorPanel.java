@@ -315,6 +315,9 @@ public class EditorPanel extends JPanel{
         
 	}
 	
+	/**
+	 * This method is used to stop the current media file from playing, and reset button settings
+	 */
     private void stopPlaying(){
 		currentMove = videoMovement.Nothing;
 		if (mediaPlayerComponent.getMediaPlayer().isPlaying()) {
@@ -442,9 +445,9 @@ public class EditorPanel extends JPanel{
 			BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
 			return (br.readLine().contains(expected));		
 		} catch (IOException e) {
-			//
+			JOptionPane.showMessageDialog(mediaPlayerComponent, "Please enter a valid file name.");
 		} catch (InterruptedException e) {
-			//
+			JOptionPane.showMessageDialog(mediaPlayerComponent, "Please enter a valid file name.");
 		}
 		return false;
 	}	

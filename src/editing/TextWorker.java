@@ -44,8 +44,7 @@ public class TextWorker extends SwingWorker<Void, String> {
 					publish(line);
 				}
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				JOptionPane.showMessageDialog(null, "Error occurred.");
 			}
 		return null;
 	}
@@ -77,8 +76,8 @@ public class TextWorker extends SwingWorker<Void, String> {
 		File file = new File(currentAbsPath + "/.text");
         file.delete();
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Error occurred.");
+
 		}
     }	
 	

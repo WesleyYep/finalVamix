@@ -65,7 +65,7 @@ public class EditorPanel extends JPanel{
     		(new ImageIcon("assets/volume_loud.png"), 30, 30, 
     				new ImageIcon("assets/volume_silent2.png"));
 	private JButton openBtn = new JButton("Open");
-	private JTextField fileTextField = new JTextField(40);
+	public JTextField fileTextField = new JTextField(40);
 	private final Timer sliderTimer = new Timer(100, null);
 	private final Timer videoMovementTimer = new Timer(100, null);
 	private CustomButton loadBtn = new CustomButton("Load", new ImageIcon("assets/upload.png"), 25, 25);
@@ -128,32 +128,18 @@ public class EditorPanel extends JPanel{
         stopBtn.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				currentMove = videoMovement.Nothing;
-				if (mediaPlayerComponent.getMediaPlayer().isPlaying()) {
-					mediaPlayerComponent.getMediaPlayer().stop();
-					playBtn.changeIcon();
-				} else if (mediaPlayerComponent.getMediaPlayer().isPlayable()) {
-					mediaPlayerComponent.getMediaPlayer().stop();
-				} 
-				stopBtn.setEnabled(false);
-				sliderTimer.stop();
-				vidPosSlider.setValue(0);
+				stopPlaying();
 			}      	
         });
     	//When the open button is clicked the file chooser appears
         openBtn.addActionListener(new ActionListener(){
         	@Override
         	public void actionPerformed(ActionEvent arg0) {
+				stopPlaying();
         		chooseFile();
-        		
-     //   		titleText = GetAttributes.getTitle(fileTextField.getText());
-     //   		creditsText = GetAttributes.getCredits(fileTextField.getText());
-	 //			if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Title"))
-	 //           	textArea.setText(titleText);
-	 //			else if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Credits"))
-	 //           	textArea.setText(creditsText);
         	}
         });
+
         
         forwardBtn.addActionListener(new ActionListener(){
         	@Override
@@ -180,7 +166,6 @@ public class EditorPanel extends JPanel{
         soundBtn.addActionListener(new ActionListener() {
         	@Override
         	public void actionPerformed(ActionEvent arg0) {
-        		// TODO
         		if (volumeSlider.getValue() == 0) {
         			volumeSlider.setValue(100);
         			soundBtn.changeIcon();
@@ -235,7 +220,6 @@ public class EditorPanel extends JPanel{
 
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
-				// TODO Auto-generated method stub
 				mediaPlayerComponent.getMediaPlayer().setVolume(volumeSlider.getValue());
 				if (volumeSlider.getValue() == 0) {
 					soundBtn.changeIcon();
@@ -247,12 +231,13 @@ public class EditorPanel extends JPanel{
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				// TODO Auto-generated method stub
 				String fileName;
 				final JFileChooser fc = new JFileChooser();
 		        fc.showSaveDialog(fc);
-		        fileName = fc.getSelectedFile().getAbsolutePath().toString();
-				projFile.writeFile(createProjectSettings(), fileName);
+		        if (fc.getSelectedFile() != null){
+		        	fileName = fc.getSelectedFile().getAbsolutePath().toString();
+		        	projFile.writeFile(createProjectSettings(), fileName);
+		        }
 			}
         });
         
@@ -260,12 +245,13 @@ public class EditorPanel extends JPanel{
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				// TODO Auto-generated method stub
 				String fileName;
 				final JFileChooser fc = new JFileChooser();
 		        fc.showOpenDialog(fc);
-		        fileName = fc.getSelectedFile().getAbsolutePath().toString();
-				projFile.readFile(fileName);
+		        if (fc.getSelectedFile() != null){
+			        fileName = fc.getSelectedFile().getAbsolutePath().toString();
+					projFile.readFile(fileName);
+		        }
 			}
         });
         
@@ -343,9 +329,18 @@ public class EditorPanel extends JPanel{
         
 	}
 	
-	
-	
-	
+    private void stopPlaying(){
+		currentMove = videoMovement.Nothing;
+		if (mediaPlayerComponent.getMediaPlayer().isPlaying()) {
+			mediaPlayerComponent.getMediaPlayer().stop();
+			playBtn.changeIcon();
+		} else if (mediaPlayerComponent.getMediaPlayer().isPlayable()) {
+			mediaPlayerComponent.getMediaPlayer().stop();
+		} 
+		stopBtn.setEnabled(false);
+		sliderTimer.stop();
+		vidPosSlider.setValue(0);
+    }
 	
 	/**
 	 * This method is used to change the JSlider to the size of the actual 
@@ -437,17 +432,17 @@ public class EditorPanel extends JPanel{
 	}
 	
 	public boolean isMediaFile(String input){
-		return correctFileType(input, "Media")
-	        	|| correctFileType(input, "media")
-	        	|| correctFileType(input, "Audio")
-	        	|| correctFileType(input, "video");
+		return isFileType(input, "Media")
+	        	|| isFileType(input, "media")
+	        	|| isFileType(input, "Audio")
+	        	|| isFileType(input, "video");
 	}
 	
 	/**
 	 * This method is used to check that the file is a valid file type
 	 * @return true if the user input matches expected file type, false if not
 	 */
-	private boolean correctFileType(String file, String expected) {
+	public boolean isFileType(String file, String expected) {
 		//use the file command in linux
 		ProcessBuilder processBuilder = new ProcessBuilder("file", "-b", file);
 		try {
@@ -487,6 +482,6 @@ public class EditorPanel extends JPanel{
 	}
 	
 	public Boolean isText(String file) {
-		return (correctFileType(file, "ASCII text"));
+		return (isFileType(file, "ASCII text"));
 	}
 }

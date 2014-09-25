@@ -124,6 +124,10 @@ public class AudioSection extends JPanel{
 	 * @param option String used to distinguish between different audio worker tasks
 	 */
 	public void audioEdit(String option) {
+		if (editorPanel.isFileType(editorPanel.fileTextField.getText(), "Audio")){
+			JOptionPane.showMessageDialog(mediaPlayer, "Please enter a valid video file name.");
+			return;
+		}
     	if (option.startsWith("strip") || correctFileType(audioTextField.getText(), "Audio")){
     		if (editorPanel.isMediaFile(editorPanel.getMediaName())){
 				final JFileChooser fc = new JFileChooser();

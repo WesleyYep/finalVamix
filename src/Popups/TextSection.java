@@ -269,7 +269,10 @@ public class TextSection extends JPanel{
 
 		
 		Calendar d = Calendar.getInstance();
-		d.set(Calendar.YEAR, Integer.parseInt(dur[0]));
+		if (Integer.parseInt(dur[0]) == 0)
+			d.set(Calendar.YEAR, Integer.parseInt(dur[0] + 100));
+		else
+			d.set(Calendar.YEAR, Integer.parseInt(dur[0]));
 		d.set(Calendar.MINUTE, Integer.parseInt(dur[1]));
 		d.set(Calendar.SECOND, Integer.parseInt(dur[2]));
 		SpinnerDateModel timeModel = new SpinnerDateModel();

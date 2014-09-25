@@ -51,25 +51,28 @@ public class EditorPanel extends JPanel{
 	private final EmbeddedMediaPlayerComponent mediaPlayerComponent;
 	private JSlider vidPosSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
 	private CustomButton fullScreenBtn = new CustomButton(
-			new ImageIcon("assets/full_screen.png"), 30,30);
+			new ImageIcon(EditorPanel.class.getResource("/full_screen.png")), 30,30);
 	private CustomButton playBtn = new CustomButton(
-			new ImageIcon("assets/player_play.png"), 60, 60, new ImageIcon("assets/pause.png"));
+			new ImageIcon(EditorPanel.class.getResource("/player_play.png")), 60, 60, 
+			new ImageIcon(EditorPanel.class.getResource("/pause.png")));
 	private CustomButton stopBtn = new CustomButton(
-			new ImageIcon("assets/agt_action_fail1.png"), 50, 50);
+			new ImageIcon(EditorPanel.class.getResource("/agt_action_fail1.png")), 50, 50);
 	private CustomButton forwardBtn = new CustomButton(
-			new ImageIcon("assets/player_fwd.png"), 40, 40);
+			new ImageIcon(EditorPanel.class.getResource("/player_fwd.png")), 40, 40);
 	private CustomButton backwardBtn = new CustomButton(
-			new ImageIcon("assets/player_start.png"), 40, 40);
+			new ImageIcon(EditorPanel.class.getResource("/player_start.png")), 40, 40);
 	private JSlider volumeSlider = new JSlider(0, 200, 100);
 	private CustomButton soundBtn = new CustomButton
-    		(new ImageIcon("assets/volume_loud.png"), 30, 30, 
-    				new ImageIcon("assets/volume_silent2.png"));
+    		(new ImageIcon(EditorPanel.class.getResource("/volume_loud.png")), 30, 30, 
+    				new ImageIcon(EditorPanel.class.getResource("/volume_silent2.png")));
 	private JButton openBtn = new JButton("Open");
 	public JTextField fileTextField = new JTextField(40);
 	private final Timer sliderTimer = new Timer(100, null);
 	private final Timer videoMovementTimer = new Timer(100, null);
-	private CustomButton loadBtn = new CustomButton("Load", new ImageIcon("assets/upload.png"), 25, 25);
-	private JButton saveBtn = new CustomButton("Save", new ImageIcon("assets/download.png"), 25, 25);
+	private CustomButton loadBtn = new CustomButton("Load", new ImageIcon(
+			EditorPanel.class.getResource("/upload.png")), 25, 25);
+	private JButton saveBtn = new CustomButton("Save", new ImageIcon(
+			EditorPanel.class.getResource("/download.png")), 25, 25);
 	
 	private ProjectFile projFile = ProjectFile.getInstance(this);
 	

@@ -30,7 +30,7 @@ import download.Bubba;
 @SuppressWarnings("serial")
 public class DownloadPanel extends JPanel implements ActionListener{
 
-	private JLabel title = new JLabel ("Yeah, cool");
+	private JLabel title = new JLabel ("Download");
 
 	// My strings are all here so it is easy to make changes
 	private String enterURL = "Enter video or audio URL: ";

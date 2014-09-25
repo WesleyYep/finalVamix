@@ -78,6 +78,7 @@ public class ProjectFile {
 	}
 	private void readTheFile(BufferedReader input) throws IOException {
 		// TODO
+		@SuppressWarnings("unused")
 		String temp;
 		if (!(temp = input.readLine()).equals(fileStarter)) {
 			JOptionPane.showMessageDialog(editorP,

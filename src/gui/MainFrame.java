@@ -6,6 +6,7 @@ import java.awt.GraphicsEnvironment;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -29,6 +30,8 @@ public class MainFrame extends JFrame{
 		// This is the minimum size that all the components will fit on the screen nicely
 		// TODO adjust this when we actually have a working gui
 		this.setMinimumSize(new Dimension(800, 600));
+		
+		setIconImage(new ImageIcon(EditorPanel.class.getResource("/icon.png")).getImage());
 		
 		
 		mainMenu = new JTabbedPane();

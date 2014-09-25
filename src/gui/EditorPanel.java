@@ -84,6 +84,7 @@ public class EditorPanel extends JPanel{
 	EditorPanel () {
 		this.setLayout(myLayout);
 		
+		
 		title.setFont (new Font("Serif", Font.BOLD, 48));
 //		setBackground(new Color(100,100,100));
 

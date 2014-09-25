@@ -82,7 +82,7 @@ public class TextSection extends JPanel{
 														"TakaoPGothic", "TibetanMachineUni", "Ubuntu-C"});
         colourOption = new JComboBox<String>(new String[]{"Black", "White", "Red", "Orange", "Yellow", "Green", "Blue", "Purple"});
         fontSizeSpinner.setEditor(new JSpinner.NumberEditor(fontSizeSpinner , "00"));
-        fontSizeSpinner.setModel(new SpinnerNumberModel(0, 0, 64, 1));
+        fontSizeSpinner.setModel(new SpinnerNumberModel(0, 0, 72, 1));
         fontSizeSpinner.setValue(18);
         
         xSpinner.setEditor(new JSpinner.NumberEditor(xSpinner , "00"));
@@ -193,6 +193,10 @@ public class TextSection extends JPanel{
 			JOptionPane.showMessageDialog(null, "Input text exceeds the 20 word limit.", "Error", JOptionPane.DEFAULT_OPTION);
 			return;
 		}
+		else if (Integer.parseInt(fontSizeSpinner.getValue().toString()) > 72){
+			JOptionPane.showMessageDialog(null, "Font size exceeds the 72pt limit", "Error", JOptionPane.DEFAULT_OPTION);
+			return;
+		}
 		int dur = GetAttributes.getDuration(editorPanel.getMediaName());
     	int fps = GetAttributes.getFPS(editorPanel.getMediaName());
         String fontPath = getFontPath(fontOption.getSelectedItem().toString());
@@ -221,7 +225,7 @@ public class TextSection extends JPanel{
 	 * @return Returns a string which is the path to the font file
 	 */
 	private String getFontPath(String fontName) {
-		//use the locate command in linux
+		//use the fc-list command in linux
 		String cmd = "fc-list | grep " + fontName + ".ttf";
 		ProcessBuilder builder = new ProcessBuilder("/bin/bash", "-c", cmd);
 		try {

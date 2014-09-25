@@ -2,10 +2,20 @@ Welcome to VAMIX
 
 Created by Wesley Yep and Mathew Smith
 
-To start vamix either double click the Vamix.jar file or type "java -jar Vamix.jar" in the terminal when in the directory containing the Vamix.jar
+To start vamix either double click the VAMIX.jar file or type "java -jar Vamix.jar" in the terminal when in the directory containing the Vamix.jar
+Note: the preferred startup option is using the terminal as this runs it directly and the custom launcher icon will work
 
 If the user wishes to compile the entire project, the MigLayout.jar, vlcj.jar, and jna.jar must be added to the buld path. The assets folder should contain the images and be made into a source folder.
 
-Some stuff about how it works and how awesome it is 
+Features
+	- Watch your video and listen to your audio at any time in the editor tab. You can of course pause, rewind, fast forward and control the volume also.
+	- Watch your videos in full screen with the simple click of a button.
+	- Edit a videos audio by replacing it with a new track, overlaying new audio or striping the audio for use elsewhere.
+	- Add customised titles or credits to your videos.  You can choose the font, colour, size, position and duration of the text.
+	- Preview the text on your video instantly with the preview button.
+	- Save your project so you can come back later and continue right where you left off. 
+	- Download new video or audio files in the download tab, but make sure its open source first. 
+
+	- All this in an easy to use interface that contains everything you need without being crowded or requiring all of the screen.
 
 

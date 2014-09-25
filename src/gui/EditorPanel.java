@@ -205,6 +205,7 @@ public class EditorPanel extends JPanel{
         		}
         	    JFrame f = new FirstFrame();
         	    f.setSize(800, 600);
+        		f.setIconImage(new ImageIcon(getClass().getClassLoader().getResource("icon.png")).getImage());
 
         	    
         	    f.add(mediaPlayer);

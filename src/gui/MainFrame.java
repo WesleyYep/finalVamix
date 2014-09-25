@@ -28,7 +28,7 @@ public class MainFrame extends JFrame{
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		// This is the minimum size that all the components will fit on the screen nicely
 		// TODO adjust this when we actually have a working gui
-		this.setMinimumSize(new Dimension(600, 300));
+		this.setMinimumSize(new Dimension(800, 600));
 		
 		
 		mainMenu = new JTabbedPane();

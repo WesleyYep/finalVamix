@@ -222,14 +222,15 @@ public class TextSection extends JPanel{
 	 */
 	private String getFontPath(String fontName) {
 		//use the locate command in linux
-		String cmd = "locate " + fontName + ".ttf";
+		String cmd = "fc-list | grep " + fontName + ".ttf";
 		ProcessBuilder builder = new ProcessBuilder("/bin/bash", "-c", cmd);
 		try {
 			Process process = builder.start();
 			process.waitFor();
 			InputStream stdout = process.getInputStream();
 			BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
-			return (br.readLine());		
+			String line = br.readLine();
+			return line.split(":")[0];
 		} catch (IOException e) {
 			//
 		} catch (InterruptedException e) {

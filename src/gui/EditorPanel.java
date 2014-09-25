@@ -128,32 +128,18 @@ public class EditorPanel extends JPanel{
         stopBtn.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				currentMove = videoMovement.Nothing;
-				if (mediaPlayerComponent.getMediaPlayer().isPlaying()) {
-					mediaPlayerComponent.getMediaPlayer().stop();
-					playBtn.changeIcon();
-				} else if (mediaPlayerComponent.getMediaPlayer().isPlayable()) {
-					mediaPlayerComponent.getMediaPlayer().stop();
-				} 
-				stopBtn.setEnabled(false);
-				sliderTimer.stop();
-				vidPosSlider.setValue(0);
+				stopPlaying();
 			}      	
         });
     	//When the open button is clicked the file chooser appears
         openBtn.addActionListener(new ActionListener(){
         	@Override
         	public void actionPerformed(ActionEvent arg0) {
+				stopPlaying();
         		chooseFile();
-        		
-     //   		titleText = GetAttributes.getTitle(fileTextField.getText());
-     //   		creditsText = GetAttributes.getCredits(fileTextField.getText());
-	 //			if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Title"))
-	 //           	textArea.setText(titleText);
-	 //			else if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Credits"))
-	 //           	textArea.setText(creditsText);
         	}
         });
+
         
         forwardBtn.addActionListener(new ActionListener(){
         	@Override
@@ -343,9 +329,18 @@ public class EditorPanel extends JPanel{
         
 	}
 	
-	
-	
-	
+    private void stopPlaying(){
+		currentMove = videoMovement.Nothing;
+		if (mediaPlayerComponent.getMediaPlayer().isPlaying()) {
+			mediaPlayerComponent.getMediaPlayer().stop();
+			playBtn.changeIcon();
+		} else if (mediaPlayerComponent.getMediaPlayer().isPlayable()) {
+			mediaPlayerComponent.getMediaPlayer().stop();
+		} 
+		stopBtn.setEnabled(false);
+		sliderTimer.stop();
+		vidPosSlider.setValue(0);
+    }
 	
 	/**
 	 * This method is used to change the JSlider to the size of the actual 

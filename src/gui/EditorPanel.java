@@ -372,11 +372,16 @@ public class EditorPanel extends JPanel{
 		}
 	};
 	
-	
+	/** Used to indicate fast forwarding or rewinding
+	 */
 	enum videoMovement {
 		Forward, Back, Nothing
 	}
 	private videoMovement currentMove = videoMovement.Nothing;
+	/**
+	 * Every time the timer ticks this method will check to see if it should be fast
+	 * forwarding and change the video location accordingly
+	 */
 	ActionListener secondTimerListener = new ActionListener() {
 	    @Override 
 	    public void actionPerformed(ActionEvent e) {
@@ -460,20 +465,33 @@ public class EditorPanel extends JPanel{
 		return fileTextField.getText();
 	}
 	
+	/** 
+	 * Loads the settings into the user display
+	 * @param projSettings the settings to be loaded
+	 */
 	public void loadSettings(ProjectSettings projSettings) {
 		mediaPlayerComponent.getMediaPlayer().stop();
 		fileTextField.setText(projSettings._mediaFile);
 		audioSection.setAudioString(projSettings._audioFile);
 		textSection.loadProjectSettings(projSettings);
 	}
-	
+	/**
+	 * 
+	 * @return the project settings object containing all the settings currently in the 
+	 * project
+	 */
 	private ProjectSettings createProjectSettings() {
 		ProjectSettings settings = textSection.createProjectSettings();
 		settings._mediaFile = fileTextField.getText();
 		settings._audioFile = audioSection.getAudioString();
 		return settings;
 	}
-	
+	/**
+	 * Checks if the file parameter is a text file which could then be a project settings
+	 * file
+	 * @param file The file to be checked
+	 * @return true if it is a text file, false otherwise
+	 */
 	public Boolean isText(String file) {
 		return (isFileType(file, "ASCII text"));
 	}

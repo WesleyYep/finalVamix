@@ -93,6 +93,8 @@ Now I've added a few more fonts that should work. Fixed the scroll pane a little
 Initialised strings so there is no null when loading projects
 I added to the ismediafile so it accepts .avi as the bunny video nasser used was an avi.
 
+*** I added a fancy icon
+
 
 
 

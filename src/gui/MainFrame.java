@@ -31,8 +31,7 @@ public class MainFrame extends JFrame{
 		// TODO adjust this when we actually have a working gui
 		this.setMinimumSize(new Dimension(800, 600));
 		
-		setIconImage(new ImageIcon(EditorPanel.class.getResource("/icon.png")).getImage());
-		
+		setIconImage(new ImageIcon(getClass().getClassLoader().getResource("icon.png")).getImage());
 		
 		mainMenu = new JTabbedPane();
 		JPanel mainPanel = new MainPanel();

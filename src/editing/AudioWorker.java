@@ -52,7 +52,6 @@ public class AudioWorker extends SwingWorker<Void, String> {
     				" -map 0:v -map 1:a -codec copy -f mp4 " + file;
     		message = "Audio track replaced";
     	}
-    	System.out.println(cmd);
         	ProcessBuilder builder = new ProcessBuilder("/bin/bash", "-c", cmd);
 			try {
 				process = builder.start();

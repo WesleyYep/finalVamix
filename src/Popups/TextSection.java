@@ -11,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -18,6 +19,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Calendar;
 
 import javax.swing.BorderFactory;
@@ -220,8 +224,10 @@ public class TextSection extends JPanel{
 		} catch (FileNotFoundException e) {
 		} catch (IOException e) {
 		}
+    	Path currentRelativePath = Paths.get("");
+    	String currentAbsPath = currentRelativePath.toAbsolutePath().toString();
         //write the command
-        String cmd = option + " -i " + editorPanel.getMediaName() + " -vf \"drawtext=fontfile='" + fontPath + "':textfile='" + "/.text" +
+        String cmd = option + " -i " + editorPanel.getMediaName() + " -vf \"drawtext=fontfile='" + fontPath + "':textfile='" + currentAbsPath + "/.text" +
         			"':x=" + xSpinner.getValue() + ":y=" + ySpinner.getValue() + ":fontsize=" + fontSizeSpinner.getValue() + ":fontcolor=" + colourOption.getSelectedItem() + 
         			":draw='" + timeFunction + "'\" -strict experimental -f mp4 -v debug " + outputFile;
 		//only carry out the command if the video file is valid
@@ -231,6 +237,7 @@ public class TextSection extends JPanel{
 	        TextWorker worker = new TextWorker(cmd, loadScreen.getProgBar(), dur, fps);
 	        worker.execute();
 		}
+        //delete the temp text file
 	}
 	
 	/**
@@ -277,15 +284,8 @@ public class TextSection extends JPanel{
 		ySpinner.setValue(ps._y);
 		fontSizeSpinner.setValue(ps._fontSize);
 		
-		System.out.println(ps._duration);
-		
 		String duration = ps._duration;
 		String[] dur = duration.split(":");
-		
-		System.out.println(dur[0]);
-		System.out.println(dur[1]);
-		System.out.println(dur[2]);
-
 		
 		Calendar d = Calendar.getInstance();
 		if (Integer.parseInt(dur[0]) == 0)

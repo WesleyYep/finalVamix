@@ -1,12 +1,16 @@
 package editing;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
@@ -31,7 +35,6 @@ public class TextWorker extends SwingWorker<Void, String> {
 	protected Void doInBackground() {
         	ProcessBuilder builder = new ProcessBuilder("/bin/bash", "-c", cmd);
 			try {
-				System.out.println(cmd);
 				process = builder.start();
 				//retrieve output from the error stream
 				InputStream stderr = process.getErrorStream();
@@ -68,6 +71,11 @@ public class TextWorker extends SwingWorker<Void, String> {
 			JOptionPane.showMessageDialog(null, "Text added successfully", "Done", JOptionPane.DEFAULT_OPTION);
 		else if (process.exitValue() > 0)
 			JOptionPane.showMessageDialog(null, "Error occurred.", "Error", JOptionPane.WARNING_MESSAGE);
+    	//remove the temp text file
+		Path currentRelativePath = Paths.get("");
+    	String currentAbsPath = currentRelativePath.toAbsolutePath().toString();
+		File file = new File(currentAbsPath + "/.text");
+        file.delete();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

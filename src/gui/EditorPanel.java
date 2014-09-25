@@ -398,6 +398,7 @@ public class EditorPanel extends JPanel{
 	    		mediaPlayerComponent.getMediaPlayer().setTime(
 	    				mediaPlayerComponent.getMediaPlayer().getTime() - 200);
 	    	}
+	    	timerListener.actionPerformed(new ActionEvent(this, 0, "FastForward"));
 	    }
 	};
 	

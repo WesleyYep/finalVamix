@@ -15,6 +15,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
 
+import Popups.TextSection;
+
 /** 
  * The swing worker used to perform the text manipulation in the background
  * @author Mathew and Wesley
@@ -41,20 +43,21 @@ public class TextWorker extends SwingWorker<Void, String> {
 				BufferedReader br = new BufferedReader(new InputStreamReader(stderr));
 				String line;
 				while ((line = br.readLine()) != null){
-					publish(line);
+					if (!TextSection.loadCancelled())
+						publish(line);
+					else
+						process.destroy();
 				}
-			} catch (IOException e) {
-				JOptionPane.showMessageDialog(null, "Error occurred.");
-			}
+			} catch (IOException e) {}
 		return null;
 	}
 	
 	@Override
 	public void process(List<String> chunks){
+		//get the frame number for use in the progress bar
 			Pattern pattern = Pattern.compile("frame= *(\\d+) fps=");
 			for (String line : chunks){
 				Matcher m = pattern.matcher(line);
-				//search for frame number
 				if (m.find()){
 					progBar.setValue(Integer.parseInt(m.group(1)));
 				}

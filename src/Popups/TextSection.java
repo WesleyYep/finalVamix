@@ -5,6 +5,7 @@ import editing.ProjectFile;
 import editing.TextWorker;
 import editing.ProjectFile.ProjectSettings;
 import gui.EditorPanel;
+
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -20,6 +21,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Calendar;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -61,7 +63,7 @@ public class TextSection extends JPanel{
 	private JSpinner xSpinner = new JSpinner();
 	private JSpinner ySpinner = new JSpinner();
 	private EditorPanel editorPanel;
-	private LoadingScreen loadScreen = new LoadingScreen();
+	private static LoadingScreen loadScreen = new LoadingScreen();
 
 	/**
 	 * The constructor sets up the GUI and adds listeners
@@ -73,7 +75,6 @@ public class TextSection extends JPanel{
 		editorPanel = ep;
 		
 		titleOrCredits = new JComboBox<String>(new String[]{"Title", "Credits"});
-//		titleOrCredits.setSelectedIndex(1);
 		fontOption = new JComboBox<String>(new String[]{"DejaVuSans", "DroidSans", "FreeSans", "LiberationSerif-Bold", "NanumGothic", "Padauk", 
 														"TakaoPGothic", "TibetanMachineUni", "Ubuntu-C"});
         colourOption = new JComboBox<String>(new String[]{"Black", "White", "Red", "Orange", "Yellow", "Green", "Blue", "Purple"});
@@ -96,7 +97,6 @@ public class TextSection extends JPanel{
 		timeModel.setValue(calendar.getTime());
 		timeForTextSpinner.setModel(timeModel);
 		timeForTextSpinner.setEditor(new DateEditor(timeForTextSpinner , "yy:mm:ss"));
-		
 		
 		setLayout(new MigLayout());
 		setBorder(BorderFactory.createTitledBorder(
@@ -144,7 +144,6 @@ public class TextSection extends JPanel{
 			}
 		});
 		
-		
 		//display either the title text or credits text in the text area
         titleOrCredits.addActionListener(new ActionListener(){
 			@Override
@@ -190,6 +189,7 @@ public class TextSection extends JPanel{
 	 * @param outputFile - the user specified output file name
 	 */
 	public void addTextToVideo(String option, String outputFile){
+		loadScreen = new LoadingScreen();
 		if (textArea.getText().split("\\s").length > 20){
 			JOptionPane.showMessageDialog(null, "Input text exceeds the 20 word limit.", "Error", JOptionPane.DEFAULT_OPTION);
 			return;
@@ -233,7 +233,6 @@ public class TextSection extends JPanel{
 	        TextWorker worker = new TextWorker(cmd, loadScreen.getProgBar(), dur, fps);
 	        worker.execute();
 		}
-        //delete the temp text file
 	}
 	
 	/**
@@ -295,5 +294,13 @@ public class TextSection extends JPanel{
 		timeModel.setValue(d.getTime());
 		timeForTextSpinner.setModel(timeModel);
 		timeForTextSpinner.setEditor(new DateEditor(timeForTextSpinner , "yy:mm:ss"));
+	}
+	
+	/**
+	 * This method checks if the loading screen is cancelled
+	 * @return true if cancelled, false otherwise
+	 */
+	public static boolean loadCancelled(){
+		return loadScreen.isClosed;
 	}
 }

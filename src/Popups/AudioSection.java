@@ -42,7 +42,7 @@ public class AudioSection extends JPanel{
 	private EditorPanel editorPanel;
 	private Component mediaPlayer;
 	
-	private LoadingScreen loadScreen = new LoadingScreen();
+	private static LoadingScreen loadScreen = new LoadingScreen();
 	
 	/**
 	 * The constructor that sets up the GUI and adds listeners to the buttons
@@ -70,7 +70,7 @@ public class AudioSection extends JPanel{
 		replaceBtn.setEnabled(false);
 		overlayBtn.setEnabled(false);
 		
-		
+		//prompt the user for an audio file to open
 		openAudioBtn.addActionListener(new ActionListener(){
         	@Override
         	public void actionPerformed(ActionEvent arg0) {
@@ -85,6 +85,7 @@ public class AudioSection extends JPanel{
         	}
         });
         
+		//this is used to strip audio from a media file
         stripBtn.addActionListener(new ActionListener(){
         	@Override
         	public void actionPerformed(ActionEvent arg0) {
@@ -101,6 +102,7 @@ public class AudioSection extends JPanel{
         	}
         });
         
+        //this will replace the audio from a media file with different audio track
         replaceBtn.addActionListener(new ActionListener(){
         	@Override
         	public void actionPerformed(ActionEvent arg0) {
@@ -108,7 +110,7 @@ public class AudioSection extends JPanel{
         	}
         });
         
-
+        //this will overlay different audio track onto the media file
         overlayBtn.addActionListener(new ActionListener(){
         	@Override
         	public void actionPerformed(ActionEvent arg0) {
@@ -124,7 +126,8 @@ public class AudioSection extends JPanel{
 	 * @param option String used to distinguish between different audio worker tasks
 	 */
 	public void audioEdit(String option) {
-		if (editorPanel.isFileType(editorPanel.fileTextField.getText(), "Audio")){
+		loadScreen = new LoadingScreen();
+		if (editorPanel.isFileType(editorPanel.getMediaName(), "Audio")){
 			JOptionPane.showMessageDialog(mediaPlayer, "Please enter a valid video file name.");
 			return;
 		}
@@ -170,13 +173,26 @@ public class AudioSection extends JPanel{
 		}
 		return false;
 	}	
-	
+	/**
+	 *  Used by the ProjectSettings to allow them to get the audio file name
+	 * @return The string which comes straight from the audio text field
+	 */
 	public String getAudioString() {
 		return audioTextField.getText();
 	}
+	
+	/**
+	 *  Used by the ProjectSettings to allow them to set the audio file name
+	 */
 	public void setAudioString(String audioString) {
 		audioTextField.setText(audioString);
 	}
 	
-	
+	/**
+	 * This method checks if the loading screen is cancelled
+	 * @return true if cancelled, false otherwise
+	 */
+	public static boolean loadCancelled(){
+		return loadScreen.isClosed;
+	}
 }

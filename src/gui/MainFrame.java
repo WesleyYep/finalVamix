@@ -34,7 +34,7 @@ public class MainFrame extends JFrame{
 		setIconImage(new ImageIcon(getClass().getClassLoader().getResource("icon.png")).getImage());
 		
 		mainMenu = new JTabbedPane();
-		JPanel mainPanel = new MainPanel();
+		JPanel mainPanel = new MainPanel(this);
 		editorPanel = new EditorPanel();
 		JPanel downloadPanel = new DownloadPanel();
 		mainMenu.addTab("Main Menu", mainPanel);
@@ -67,7 +67,10 @@ public class MainFrame extends JFrame{
 				}); 
 			}
 		});
-		
+	}
+	
+	public void setTab(int i) {
+		mainMenu.setSelectedIndex(i);
 	}
 
 }

@@ -14,6 +14,7 @@ public class LoadingScreen extends JFrame{
 	
 	private JLabel title = new JLabel("Working hard...");
 	private JProgressBar progBar = new JProgressBar(0, 100);
+	public boolean isClosed = false;
 	
 	public LoadingScreen() {
 		super("Saving");
@@ -26,11 +27,17 @@ public class LoadingScreen extends JFrame{
 
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
-				// TODO Auto-generated method stub
 				if (progBar.getValue() == progBar.getMaximum() && progBar.getValue() != 0) {
 					finishedQuite();
 				}
 			}
+		});
+		
+		this.addWindowListener(new java.awt.event.WindowAdapter() {
+		    @Override
+		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+		        isClosed = true;
+		    }
 		});
 		
 	}

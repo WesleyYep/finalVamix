@@ -7,9 +7,12 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
+
+import Popups.AudioSection;
 
 public class AudioWorker extends SwingWorker<Void, String> {
 	private Process process;
@@ -60,11 +63,12 @@ public class AudioWorker extends SwingWorker<Void, String> {
 				BufferedReader br = new BufferedReader(new InputStreamReader(stderr));
 				String line;
 				while ((line = br.readLine()) != null){
-					publish(line);
+					if (!AudioSection.loadCancelled())
+						publish(line);
+					else
+						process.destroy();
 				}
-			} catch (IOException e) {
-				JOptionPane.showMessageDialog(null, "Error occurred.");
-			}
+			} catch (IOException e) {}
 		return null;
 	}
 	
@@ -73,10 +77,9 @@ public class AudioWorker extends SwingWorker<Void, String> {
 		Pattern pattern = Pattern.compile("frame= *(\\d+) fps=");
 		for (String line : chunks){
 			Matcher m = pattern.matcher(line);
-			//search for frame number
+			//search for frame number for use for progress bar
 			if (m.find()){
 				progBar.setValue(Integer.parseInt(m.group(1)));
-//				gettingMax = false;
 			}
 		}
 	}

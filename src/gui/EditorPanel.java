@@ -65,7 +65,7 @@ public class EditorPanel extends JPanel{
     		(new ImageIcon(EditorPanel.class.getResource("/volume_loud.png")), 30, 30, 
     				new ImageIcon(EditorPanel.class.getResource("/volume_silent2.png")));
 	private JButton openBtn = new JButton("Open");
-	public JTextField fileTextField = new JTextField(40);
+	private JTextField fileTextField = new JTextField(40);
 	private final Timer sliderTimer = new Timer(100, null);
 	private final Timer videoMovementTimer = new Timer(100, null);
 	private CustomButton loadBtn = new CustomButton("Load", new ImageIcon(

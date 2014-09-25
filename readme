@@ -4,6 +4,8 @@ Created by Wesley Yep and Mathew Smith
 
 To start vamix either double click the Vamix.jar file or type "java -jar Vamix.jar" in the terminal when in the directory containing the Vamix.jar
 
-Soome stuff about how it works and how awesome it is 
+If the user wishes to compile the entire project, the MigLayout.jar, vlcj.jar, and jna.jar must be added to the buld path. The assets folder should contain the images and be made into a source folder.
+
+Some stuff about how it works and how awesome it is 
 
 

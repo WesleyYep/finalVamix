@@ -28,7 +28,6 @@ public class MainFrame extends JFrame{
 		setSize(1000, 600);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		// This is the minimum size that all the components will fit on the screen nicely
-		// TODO adjust this when we actually have a working gui
 		this.setMinimumSize(new Dimension(800, 600));
 		
 		setIconImage(new ImageIcon(getClass().getClassLoader().getResource("icon.png")).getImage());

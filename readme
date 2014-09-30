@@ -1,6 +1,7 @@
 Welcome to VAMIX
 
-Created by Wesley Yep and Mathew Smith
+Developed by Wesley Yep. Some features from assignment 3 were
+developed by Mathew Smith.
 
 To start vamix either double click the VAMIX.jar file or type "java -jar Vamix.jar" in the terminal when in the directory containing the Vamix.jar
 Note: the preferred startup option is using the terminal as this runs it directly and the custom launcher icon will work

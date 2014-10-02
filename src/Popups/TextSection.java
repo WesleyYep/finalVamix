@@ -7,10 +7,13 @@ import editing.ProjectFile.ProjectSettings;
 import gui.EditorPanel;
 
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -36,6 +39,8 @@ import javax.swing.SpinnerDateModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.JSpinner.DateEditor;
 import javax.swing.border.EtchedBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -52,9 +57,13 @@ public class TextSection extends JPanel{
 	private JTextArea textArea = new JTextArea(" -- Enter Text Here -- ", 20, 50);
 	private JButton addTextBtn = new JButton("Add text to Video");
 	private JButton previewBtn = new JButton("Preview");
+	private JButton colourBtn = new JButton();
 	private JComboBox<String> titleOrCredits;
 	private JComboBox<String> fontOption;
-	private JComboBox<String> colourOption;
+	
+	//private JComboBox<String> colourOption;
+	private ColourChooser cc = new ColourChooser(this);
+	
 	private JSpinner fontSizeSpinner = new JSpinner();
 	private JSpinner timeForTextSpinner = new JSpinner();
 	private final JScrollPane textScroll = new JScrollPane(textArea);
@@ -77,7 +86,7 @@ public class TextSection extends JPanel{
 		titleOrCredits = new JComboBox<String>(new String[]{"Title", "Credits"});
 		fontOption = new JComboBox<String>(new String[]{"DejaVuSans", "DroidSans", "FreeSans", "LiberationSerif-Bold", "NanumGothic", "Padauk", 
 														"TakaoPGothic", "TibetanMachineUni", "Ubuntu-C"});
-        colourOption = new JComboBox<String>(new String[]{"Black", "White", "Red", "Orange", "Yellow", "Green", "Blue", "Purple"});
+       // colourOption = new JComboBox<String>(new String[]{"Black", "White", "Red", "Orange", "Yellow", "Green", "Blue", "Purple"});
         fontSizeSpinner.setEditor(new JSpinner.NumberEditor(fontSizeSpinner , "00"));
         fontSizeSpinner.setModel(new SpinnerNumberModel(0, 0, 72, 1));
         fontSizeSpinner.setValue(18);
@@ -105,13 +114,20 @@ public class TextSection extends JPanel{
 		
 		textArea.setBorder(BorderFactory.createEtchedBorder());
 		textArea.setLineWrap(true);
+		textArea.setFont( textArea.getFont().deriveFont(Float.parseFloat(fontSizeSpinner.getValue().toString())) );
+
+		//colourBtn.setSize(5, 5);
+		colourBtn.setBackground(Color.black);
 		
 		add(textScroll, "cell 0 0 2 1, span");
 		add(titleOrCredits, "cell 0 1 2 1, grow");
 		add(new JLabel("Font: "), "cell 0 2");
 		add(fontOption, "cell 1 2, grow");
+		
 		add(new JLabel("Colour: "), "cell 0 3");
-		add(colourOption, "cell 1 3, grow");
+		//add(colourOption, "cell 1 3, grow");
+		add(colourBtn, "cell 1 3, grow");
+		
 		add(new JLabel("Size: "), "cell 0 4");
 		add(fontSizeSpinner, "cell 1 4, grow");
 		add(new JLabel("X: "), "cell 0 5");
@@ -122,6 +138,35 @@ public class TextSection extends JPanel{
 		add(timeForTextSpinner, "cell 1 7, grow");
 		add(previewBtn, "cell 0 8, grow");
 		add(addTextBtn, "cell 1 8, grow");
+		
+		//bring up the JColorChooser
+		colourBtn.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				cc.setVisible(true);
+			}
+		});
+		
+		fontOption.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				Font font;
+				try {
+			        String fontPath = getFontPath(fontOption.getSelectedItem().toString());
+					font = Font.createFont(Font.TRUETYPE_FONT, new File(fontPath)).deriveFont(Float.parseFloat(fontSizeSpinner.getValue().toString()));
+					textArea.setFont(font);
+				} catch (FontFormatException | IOException e) {
+					JOptionPane.showMessageDialog(null, "Font is unavailable.");
+				}
+			}
+		});
+		
+		fontSizeSpinner.addChangeListener(new ChangeListener(){
+			@Override
+			public void stateChanged(ChangeEvent arg0) {
+				textArea.setFont( textArea.getFont().deriveFont(Float.parseFloat(fontSizeSpinner.getValue().toString())) );
+			}
+		});
 		
 		//prompt the user to enter an output filename. Then add the text and save it.
 		addTextBtn.addActionListener(new ActionListener(){
@@ -182,6 +227,11 @@ public class TextSection extends JPanel{
 		
 	}
 	
+	public void changeColour(Color colour){
+		colourBtn.setBackground(colour);
+		textArea.setForeground(colour);
+	}
+	
 	/**
 	 * This method is called when either the add text or preview text button is clicked
 	 * This will use either avconv or avplay to add the text to the video.
@@ -222,9 +272,10 @@ public class TextSection extends JPanel{
 		}
     	Path currentRelativePath = Paths.get("");
     	String currentAbsPath = currentRelativePath.toAbsolutePath().toString();
+    	String colour = toHexString(colourBtn.getBackground());
         //write the command
         String cmd = option + " -i " + editorPanel.getMediaName() + " -vf \"drawtext=fontfile='" + fontPath + "':textfile='" + currentAbsPath + "/.text" +
-        			"':x=" + xSpinner.getValue() + ":y=" + ySpinner.getValue() + ":fontsize=" + fontSizeSpinner.getValue() + ":fontcolor=" + colourOption.getSelectedItem() + 
+        			"':x=" + xSpinner.getValue() + ":y=" + ySpinner.getValue() + ":fontsize=" + fontSizeSpinner.getValue() + ":fontcolor=" + colour + 
         			":draw='" + timeFunction + "'\" -strict experimental -f mp4 -v debug " + outputFile;
 		//only carry out the command if the video file is valid
         if (dur > 0 && fps > 0){
@@ -233,6 +284,18 @@ public class TextSection extends JPanel{
 	        TextWorker worker = new TextWorker(cmd, loadScreen.getProgBar(), dur, fps);
 	        worker.execute();
 		}
+	}
+	/**Method comes from http://www.javacreed.com/how-to-get-the-hex-value-from-color/
+	 * 
+	 * @param colour
+	 * @return the hex string of the colour
+	 */
+	public final static String toHexString(Color colour){
+		  String hexColour = Integer.toHexString(colour.getRGB() & 0xffffff);
+		  if (hexColour.length() < 6) {
+		    hexColour = "000000".substring(0, 6 - hexColour.length()) + hexColour;
+		  }
+		  return "0x" + hexColour;
 	}
 	
 	/**
@@ -266,7 +329,7 @@ public class TextSection extends JPanel{
         String duration = new DateEditor(timeForTextSpinner , "yy:mm:ss").getFormat().format(timeForTextSpinner.getValue());
 		
 		return ProjectFile.getInstance(editorPanel).new ProjectSettings(null, null, titleText, 
-				 creditsText,  titleOrCredits.getSelectedIndex(),  fontOption.getSelectedIndex(),  colourOption.getSelectedIndex(), 
+				 creditsText,  titleOrCredits.getSelectedIndex(),  fontOption.getSelectedIndex(), toHexString(colourBtn.getBackground()), 
 				 (int)xSpinner.getValue(), (int)ySpinner.getValue(), 
 				 (Integer)fontSizeSpinner.getValue(),  duration);
 	}
@@ -275,11 +338,10 @@ public class TextSection extends JPanel{
 		creditsText = ps._creditsText;
 		titleOrCredits.setSelectedIndex(ps._title_credits);
 		fontOption.setSelectedIndex(ps._fontOption);
-		colourOption.setSelectedIndex(ps._colourOption);
+		colourBtn.setBackground(Color.decode(ps._colour));
 		xSpinner.setValue(ps._x);
 		ySpinner.setValue(ps._y);
 		fontSizeSpinner.setValue(ps._fontSize);
-		
 		String duration = ps._duration;
 		String[] dur = duration.split(":");
 		

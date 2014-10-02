@@ -48,7 +48,7 @@ public class ProjectFile {
 		output.write(ps._creditsText + "\n***\n");
 		output.write(ps._title_credits + "\n");
 		output.write(ps._fontOption + "\n");
-		output.write(ps._colourOption + "\n");
+		output.write(ps._colour+ "\n");
 		output.write(ps._x + "\n");
 		output.write(ps._y + "\n");
 		output.write(ps._fontSize + "\n");
@@ -108,7 +108,7 @@ public class ProjectFile {
 		
 		
 		ProjectSettings settings = new ProjectSettings( mediaName,  audioName,  titleText, 
-				 creditsText,  Integer.parseInt(titleOrCredits),  Integer.parseInt(font),  Integer.parseInt(colour), 
+				 creditsText,  Integer.parseInt(titleOrCredits),  Integer.parseInt(font),  colour, 
 				 Integer.parseInt(x), Integer.parseInt(y), Integer.parseInt(fontSize),  duration);
 		editorP.loadSettings(settings);
 	}
@@ -126,14 +126,14 @@ public class ProjectFile {
 		public String _creditsText;
 		public int _title_credits;
 		public int _fontOption;
-		public int _colourOption;
+		public String _colour;
 		public int _x;
 		public int _y;
 		public Integer _fontSize;
 		public String _duration;
 		
 		public ProjectSettings(String mediaName, String audioName, String titleText, 
-				String creditsText, int titleOrCredits, int fontOption, int colourOption, 
+				String creditsText, int titleOrCredits, int fontOption, String string, 
 				int x, int y, Integer fontSize, String duration) {
 			_mediaFile = mediaName;
 			_audioFile = audioName;
@@ -141,7 +141,7 @@ public class ProjectFile {
 			_creditsText = creditsText;
 			 _title_credits = titleOrCredits;
 			 _fontOption = fontOption;
-			 _colourOption  = colourOption;
+			 _colour  = string;
 			 _x = x;
 			 _y = y;
 			 _fontSize = fontSize;

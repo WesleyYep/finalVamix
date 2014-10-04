@@ -83,13 +83,12 @@ public class EditorPanel extends JPanel{
 	private JButton saveBtn = new CustomButton("Save", new ImageIcon(
 			EditorPanel.class.getResource("/download.png")), 25, 25);
 	private ProjectFile projFile = ProjectFile.getInstance(this);
+	private final Timer videoMovementTimer = new Timer(100, null);
 	private AudioSection audioSection;
 	private TextSection textSection;
 	private MigLayout myLayout = new MigLayout("", "10 [] [] 10", "5 [] [] [] [] 5");
 	private boolean isPreviewing = false;
 	private boolean isPaused = false;
-	private boolean isFastForward = false;
-	private boolean isRewind = false;
 	private JLabel timeLabel = new JLabel("hh:mm:ss");
 	private long duration;
 	private long currentTime;
@@ -118,7 +117,9 @@ public class EditorPanel extends JPanel{
         saveBtn.setHorizontalTextPosition(SwingConstants.RIGHT);
         volumeSlider.setOrientation(JSlider.VERTICAL);
         volumeSlider.setPreferredSize(new Dimension(17, 60));
-        
+		videoMovementTimer.addActionListener(secondTimerListener);
+		videoMovementTimer.start();
+		
         addComponents();
         
 	}
@@ -191,13 +192,16 @@ public class EditorPanel extends JPanel{
     				mediaPlayer.playMedia(fileTextField.getText());
         			isPaused = false;
         		}
+        		currentMove = videoMovement.Nothing;
     			playBtn.changeIcon();
     			stopBtn.setEnabled(true);
         	}
         });
+        
         stopBtn.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				isPaused = false;
 				stopPlaying();
 			}      	
         });
@@ -215,14 +219,22 @@ public class EditorPanel extends JPanel{
         forwardBtn.addActionListener(new ActionListener(){
         	@Override
         	public void actionPerformed(ActionEvent arg0) {
-	        	mediaPlayer.skip(3*1000);
+        		if (currentMove == videoMovement.Forward) {
+        			currentMove = videoMovement.Nothing;
+        		} else {
+        			currentMove = videoMovement.Forward;
+        		}
         	}
         });
         
         backwardBtn.addActionListener(new ActionListener(){
         	@Override
         	public void actionPerformed(ActionEvent arg0) {
-                mediaPlayer.skip(-3*1000);
+        		if (currentMove == videoMovement.Back) {
+        			currentMove = videoMovement.Nothing;
+        		} else {
+        			currentMove = videoMovement.Back;
+        		}
         	}
         });
         
@@ -316,6 +328,23 @@ public class EditorPanel extends JPanel{
         });
 	}
 
+	enum videoMovement {
+		Forward, Back, Nothing
+	}
+	private videoMovement currentMove = videoMovement.Nothing;
+	ActionListener secondTimerListener = new ActionListener() {
+	    @Override 
+	    public void actionPerformed(ActionEvent e) {
+	    	if (currentMove == videoMovement.Forward) {
+	    		mediaPlayerComponent.getMediaPlayer().setTime(
+	    				mediaPlayerComponent.getMediaPlayer().getTime() + 200);
+	    	} else if (currentMove == videoMovement.Back) {
+	    		mediaPlayerComponent.getMediaPlayer().setTime(
+	    				mediaPlayerComponent.getMediaPlayer().getTime() - 200);
+	    	}
+	    }
+	};
+	
 	/**
 	 * This method is used to stop the current media file from playing, and reset button settings
 	 */
@@ -442,11 +471,11 @@ public class EditorPanel extends JPanel{
 			forwardBtn.setEnabled(false);
 			backwardBtn.setEnabled(false);
 			stopBtn.setEnabled(true);
+			playBtn.changeIcon();
 		}else{
 			forwardBtn.setEnabled(true);
 			backwardBtn.setEnabled(true);
 		}
-		playBtn.changeIcon();
 	}
 	
 	/**

@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
+import javax.swing.JSlider;
 import javax.swing.SwingWorker;
 
 import Popups.TextSection;
@@ -26,10 +27,12 @@ public class TextWorker extends SwingWorker<Void, String> {
 	private Process process;
 	private JProgressBar progBar;
 	private String cmd;
+	private String option;
 	
-	public TextWorker(String cmd, JProgressBar progressBar, int dur, int fps) {
+	public TextWorker(String cmd, JProgressBar progressBar, int dur, int fps, String option) {
 		this.cmd = cmd;
 		this.progBar = progressBar;
+		this.option = option;
 		progBar.setMaximum(dur*fps);
 	}
 	
@@ -54,22 +57,28 @@ public class TextWorker extends SwingWorker<Void, String> {
 	
 	@Override
 	public void process(List<String> chunks){
+		//no need to do anything if it was just a preview
+		if (option.equals("preview"))
+			return;
 		//get the frame number for use in the progress bar
-			Pattern pattern = Pattern.compile("frame= *(\\d+) fps=");
-			for (String line : chunks){
-				Matcher m = pattern.matcher(line);
-				if (m.find()){
-					progBar.setValue(Integer.parseInt(m.group(1)));
-				}
+		Pattern pattern = Pattern.compile("frame= *(\\d+) fps=");
+		for (String line : chunks){
+			Matcher m = pattern.matcher(line);
+			if (m.find()){
+				progBar.setValue(Integer.parseInt(m.group(1)));
 			}
+		}
 	}
 
 	@Override
     public void done() {
+		//no need to do anything if it was just a preview
+		if (option.equals("preview"))
+			return;
 		try {
 			process.waitFor();
 			progBar.setValue(progBar.getMaximum());
-		if (process.exitValue()==0 && cmd.startsWith("avconv"))
+		if (process.exitValue()==0)
 			JOptionPane.showMessageDialog(null, "Text added successfully", "Done", JOptionPane.DEFAULT_OPTION);
 		else if (process.exitValue() > 0)
 			JOptionPane.showMessageDialog(null, "Error occurred.", "Error", JOptionPane.WARNING_MESSAGE);

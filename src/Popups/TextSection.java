@@ -33,6 +33,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.SpinnerDateModel;
@@ -61,7 +62,6 @@ public class TextSection extends JPanel{
 	private JComboBox<String> titleOrCredits;
 	private JComboBox<String> fontOption;
 	
-	//private JComboBox<String> colourOption;
 	private ColourChooser cc = new ColourChooser(this);
 	
 	private JSpinner fontSizeSpinner = new JSpinner();
@@ -86,7 +86,6 @@ public class TextSection extends JPanel{
 		titleOrCredits = new JComboBox<String>(new String[]{"Title", "Credits"});
 		fontOption = new JComboBox<String>(new String[]{"DejaVuSans", "DroidSans", "FreeSans", "LiberationSerif-Bold", "NanumGothic", "Padauk", 
 														"TakaoPGothic", "TibetanMachineUni", "Ubuntu-C"});
-       // colourOption = new JComboBox<String>(new String[]{"Black", "White", "Red", "Orange", "Yellow", "Green", "Blue", "Purple"});
         fontSizeSpinner.setEditor(new JSpinner.NumberEditor(fontSizeSpinner , "00"));
         fontSizeSpinner.setModel(new SpinnerNumberModel(0, 0, 72, 1));
         fontSizeSpinner.setValue(18);
@@ -116,7 +115,6 @@ public class TextSection extends JPanel{
 		textArea.setLineWrap(true);
 		textArea.setFont( textArea.getFont().deriveFont(Float.parseFloat(fontSizeSpinner.getValue().toString())) );
 
-		//colourBtn.setSize(5, 5);
 		colourBtn.setBackground(Color.black);
 		
 		add(textScroll, "cell 0 0 2 1, span");
@@ -125,7 +123,6 @@ public class TextSection extends JPanel{
 		add(fontOption, "cell 1 2, grow");
 		
 		add(new JLabel("Colour: "), "cell 0 3");
-		//add(colourOption, "cell 1 3, grow");
 		add(colourBtn, "cell 1 3, grow");
 		
 		add(new JLabel("Size: "), "cell 0 4");
@@ -176,16 +173,17 @@ public class TextSection extends JPanel{
 		        fc.showSaveDialog(fc);
 		        if (fc.getSelectedFile() != null){
 		            String outputFile = fc.getSelectedFile().getAbsolutePath().toString();
-					addTextToVideo("avconv", outputFile);
+					addTextToVideo("conv", outputFile);
 		        }
         	}
         });
 		
-		//preview the text using avplay
+		//preview the text using ??
 		previewBtn.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				addTextToVideo("avplay", "");
+				addTextToVideo("preview", "udp://localhost:1234");
+				editorPanel.playPreview();
 			}
 		});
 		
@@ -236,9 +234,9 @@ public class TextSection extends JPanel{
 	 * This method is called when either the add text or preview text button is clicked
 	 * This will use either avconv or avplay to add the text to the video.
 	 * @oparam option - name of the command: either avconv or avplay
-	 * @param outputFile - the user specified output file name
+	 * @param output - the user specified output file name
 	 */
-	public void addTextToVideo(String option, String outputFile){
+	public void addTextToVideo(String option, String output){
 		loadScreen = new LoadingScreen();
 		if (textArea.getText().split("\\s").length > 20){
 			JOptionPane.showMessageDialog(null, "Input text exceeds the 20 word limit.", "Error", JOptionPane.DEFAULT_OPTION);
@@ -274,14 +272,23 @@ public class TextSection extends JPanel{
     	String currentAbsPath = currentRelativePath.toAbsolutePath().toString();
     	String colour = toHexString(colourBtn.getBackground());
         //write the command
-        String cmd = option + " -i " + editorPanel.getMediaName() + " -vf \"drawtext=fontfile='" + fontPath + "':textfile='" + currentAbsPath + "/.text" +
-        			"':x=" + xSpinner.getValue() + ":y=" + ySpinner.getValue() + ":fontsize=" + fontSizeSpinner.getValue() + ":fontcolor=" + colour + 
-        			":draw='" + timeFunction + "'\" -strict experimental -f mp4 -v debug " + outputFile;
-		//only carry out the command if the video file is valid
+    	String cmd = "";
+    	if (option.equals("conv")){
+	        cmd = "avconv -i " + editorPanel.getMediaName() + " -vf \"drawtext=fontfile='" + fontPath + "':textfile='" + currentAbsPath + "/.text" +
+	        			"':x=" + xSpinner.getValue() + ":y=" + ySpinner.getValue() + ":fontsize=" + fontSizeSpinner.getValue() + ":fontcolor=" + colour + 
+	        			":draw='" + timeFunction + "'\" -strict experimental -f mp4 -v debug " + output;
+    	}else if (option.equals("preview")){
+    		 cmd = "avconv -re -i " + editorPanel.getMediaName() + " -vf \"drawtext=fontfile='" + fontPath + "':textfile='" + currentAbsPath + "/.text" +
+	        			"':x=" + xSpinner.getValue() + ":y=" + ySpinner.getValue() + ":fontsize=" + fontSizeSpinner.getValue() + ":fontcolor=" + colour + 
+	        			":draw='" + timeFunction + "'\" -strict experimental -f mpegts " + output;
+    		 editorPanel.setDuration(dur*1000);
+    		 editorPanel.setIsPreviewing(true);
+    	}
+        //only carry out the command if the video file is valid
         if (dur > 0 && fps > 0){
 	        if (option.equals("avconv"))
 				loadScreen.prepare();
-	        TextWorker worker = new TextWorker(cmd, loadScreen.getProgBar(), dur, fps);
+	        TextWorker worker = new TextWorker(cmd, loadScreen.getProgBar(), dur, fps, option);
 	        worker.execute();
 		}
 	}

@@ -1,4 +1,4 @@
-package Popups;
+package popups;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;

@@ -1,5 +1,7 @@
 package editing;
 
+import gui.TextSection;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -15,8 +17,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.JSlider;
 import javax.swing.SwingWorker;
-
-import Popups.TextSection;
 
 /** 
  * The swing worker used to perform the text manipulation in the background

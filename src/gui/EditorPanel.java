@@ -1,10 +1,15 @@
 package gui;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Frame;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.BufferedReader;
@@ -18,32 +23,36 @@ import java.util.concurrent.TimeUnit;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JTree;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
+import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.tree.DefaultTreeCellRenderer;
 
-import Popups.AudioSection;
-import Popups.TextSection;
+import com.sun.jna.platform.WindowUtils;
+import com.sun.awt.AWTUtilities;
+
 import editing.ProjectFile;
 import editing.ProjectFile.ProjectSettings;
 import net.miginfocom.swing.MigLayout;
-import uk.co.caprica.vlcj.binding.internal.libvlc_position_e;
+import state.State;
 import uk.co.caprica.vlcj.component.EmbeddedMediaPlayerComponent;
-import uk.co.caprica.vlcj.player.MediaMeta;
 import uk.co.caprica.vlcj.player.MediaPlayer;
 import uk.co.caprica.vlcj.player.MediaPlayerEventAdapter;
-import uk.co.caprica.vlcj.player.MediaPlayerFactory;
-import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
 
 /**
  * This screen is used for all your video editing needs
@@ -54,7 +63,7 @@ import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
  * @author Wesley
  */
 @SuppressWarnings("serial")
-public class EditorPanel extends JPanel{
+public class EditorPanel{
 
 	private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 	private JLabel title = new JLabel ("Lets get editing");
@@ -86,27 +95,47 @@ public class EditorPanel extends JPanel{
 	private final Timer videoMovementTimer = new Timer(100, null);
 	private AudioSection audioSection;
 	private TextSection textSection;
-	private MigLayout myLayout = new MigLayout("", "10 [] [] 10", "5 [] [] [] [] 5");
 	private boolean isPreviewing = false;
 	private boolean isPaused = false;
 	private JLabel timeLabel = new JLabel("hh:mm:ss");
 	private long duration;
 	private long currentTime;
+	private Frame f;
+	private State state;
+
 	//the use of setPositionValue is so that the position slider only fires change requests
 	//when the user actually is changing its position
 	private boolean setPositionValue;
-
+	
+    public static void main(final String[] args) throws Exception {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new EditorPanel();
+            }
+        });
+    }
 
 	EditorPanel () {
-		this.setLayout(myLayout);
-        mediaPlayerComponent = new EmbeddedMediaPlayerComponent();
-        mediaPlayer = mediaPlayerComponent.getMediaPlayer();
-        registerListeners();
-        executorService.scheduleAtFixedRate(new UpdateRunnable(mediaPlayer), 0L, 1L, TimeUnit.SECONDS);
+        f = new Frame("Test Player");
+        f.setSize(1280, 800);
+        f.setBackground(Color.black);
+        f.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                System.exit(0);
+            }
+        });
+		f.setLayout(new BorderLayout());
+		mediaPlayerComponent = new EmbeddedMediaPlayerComponent();
+      	mediaPlayer = mediaPlayerComponent.getMediaPlayer();
+      	
+      	registerListeners();
+      	executorService.scheduleAtFixedRate(new UpdateRunnable(mediaPlayer), 0L, 1L, TimeUnit.SECONDS);
 
         //set up some stuff
 		title.setFont (new Font("Serif", Font.BOLD, 48));
-        stopBtn.setEnabled(false); //diable stop button on initialisation       
+        stopBtn.setEnabled(false); //disable stop button on initialisation       
         vidPosSlider.setMajorTickSpacing(10);
 		vidPosSlider.setMinorTickSpacing(1);
 		vidPosSlider.setPaintTicks(true);
@@ -120,45 +149,14 @@ public class EditorPanel extends JPanel{
 		videoMovementTimer.addActionListener(secondTimerListener);
 		videoMovementTimer.start();
 		
-        addComponents();
+        f.add(mediaPlayerComponent, BorderLayout.CENTER);
+        f.setVisible(true);
+        state = new State();
         
+      	mediaPlayerComponent.getMediaPlayer().setOverlay(new Overlay(f, this));
+      	mediaPlayerComponent.getMediaPlayer().enableOverlay(true);
 	}
 	
-	private void addComponents() {
-		add(fileTextField, "cell 0 0 2 1, split 2, grow");
-        add(openBtn, "wrap");
-        
-        JPanel projectPanel = new JPanel();
-        projectPanel.setBorder(BorderFactory.createTitledBorder(
-				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
-				new Color(50, 150, 50, 250), new Color(50, 150, 50, 250)), "Project"));
-        projectPanel.setLayout(new MigLayout());
-        projectPanel.add(loadBtn);
-        projectPanel.add(new CustomButton("   "), "grow");
-        projectPanel.add(saveBtn, "right");
-        
-        JPanel sidePane = new JPanel();
-        sidePane.setLayout(new MigLayout());
-        audioSection = new AudioSection(this, mediaPlayerComponent);
-        sidePane.add(audioSection, "growx, wrap");
-        textSection = new TextSection(this);
-        sidePane.add(textSection, "grow, wrap");
-        sidePane.add(projectPanel, "grow");
-        
-        add(sidePane, "cell 0 1 1 3, grow");
-        add(mediaPlayerComponent, "cell 1 1, grow, wrap, height 200:10000:, width 400:10000:");
-        add(vidPosSlider, "cell 1 2, wrap, grow");
-        
-        JPanel mainControlPanel = new JPanel();
-        mainControlPanel.add(fullScreenBtn);
-        mainControlPanel.add(backwardBtn, "cell 0 0, split 5");
-        mainControlPanel.add(playBtn);
-        mainControlPanel.add(stopBtn);
-        mainControlPanel.add(forwardBtn);
-        mainControlPanel.add(soundBtn, "cell 1 0, top");
-        mainControlPanel.add(volumeSlider, "cell 1 0");
-        add(mainControlPanel, "cell 1 3, grow, center");
-	}
 
 	private void registerListeners() {
 		
@@ -186,11 +184,16 @@ public class EditorPanel extends JPanel{
         			mediaPlayer.pause();
         			isPaused = true;
         		}else if (mediaPlayer.isPlayable()){
-        			mediaPlayer.play();
-        			isPaused = false;
+        				mediaPlayer.play();
+        				isPaused = false;
         		}else{
-    				mediaPlayer.playMedia(fileTextField.getText());
-        			isPaused = false;
+        			if (isMediaFile(fileTextField.getText())){
+        				mediaPlayer.playMedia(fileTextField.getText());
+            			isPaused = false;
+        			}else{
+        				JOptionPane.showMessageDialog(mediaPlayerComponent, "Please enter a valid file name.");
+        				return;
+        			}
         		}
         		currentMove = videoMovement.Nothing;
     			playBtn.changeIcon();
@@ -533,7 +536,81 @@ public class EditorPanel extends JPanel{
 	  }
 	   
 	  private void updateVolume(int value) {
-	    volumeSlider.setValue(value);
+		  volumeSlider.setValue(value);
 	  }
-	
+	  
+	  public void addListenersToState(JComponent ... components){
+		  state.addStateListeners(components);
+	  }
+
+	  private class Overlay extends Window {
+
+	        private static final long serialVersionUID = 1L;
+	    	//private MigLayout myLayout = new MigLayout();
+	    	private MigLayout myLayout = new MigLayout("", "10 [] [] [] 10", "20 [] [] [] [] 5");
+
+	        public Overlay(Window owner, EditorPanel ed) {
+	            super(owner, WindowUtils.getAlphaCompatibleGraphicsConfiguration());
+
+	            AWTUtilities.setWindowOpaque(this, false);
+
+	            setLayout(myLayout);
+           
+	            JPanel projectPanel = new JPanel();
+	            TitledBorder border = BorderFactory.createTitledBorder(
+	    				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
+	    				new Color(50, 150, 50, 250), new Color(50, 150, 50, 250)), "Project");
+	            border.setTitleColor(Color.LIGHT_GRAY);
+	            projectPanel.setBorder(border);
+	            projectPanel.setLayout(new MigLayout());
+	            projectPanel.add(loadBtn);
+	            projectPanel.add(new CustomButton("   "), "grow");
+	            projectPanel.add(saveBtn, "right");
+	            
+	            JPanel leftSidePane = new JPanel();
+	            leftSidePane.setLayout(new MigLayout());
+	            audioSection = new AudioSection(ed, mediaPlayerComponent);
+	            leftSidePane.add(audioSection, "wrap");
+	            textSection = new TextSection(ed);
+	            leftSidePane.add(textSection, "wrap, grow");
+	            leftSidePane.add(projectPanel, "grow");
+	            
+	            add(leftSidePane, "cell 0 1 1 3, grow, width 350!, gaptop 10");
+	            
+//	            JPanel rightSidePane = new JPanel();
+//	         // must be set this before creating any trees
+//	            UIManager.put("Tree.rendererFillBackground", false);
+//	            rightSidePane.setLayout(new MigLayout());
+//	            JTree tree = new JTree();
+//	            tree.setOpaque(false);
+//	    		rightSidePane.add(tree, "grow");
+//
+//	            add(rightSidePane, "cell 3 1 1 3, grow, width 300!");
+	            
+	            JPanel openPanel = new JPanel();
+	            openPanel.add(fileTextField);
+	            openPanel.add(openBtn);
+	            add(openPanel, "cell 1 1 2 1");
+	            
+	            setFocusable(true);
+	            
+	            JPanel mainControlPanel = new JPanel();
+	            mainControlPanel.setLayout(new MigLayout());
+	            mainControlPanel.add(vidPosSlider, "cell 0 0, wrap, grow");
+	            mainControlPanel.add(fullScreenBtn);
+	            mainControlPanel.add(backwardBtn, "cell 0 1, split 5");
+	            mainControlPanel.add(playBtn);
+	            mainControlPanel.add(stopBtn);
+	            mainControlPanel.add(forwardBtn);
+	            mainControlPanel.add(soundBtn, "cell 1 1, top");
+	            mainControlPanel.add(volumeSlider, "cell 1 1");
+	            add(mainControlPanel, "cell 1 4 2 1, gapleft 100");
+	            
+	            addListenersToState(leftSidePane, textSection, audioSection, projectPanel,
+	            		saveBtn, loadBtn, openPanel, openBtn, fileTextField, mainControlPanel, vidPosSlider, volumeSlider);
+	            
+	            state.setTransparent();
+	            
+	        }
+	    }
 }

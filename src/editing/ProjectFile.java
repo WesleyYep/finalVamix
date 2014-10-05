@@ -57,7 +57,7 @@ public class ProjectFile {
 	
 	public void readFile(String file) {
 		if (!editorP.isText(file)) {
-			JOptionPane.showMessageDialog(editorP,
+			JOptionPane.showMessageDialog(null,
     				"This is not a valid VAMIX project file", "Error"
     				,JOptionPane.ERROR_MESSAGE);
 			return;
@@ -70,7 +70,7 @@ public class ProjectFile {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
-			JOptionPane.showMessageDialog(editorP,
+			JOptionPane.showMessageDialog(null,
     				"This is not a valid VAMIX project file", "Error"
     				,JOptionPane.ERROR_MESSAGE);
 			e.printStackTrace();
@@ -81,7 +81,7 @@ public class ProjectFile {
 		@SuppressWarnings("unused")
 		String temp;
 		if (!(temp = input.readLine()).equals(fileStarter)) {
-			JOptionPane.showMessageDialog(editorP,
+			JOptionPane.showMessageDialog(null,
     				"This is not a valid VAMIX project file", "Error"
     				,JOptionPane.ERROR_MESSAGE);
 			return;

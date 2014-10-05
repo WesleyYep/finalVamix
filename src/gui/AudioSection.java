@@ -1,4 +1,4 @@
-package Popups;
+package gui;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -11,7 +11,6 @@ import java.io.InputStreamReader;
 
 import editing.AudioWorker;
 import editing.GetAttributes;
-import gui.EditorPanel;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -20,7 +19,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
 
+import popups.LoadingScreen;
 import uk.co.caprica.vlcj.component.EmbeddedMediaPlayerComponent;
 import net.miginfocom.swing.MigLayout;
 
@@ -57,9 +58,13 @@ public class AudioSection extends JPanel{
 		mediaPlayer = mpc;
 		
 		setLayout(new MigLayout());
-		setBorder(BorderFactory.createTitledBorder(
+		TitledBorder border = BorderFactory.createTitledBorder(
 				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
-				new Color(250, 150, 150, 250), new Color(250, 150, 50, 250)), "Audio"));
+				new Color(250, 150, 150, 250), new Color(250, 150, 50, 250)), "Audio");
+		border.setTitleColor(Color.LIGHT_GRAY);
+		setBorder(border);
+		
+		ep.addListenersToState(audioTextField, openAudioBtn, replaceBtn, overlayBtn, stripBtn);
 		
 		add(audioTextField, "grow, split 2");
 		add(openAudioBtn, "wrap");

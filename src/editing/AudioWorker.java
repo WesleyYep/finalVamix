@@ -1,5 +1,7 @@
 package editing;
 
+import gui.AudioSection;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,8 +13,6 @@ import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
-
-import Popups.AudioSection;
 
 public class AudioWorker extends SwingWorker<Void, String> {
 	private Process process;

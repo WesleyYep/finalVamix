@@ -2,13 +2,14 @@ package gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -19,7 +20,6 @@ import java.io.InputStreamReader;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -30,18 +30,14 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.JTree;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
-import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.tree.DefaultTreeCellRenderer;
 
 import com.sun.jna.platform.WindowUtils;
 import com.sun.awt.AWTUtilities;
@@ -63,7 +59,7 @@ import uk.co.caprica.vlcj.player.MediaPlayerEventAdapter;
  * @author Wesley
  */
 @SuppressWarnings("serial")
-public class EditorPanel{
+public class EditorPanel implements MouseMotionListener{
 
 	private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 	private JLabel title = new JLabel ("Lets get editing");
@@ -87,6 +83,7 @@ public class EditorPanel{
     				new ImageIcon(EditorPanel.class.getResource("/volume_silent2.png")));
 	private JButton openBtn = new JButton("Open");
 	private JTextField fileTextField = new JTextField(40);
+    private JButton showHideBtn = new JButton("Hide");
 	private CustomButton loadBtn = new CustomButton("Load", new ImageIcon(
 			EditorPanel.class.getResource("/upload.png")), 25, 25);
 	private JButton saveBtn = new CustomButton("Save", new ImageIcon(
@@ -102,6 +99,7 @@ public class EditorPanel{
 	private long currentTime;
 	private Frame f;
 	private State state;
+	private Window overlay;
 
 	//the use of setPositionValue is so that the position slider only fires change requests
 	//when the user actually is changing its position
@@ -118,8 +116,9 @@ public class EditorPanel{
 
 	EditorPanel () {
         f = new Frame("Test Player");
-        f.setSize(1280, 800);
+        f.setSize(1200, 750);
         f.setBackground(Color.black);
+        f.setResizable(false);
         f.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -150,10 +149,17 @@ public class EditorPanel{
 		videoMovementTimer.start();
 		
         f.add(mediaPlayerComponent, BorderLayout.CENTER);
+        showHideBtn.setBackground(Color.black);
+        showHideBtn.setForeground(Color.LIGHT_GRAY);
+
+        f.add(showHideBtn, BorderLayout.SOUTH);
         f.setVisible(true);
         state = new State();
         
-      	mediaPlayerComponent.getMediaPlayer().setOverlay(new Overlay(f, this));
+        overlay = new Overlay(f,this);
+		overlay.addMouseMotionListener(this);
+
+      	mediaPlayerComponent.getMediaPlayer().setOverlay(overlay);
       	mediaPlayerComponent.getMediaPlayer().enableOverlay(true);
 	}
 	
@@ -329,6 +335,29 @@ public class EditorPanel{
 		        }
 			}
         });
+        
+        showHideBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (showHideBtn.getText().equalsIgnoreCase("Hide")){
+					showHideBtn.setText("Show");
+					state.setVisibility(false);
+				}else if (showHideBtn.getText().equalsIgnoreCase("Show")){
+					showHideBtn.setText("Hide");
+					state.setVisibility(true);
+				}
+			}
+        });
+	}
+	
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		//do nothing
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		state.showMouseControls();
 	}
 
 	enum videoMovement {
@@ -551,10 +580,11 @@ public class EditorPanel{
 
 	        public Overlay(Window owner, EditorPanel ed) {
 	            super(owner, WindowUtils.getAlphaCompatibleGraphicsConfiguration());
-
+	            
 	            AWTUtilities.setWindowOpaque(this, false);
 
 	            setLayout(myLayout);
+	            repaint(500, 0, 0, 1200, 1200);
            
 	            JPanel projectPanel = new JPanel();
 	            TitledBorder border = BorderFactory.createTitledBorder(
@@ -605,9 +635,11 @@ public class EditorPanel{
 	            mainControlPanel.add(soundBtn, "cell 1 1, top");
 	            mainControlPanel.add(volumeSlider, "cell 1 1");
 	            add(mainControlPanel, "cell 1 4 2 1, gapleft 100");
-	            
-	            addListenersToState(leftSidePane, textSection, audioSection, projectPanel,
-	            		saveBtn, loadBtn, openPanel, openBtn, fileTextField, mainControlPanel, vidPosSlider, volumeSlider);
+
+
+	            addListenersToState(leftSidePane, textSection, audioSection, mainControlPanel, projectPanel,
+	            		saveBtn, loadBtn, openPanel, openBtn, fileTextField, vidPosSlider, volumeSlider);
+	          	state.addMouseListeners(mainControlPanel, vidPosSlider, volumeSlider);
 	            
 	            state.setTransparent();
 	            

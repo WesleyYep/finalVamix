@@ -95,21 +95,21 @@ public class TextSection extends JPanel{
         fontSizeSpinner.setOpaque(false);
         fontSizeSpinner.getEditor().setOpaque(false);
         ((JSpinner.NumberEditor)fontSizeSpinner.getEditor()).getTextField().setOpaque(false);
-        fontSizeSpinner.getEditor().getComponent(0).setForeground(Color.LIGHT_GRAY);
+        fontSizeSpinner.getEditor().getComponent(0).setForeground(Color.GRAY);
         
         xSpinner.setEditor(new JSpinner.NumberEditor(xSpinner , "00"));
         xSpinner.setModel(new SpinnerNumberModel(0, 0, 380, 1));
         xSpinner.setValue(10);
         xSpinner.getEditor().setOpaque(false);
         ((JSpinner.NumberEditor)xSpinner.getEditor()).getTextField().setOpaque(false);
-        xSpinner.getEditor().getComponent(0).setForeground(Color.LIGHT_GRAY);
+        xSpinner.getEditor().getComponent(0).setForeground(Color.GRAY);
         
         ySpinner.setEditor(new JSpinner.NumberEditor(ySpinner , "00"));
         ySpinner.setModel(new SpinnerNumberModel(0, 0, 380, 1));
         ySpinner.setValue(10);
         ySpinner.getEditor().setOpaque(false);
         ((JSpinner.NumberEditor)ySpinner.getEditor()).getTextField().setOpaque(false);
-        ySpinner.getEditor().getComponent(0).setForeground(Color.LIGHT_GRAY);
+        ySpinner.getEditor().getComponent(0).setForeground(Color.GRAY);
         
 		Calendar calendar = Calendar.getInstance();
 		calendar.set(Calendar.YEAR, 100); //to allow it to go up to 99, rather than stop at 24
@@ -121,13 +121,13 @@ public class TextSection extends JPanel{
 		timeForTextSpinner.setEditor(new DateEditor(timeForTextSpinner , "yy:mm:ss"));
 		timeForTextSpinner.getEditor().setOpaque(false);
         ((JSpinner.DateEditor)timeForTextSpinner.getEditor()).getTextField().setOpaque(false);
-        timeForTextSpinner.getEditor().getComponent(0).setForeground(Color.LIGHT_GRAY);
+        timeForTextSpinner.getEditor().getComponent(0).setForeground(Color.GRAY);
 		
 		setLayout(new MigLayout());
 		TitledBorder border = BorderFactory.createTitledBorder(
 				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
 				new Color(150, 150, 250, 250), new Color(50, 50, 150, 250)), "Text");
-		border.setTitleColor(Color.LIGHT_GRAY);
+		border.setTitleColor(Color.GRAY);
 		setBorder(border);
 		
 		textArea.setBorder(BorderFactory.createEtchedBorder());
@@ -142,28 +142,28 @@ public class TextSection extends JPanel{
 		add(textArea, "cell 0 0 2 1, grow");
 		add(titleOrCredits, "cell 0 1 2 1, grow");
 		JLabel fontLabel = new JLabel("Font: ");
-		fontLabel.setForeground(Color.LIGHT_GRAY);
+		fontLabel.setForeground(Color.GRAY);
 		add(fontLabel, "cell 0 2");
 		add(fontOption, "cell 1 2, grow");
 		
 		JLabel colourLabel = new JLabel("Colour: ");
-		colourLabel.setForeground(Color.LIGHT_GRAY);
+		colourLabel.setForeground(Color.GRAY);
 		add(colourLabel, "cell 0 3");
 		add(colourBtn, "cell 1 3, grow");
 		JLabel sizeLabel = new JLabel("Size: ");
-		sizeLabel.setForeground(Color.LIGHT_GRAY);
+		sizeLabel.setForeground(Color.GRAY);
 		add(sizeLabel, "cell 0 4");
 		add(fontSizeSpinner, "cell 1 4, grow");
 		JLabel xLabel = new JLabel("X: ");
-		xLabel.setForeground(Color.LIGHT_GRAY);
+		xLabel.setForeground(Color.GRAY);
 		add(xLabel, "cell 0 5");
 		add(xSpinner, "cell 1 5, grow");
 		JLabel yLabel = new JLabel("Y: ");
-		yLabel.setForeground(Color.LIGHT_GRAY);
+		yLabel.setForeground(Color.GRAY);
 		add(yLabel, "cell 0 6");
 		add(ySpinner, "cell 1 6, grow");
 		JLabel durLabel = new JLabel("Duration: ");
-		durLabel.setForeground(Color.LIGHT_GRAY);
+		durLabel.setForeground(Color.GRAY);
 		add(durLabel, "cell 0 7");
 		add(timeForTextSpinner, "cell 1 7, grow");
 		add(previewBtn, "cell 0 8, grow");

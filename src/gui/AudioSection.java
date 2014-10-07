@@ -61,7 +61,7 @@ public class AudioSection extends JPanel{
 		TitledBorder border = BorderFactory.createTitledBorder(
 				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
 				new Color(250, 150, 150, 250), new Color(250, 150, 50, 250)), "Audio");
-		border.setTitleColor(Color.LIGHT_GRAY);
+		border.setTitleColor(new Color(100,0,0));
 		setBorder(border);
 		
 		ep.addListenersToState(audioTextField, openAudioBtn, replaceBtn, overlayBtn, stripBtn);
@@ -199,5 +199,12 @@ public class AudioSection extends JPanel{
 	 */
 	public static boolean loadCancelled(){
 		return loadScreen.isClosed;
+	}
+
+	public void enableButtons() {
+		if (!audioTextField.getText().equals("")){
+			replaceBtn.setEnabled(true);
+			overlayBtn.setEnabled(true);
+		}
 	}
 }

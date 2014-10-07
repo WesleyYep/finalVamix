@@ -290,7 +290,8 @@ public class EditorPanel implements MouseMotionListener{
         	    f.setSize(800, 600);
         		f.setIconImage(new ImageIcon(getClass().getClassLoader().getResource("icon.png")).getImage());
 
-        	    
+        	    mediaPlayerFull.getMediaPlayer().setOverlay(overlay);
+        	    mediaPlayerFull.getMediaPlayer().enableOverlay(true);
         	    f.add(mediaPlayerFull);
         	    f.setVisible(true);
         	    f.setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -332,6 +333,7 @@ public class EditorPanel implements MouseMotionListener{
 		        if (fc.getSelectedFile() != null){
 			        fileName = fc.getSelectedFile().getAbsolutePath().toString();
 					projFile.readFile(fileName);
+				    audioSection.enableButtons();
 		        }
 			}
         });
@@ -503,7 +505,6 @@ public class EditorPanel implements MouseMotionListener{
 			forwardBtn.setEnabled(false);
 			backwardBtn.setEnabled(false);
 			stopBtn.setEnabled(true);
-			playBtn.changeIcon();
 		}else{
 			forwardBtn.setEnabled(true);
 			backwardBtn.setEnabled(true);
@@ -590,7 +591,7 @@ public class EditorPanel implements MouseMotionListener{
 	            TitledBorder border = BorderFactory.createTitledBorder(
 	    				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
 	    				new Color(50, 150, 50, 250), new Color(50, 150, 50, 250)), "Project");
-	            border.setTitleColor(Color.LIGHT_GRAY);
+	            border.setTitleColor(new Color(100,0,0));
 	            projectPanel.setBorder(border);
 	            projectPanel.setLayout(new MigLayout());
 	            projectPanel.add(loadBtn);

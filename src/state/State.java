@@ -35,7 +35,7 @@ public class State {
 			comp.setOpaque(false);
 	  		comp.setBackground(new Color(0,0,0,10));
 	  		comp.setFont(new Font("Sans", Font.BOLD, 16));
-	  		comp.setForeground(Color.GRAY);
+	  		comp.setForeground(new Color(100,0,0));
 		}
 	}
 	
@@ -62,7 +62,8 @@ public class State {
 				SwingUtilities.invokeLater(new Runnable() {
 				    public void run() {
 				    	for (JComponent comp : temp){
-							comp.setVisible(false);
+				    		if (!stateListeners.get(0).isVisible())//check if everything else is visible or not
+				    			comp.setVisible(false);
 						}
 				    }
 				});

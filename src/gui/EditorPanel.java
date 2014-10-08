@@ -85,7 +85,7 @@ public class EditorPanel implements MouseMotionListener{
         f = new Frame("Vamix");
         f.setSize(1200, 750);
         f.setBackground(Color.black);
-        f.setResizable(false);
+  //      f.setResizable(false);
         f.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -189,7 +189,7 @@ public class EditorPanel implements MouseMotionListener{
 	
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		//do nothing
+		state.showMouseControls();
 	}
 
 	@Override
@@ -197,46 +197,13 @@ public class EditorPanel implements MouseMotionListener{
 		state.showMouseControls();
 	}
 	
-	public void setFullScreen(long currentTime, EditorPanel ep){
-		final EmbeddedMediaPlayerComponent mediaPlayerFull = new EmbeddedMediaPlayerComponent();
-		class FirstFrame extends JFrame implements WindowListener {
-			FirstFrame() {
-				this.addWindowListener(this);
-			}
-		    @Override
-		    public void windowClosed(WindowEvent e) {
-		        // Stop the media player (otherwise you will gear it continuing
-		    	mediaPlayerFull.getMediaPlayer().stop();
-		        dispose();
-		    }
-
-			@Override
-			public void windowActivated(WindowEvent arg0) {}
-			@Override
-			public void windowClosing(WindowEvent arg0) {}
-			@Override
-			public void windowDeactivated(WindowEvent arg0) {}
-			@Override
-			public void windowDeiconified(WindowEvent arg0) {}
-			@Override
-			public void windowIconified(WindowEvent arg0) {}
-			@Override
-			public void windowOpened(WindowEvent arg0) {}
-		}
-	    JFrame f = new FirstFrame();
-	    f.setSize(800, 600);
-		f.setIconImage(new ImageIcon(getClass().getClassLoader().getResource("icon.png")).getImage());
-
-	    f.add(mediaPlayerFull);
-	    //f.add(new MainControlPanel(mediaPlayerFull.getMediaPlayer(), ep),BorderLayout.SOUTH);
-	    f.setVisible(true);
+	public void setFullScreen(long currentTime, EditorPanel ep, boolean isPaused){
 	    f.setExtendedState(JFrame.MAXIMIZED_BOTH);
-        Window newoverlay = new Overlay(f, mediaPlayerFull.getMediaPlayer(), this);
-
-	    mediaPlayerFull.getMediaPlayer().setOverlay(newoverlay);
-	    mediaPlayerFull.getMediaPlayer().enableOverlay(true);
-	    
-	    mediaPlayerFull.getMediaPlayer().playMedia(fileTextField.getText(), ":start-time=" + (int)currentTime/1000);
+	}
+	
+	public void exitFullScreen() {
+		f.setExtendedState(JFrame.NORMAL);
+        f.setSize(1200, 750);
 	}
 	
 	/** 
@@ -340,7 +307,7 @@ public class EditorPanel implements MouseMotionListener{
 
 	        private static final long serialVersionUID = 1L;
 	    	//private MigLayout myLayout = new MigLayout();
-	    	private MigLayout myLayout = new MigLayout("", "10 [] [] [] 10", "20 [] [] [] [] 5");
+	    	private MigLayout myLayout = new MigLayout("", "10 [] [] [] 10", "20 [] [] [] [grow] 5");
 
 	        public Overlay(Window owner, EditorPanel ed) {
 	            super(owner, WindowUtils.getAlphaCompatibleGraphicsConfiguration());
@@ -387,26 +354,32 @@ public class EditorPanel implements MouseMotionListener{
 	            add(openPanel, "cell 1 1 2 1");
 	            
 	            setFocusable(true);
-	            add(mainControlPanel, "cell 1 4 2 1, gapleft 100");
+	            add(mainControlPanel, "dock south, gapbefore 30%");
 
 	            addListenersToState(leftSidePane, textSection, audioSection, mainControlPanel, projectPanel,
 	            		saveBtn, loadBtn, openPanel, openBtn, fileTextField, mainControlPanel.volumeSlider,
 	            		mainControlPanel.vidPosSlider);
-	          	state.addMouseListeners(mainControlPanel);
+	          	state.addMouseListeners(mainControlPanel, mainControlPanel.volumeSlider, mainControlPanel.vidPosSlider);
 	            
 	            state.setTransparent();
 	            
 	        }
 	        
-	        public Overlay(Window owner, MediaPlayer mp, EditorPanel ep){
+	        public Overlay(Window owner, MediaPlayer mp, EditorPanel ep, boolean isPaused){
 	        	super(owner, WindowUtils.getAlphaCompatibleGraphicsConfiguration());
 	            AWTUtilities.setWindowOpaque(this, false);
-	            //setLayout();
+	            setLayout(new MigLayout("", "[grow]", "[grow]"));
 	            repaint(500, 0, 0, 1200, 1200);
 	            MainControlPanel fullPanel = new MainControlPanel(mp, ep);
-	            add(fullPanel);
-	            addListenersToState(fullPanel);
+	            fullPanel.isFullScreen(true);
+	            if (!isPaused){
+	            	fullPanel.changePlayIcon();
+	            }
+	            add(fullPanel, "dock south, gapbefore 30%");
+	            addListenersToState(fullPanel, fullPanel.volumeSlider, fullPanel.vidPosSlider);
+	          	state.addMouseListeners(fullPanel, fullPanel.volumeSlider, fullPanel.vidPosSlider);
 	            state.setTransparent();
+	            state.setVisibility(false);
 	        }
 	    }
 }

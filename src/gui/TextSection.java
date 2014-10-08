@@ -75,7 +75,7 @@ public class TextSection extends JPanel{
 	private JSpinner xSpinner = new JSpinner();
 	private JSpinner ySpinner = new JSpinner();
 	private DateEditor de;
-	
+	private MainControlPanel cp;
 	private EditorPanel editorPanel;
 	private static LoadingScreen loadScreen = new LoadingScreen();
 
@@ -84,10 +84,10 @@ public class TextSection extends JPanel{
 	 * @param ep The EditorPanel that this is housed in. This is used to get the name
 	 * 		of the currently playing media.
 	 */
-	public TextSection(EditorPanel ep) {
+	public TextSection(EditorPanel ep, final MainControlPanel cp) {
 		
 		editorPanel = ep;
-		
+		this.cp = cp;
 		titleOrCredits = new JComboBox<String>(new String[]{"Title", "Credits"});
 		fontOption = new JComboBox<String>(new String[]{"DejaVuSans", "DroidSans", "FreeSans", "LiberationSerif-Bold", "NanumGothic", "Padauk", 
 														"TakaoPGothic", "TibetanMachineUni", "Ubuntu-C"});
@@ -219,7 +219,7 @@ public class TextSection extends JPanel{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				addTextToVideo("preview", "udp://localhost:1234");
-				editorPanel.playPreview();
+				cp.playPreview();
 			}
 		});
 		
@@ -314,8 +314,8 @@ public class TextSection extends JPanel{
     		 cmd = "avconv -re -i " + editorPanel.getMediaName() + " -vf \"drawtext=fontfile='" + fontPath + "':textfile='" + currentAbsPath + "/.text" +
 	        			"':x=" + xSpinner.getValue() + ":y=" + ySpinner.getValue() + ":fontsize=" + fontSizeSpinner.getValue() + ":fontcolor=" + colour + 
 	        			":draw='" + timeFunction + "'\" -strict experimental -f mpegts " + output;
-    		 editorPanel.setDuration(dur*1000);
-    		 editorPanel.setIsPreviewing(true);
+    		 cp.setDuration(dur*1000);
+    		 cp.setIsPreviewing(true);
     	}
         //only carry out the command if the video file is valid
         if (dur > 0 && fps > 0){

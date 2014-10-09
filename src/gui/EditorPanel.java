@@ -34,6 +34,7 @@ import javax.swing.border.TitledBorder;
 
 import com.sun.jna.platform.WindowUtils;
 import com.sun.awt.AWTUtilities;
+import components.SmallColourPanel;
 
 import editing.ProjectFile;
 import editing.ProjectFile.ProjectSettings;
@@ -111,12 +112,17 @@ public class EditorPanel implements MouseMotionListener{
         saveBtn.setHorizontalTextPosition(SwingConstants.RIGHT);
 		
         f.add(mediaPlayerComponent, BorderLayout.CENTER);
-        showHideBtn.setBackground(Color.black);
+        
+        JPanel bottomPanel = new JPanel();
+        showHideBtn.setBackground(Color.BLACK);
         showHideBtn.setForeground(Color.LIGHT_GRAY);
-
-        f.add(showHideBtn, BorderLayout.SOUTH);
+        bottomPanel.add(showHideBtn, BorderLayout.EAST);
+        bottomPanel.add(new SmallColourPanel(this));
+        bottomPanel.setBackground(Color.BLACK);
+        f.add(bottomPanel, BorderLayout.SOUTH);
+        
         f.setVisible(true);
-        state = new State();
+        state = State.getState();
         
         overlay = new Overlay(f,this);
 		overlay.addMouseMotionListener(this);
@@ -298,11 +304,7 @@ public class EditorPanel implements MouseMotionListener{
 	public Boolean isText(String file) {
 		return (isFileType(file, "ASCII text"));
 	}
-	
-	  public void addListenersToState(JComponent ... components){
-		  state.addStateListeners(components);
-	  }
-
+	  
 	  private class Overlay extends Window {
 
 	        private static final long serialVersionUID = 1L;
@@ -327,6 +329,7 @@ public class EditorPanel implements MouseMotionListener{
 	            projectPanel.add(loadBtn);
 	            projectPanel.add(new CustomButton("   "), "grow");
 	            projectPanel.add(saveBtn, "right");
+	            state.addBorderListeners(border);
 	            
 	            JPanel leftSidePane = new JPanel();
 	            leftSidePane.setLayout(new MigLayout());
@@ -355,31 +358,14 @@ public class EditorPanel implements MouseMotionListener{
 	            
 	            setFocusable(true);
 	            add(mainControlPanel, "dock south, gapbefore 30%");
-
-	            addListenersToState(leftSidePane, textSection, audioSection, mainControlPanel, projectPanel,
-	            		saveBtn, loadBtn, openPanel, openBtn, fileTextField, mainControlPanel.volumeSlider,
-	            		mainControlPanel.vidPosSlider);
-	          	state.addMouseListeners(mainControlPanel, mainControlPanel.volumeSlider, mainControlPanel.vidPosSlider);
+	    		state.addColourListeners(leftSidePane, textSection, audioSection, mainControlPanel, projectPanel,
+	            		saveBtn, loadBtn, openPanel, openBtn, fileTextField, mainControlPanel.volumeSlider, mainControlPanel.vidPosSlider);
+	          	state.addStateListeners(leftSidePane, openPanel, projectPanel, mainControlPanel);
+	    		state.addMouseListeners(mainControlPanel, mainControlPanel.volumeSlider, mainControlPanel.vidPosSlider);
 	            
 	            state.setTransparent();
 	            
-	        }
-	        
-	        public Overlay(Window owner, MediaPlayer mp, EditorPanel ep, boolean isPaused){
-	        	super(owner, WindowUtils.getAlphaCompatibleGraphicsConfiguration());
-	            AWTUtilities.setWindowOpaque(this, false);
-	            setLayout(new MigLayout("", "[grow]", "[grow]"));
-	            repaint(500, 0, 0, 1200, 1200);
-	            MainControlPanel fullPanel = new MainControlPanel(mp, ep);
-	            fullPanel.isFullScreen(true);
-	            if (!isPaused){
-	            	fullPanel.changePlayIcon();
-	            }
-	            add(fullPanel, "dock south, gapbefore 30%");
-	            addListenersToState(fullPanel, fullPanel.volumeSlider, fullPanel.vidPosSlider);
-	          	state.addMouseListeners(fullPanel, fullPanel.volumeSlider, fullPanel.vidPosSlider);
-	            state.setTransparent();
-	            state.setVisibility(false);
 	        }
 	    }
+
 }

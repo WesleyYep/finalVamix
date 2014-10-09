@@ -28,11 +28,9 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.SpinnerDateModel;
@@ -45,9 +43,11 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import components.TransparentTextArea;
+import components.CustomSpinner;
+import components.TransparentLabel;
 import popups.ColourChooser;
 import popups.LoadingScreen;
+import state.State;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -64,16 +64,14 @@ public class TextSection extends JPanel{
 	private JButton colourBtn = new JButton();
 	private JComboBox<String> titleOrCredits;
 	private JComboBox<String> fontOption;
-	
 	private ColourChooser cc = new ColourChooser(this);
-	
-	private JSpinner fontSizeSpinner = new JSpinner();
-	private JSpinner timeForTextSpinner = new JSpinner();
+	private CustomSpinner fontSizeSpinner;
+	private CustomSpinner timeForTextSpinner;
 	private final JScrollPane textScroll = new JScrollPane(textArea);
 	private String titleText = " -- Enter Text Here -- ";
 	private String creditsText = "";
-	private JSpinner xSpinner = new JSpinner();
-	private JSpinner ySpinner = new JSpinner();
+	private CustomSpinner xSpinner;
+	private CustomSpinner ySpinner;
 	private DateEditor de;
 	private MainControlPanel cp;
 	private EditorPanel editorPanel;
@@ -91,47 +89,21 @@ public class TextSection extends JPanel{
 		titleOrCredits = new JComboBox<String>(new String[]{"Title", "Credits"});
 		fontOption = new JComboBox<String>(new String[]{"DejaVuSans", "DroidSans", "FreeSans", "LiberationSerif-Bold", "NanumGothic", "Padauk", 
 														"TakaoPGothic", "TibetanMachineUni", "Ubuntu-C"});
-        fontSizeSpinner.setEditor(new JSpinner.NumberEditor(fontSizeSpinner , "00"));
-        fontSizeSpinner.setModel(new SpinnerNumberModel(0, 0, 72, 1));
-        fontSizeSpinner.setValue(18);
-        fontSizeSpinner.setOpaque(false);
-        fontSizeSpinner.getEditor().setOpaque(false);
-        ((JSpinner.NumberEditor)fontSizeSpinner.getEditor()).getTextField().setOpaque(false);
-        fontSizeSpinner.getEditor().getComponent(0).setForeground(new Color(100,0,0));
+       
+		fontSizeSpinner = new CustomSpinner(18, new SpinnerNumberModel(0, 0, 72, 1));
+		xSpinner = new CustomSpinner(10, new SpinnerNumberModel(0,0,380,1));
+		ySpinner = new CustomSpinner(10, new SpinnerNumberModel(0,0,380,1));
+		timeForTextSpinner = new CustomSpinner(20);
+		State.getState().addSpinnerListeners(fontSizeSpinner, xSpinner, ySpinner, timeForTextSpinner);
         
-        xSpinner.setEditor(new JSpinner.NumberEditor(xSpinner , "00"));
-        xSpinner.setModel(new SpinnerNumberModel(0, 0, 380, 1));
-        xSpinner.setValue(10);
-        xSpinner.getEditor().setOpaque(false);
-        ((JSpinner.NumberEditor)xSpinner.getEditor()).getTextField().setOpaque(false);
-        xSpinner.getEditor().getComponent(0).setForeground(new Color(100,0,0));
-        
-        ySpinner.setEditor(new JSpinner.NumberEditor(ySpinner , "00"));
-        ySpinner.setModel(new SpinnerNumberModel(0, 0, 380, 1));
-        ySpinner.setValue(10);
-        ySpinner.getEditor().setOpaque(false);
-        ((JSpinner.NumberEditor)ySpinner.getEditor()).getTextField().setOpaque(false);
-        ySpinner.getEditor().getComponent(0).setForeground(new Color(100,0,0));
-        
-		Calendar calendar = Calendar.getInstance();
-		calendar.set(Calendar.YEAR, 100); //to allow it to go up to 99, rather than stop at 24
-		calendar.set(Calendar.MINUTE, 0);
-		calendar.set(Calendar.SECOND, 20);
-        SpinnerDateModel timeModel = new SpinnerDateModel();
-		timeModel.setValue(calendar.getTime());
-		timeForTextSpinner.setModel(timeModel);
-		de = new DateEditor(timeForTextSpinner , "yy:mm:ss");
-		timeForTextSpinner.setEditor(de);
-		de.setOpaque(false);
-        de.getTextField().setOpaque(false);
-        timeForTextSpinner.getEditor().getComponent(0).setForeground(new Color(100,0,0));
-		
 		setLayout(new MigLayout());
 		TitledBorder border = BorderFactory.createTitledBorder(
 				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
 				new Color(150, 150, 250, 250), new Color(50, 50, 150, 250)), "Text");
 		border.setTitleColor(new Color(100,0,0));
 		setBorder(border);
+        State.getState().addBorderListeners(border);
+
 		
 		textArea.setBorder(BorderFactory.createEtchedBorder());
 		textArea.setLineWrap(true);
@@ -139,38 +111,28 @@ public class TextSection extends JPanel{
 
 		colourBtn.setBackground(Color.black);
 		
-		ep.addListenersToState(textArea, textScroll, titleOrCredits, fontOption, colourBtn, fontSizeSpinner,
+		State.getState().addColourListeners(textArea, textScroll, titleOrCredits, fontOption, colourBtn, fontSizeSpinner,
 		xSpinner, ySpinner,	timeForTextSpinner,	previewBtn,	addTextBtn);
 		
 		add(textArea, "cell 0 0 2 1, grow");
 		add(titleOrCredits, "cell 0 1 2 1, grow");
-		JLabel fontLabel = new JLabel("Font: ");
-		fontLabel.setForeground(new Color(100,0,0));
-		add(fontLabel, "cell 0 2");
+		TransparentLabel fontLbl, colourLbl, sizeLbl, xLbl, yLbl, durLbl;
+		add(fontLbl = new TransparentLabel("Font: "), "cell 0 2");
 		add(fontOption, "cell 1 2, grow");
-		
-		JLabel colourLabel = new JLabel("Colour: ");
-		colourLabel.setForeground(new Color(100,0,0));
-		add(colourLabel, "cell 0 3");
+		add(colourLbl = new TransparentLabel("Colour: "), "cell 0 3");
 		add(colourBtn, "cell 1 3, grow");
-		JLabel sizeLabel = new JLabel("Size: ");
-		sizeLabel.setForeground(new Color(100,0,0));
-		add(sizeLabel, "cell 0 4");
+		add(sizeLbl = new TransparentLabel("Size: "), "cell 0 4");
 		add(fontSizeSpinner, "cell 1 4, grow");
-		JLabel xLabel = new JLabel("X: ");
-		xLabel.setForeground(new Color(100,0,0));
-		add(xLabel, "cell 0 5");
+		add(xLbl = new TransparentLabel("X: "), "cell 0 5");
 		add(xSpinner, "cell 1 5, grow");
-		JLabel yLabel = new JLabel("Y: ");
-		yLabel.setForeground(new Color(100,0,0));
-		add(yLabel, "cell 0 6");
+		add(yLbl = new TransparentLabel("Y: "), "cell 0 6");
 		add(ySpinner, "cell 1 6, grow");
-		JLabel durLabel = new JLabel("Duration: ");
-		durLabel.setForeground(new Color(100,0,0));
-		add(durLabel, "cell 0 7");
+		add(durLbl = new TransparentLabel("Duration: "), "cell 0 7");
 		add(timeForTextSpinner, "cell 1 7, grow");
 		add(previewBtn, "cell 0 8, grow");
 		add(addTextBtn, "cell 1 8, grow");
+		
+		State.getState().addColourListeners(fontLbl, colourLbl, sizeLbl, xLbl, yLbl, durLbl);
 		
 		//bring up the JColorChooser
 		colourBtn.addActionListener(new ActionListener(){
@@ -214,7 +176,7 @@ public class TextSection extends JPanel{
         	}
         });
 		
-		//preview the text using ??
+		//preview the text using a stream
 		previewBtn.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {

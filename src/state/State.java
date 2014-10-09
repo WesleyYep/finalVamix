@@ -7,15 +7,34 @@ import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
+import javax.swing.border.TitledBorder;
+
+import components.CustomSpinner;
 
 public class State {
+	private static State state;
 	private List<JComponent> stateListeners;
 	private List<JComponent> mouseListeners;
-
+	private List<JComponent> colourListeners;
+	private List<TitledBorder> borderTitleColourListeners;
+	private List<CustomSpinner> spinnerColourListeners;
 	
-	public State(){
+	private State(){
 		stateListeners = new ArrayList<JComponent>();
 		mouseListeners = new ArrayList<JComponent>();
+		colourListeners = new ArrayList<JComponent>();
+		borderTitleColourListeners = new ArrayList<TitledBorder>();
+		spinnerColourListeners = new ArrayList<CustomSpinner>();
+
+	}
+	
+	public static State getState(){
+		if (state == null){
+			state = new State();
+			return state;
+		} else {
+			return state;
+		}
 	}
 	
 	public void addStateListeners(JComponent ... components){
@@ -30,8 +49,24 @@ public class State {
 		}
 	}
 	
+	public void addColourListeners(JComponent ... components){
+		for (JComponent comp : components){
+			colourListeners.add(comp);
+		}
+	}
+	
+	public void addBorderListeners(TitledBorder border){
+		borderTitleColourListeners.add(border);
+	}
+	
+	public void addSpinnerListeners(CustomSpinner ... spinners){
+		for (CustomSpinner spinner : spinners){
+			spinnerColourListeners.add(spinner);
+		}
+	}
+	
 	public void setTransparent(){
-		for (JComponent comp : stateListeners){
+		for (JComponent comp : colourListeners){
 			comp.setOpaque(false);
 	  		comp.setBackground(new Color(0,0,0,10));
 	  		comp.setFont(new Font("Sans", Font.BOLD, 16));
@@ -73,4 +108,15 @@ public class State {
 
 	}
 	
+	public void changeForeground(Color colour){
+		for (JComponent comp : colourListeners){
+	  		comp.setForeground(colour);
+		}
+		for (TitledBorder border : borderTitleColourListeners){
+			border.setTitleColor(colour);
+		}
+		for (CustomSpinner spinner : spinnerColourListeners){
+			spinner.getEditor().getComponent(0).setForeground(colour);
+		}
+	}
 }

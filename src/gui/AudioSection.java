@@ -22,6 +22,7 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
 import popups.LoadingScreen;
+import state.State;
 import uk.co.caprica.vlcj.component.EmbeddedMediaPlayerComponent;
 import net.miginfocom.swing.MigLayout;
 
@@ -64,7 +65,8 @@ public class AudioSection extends JPanel{
 		border.setTitleColor(new Color(100,0,0));
 		setBorder(border);
 		
-		ep.addListenersToState(audioTextField, openAudioBtn, replaceBtn, overlayBtn, stripBtn);
+        State.getState().addBorderListeners(border);
+		State.getState().addColourListeners(audioTextField, openAudioBtn, replaceBtn, overlayBtn, stripBtn);
 		
 		add(audioTextField, "grow, split 2");
 		add(openAudioBtn, "wrap");

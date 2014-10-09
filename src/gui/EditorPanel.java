@@ -59,7 +59,7 @@ public class EditorPanel implements MouseMotionListener{
 	private final EmbeddedMediaPlayerComponent mediaPlayerComponent;
 	private MediaPlayer mediaPlayer;
 	private JButton openBtn = new JButton("Open");
-	private JTextField fileTextField = new JTextField(40);
+	private JTextField fileTextField = new JTextField(20);
     private JButton showHideBtn = new JButton("Hide");
 	private CustomButton loadBtn = new CustomButton("Load", new ImageIcon(
 			EditorPanel.class.getResource("/upload.png")), 25, 25);
@@ -84,9 +84,8 @@ public class EditorPanel implements MouseMotionListener{
 
 	EditorPanel () {
         f = new Frame("Vamix");
-        f.setSize(1200, 750);
+        f.setSize(1280, 750);
         f.setBackground(Color.black);
-  //      f.setResizable(false);
         f.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -309,7 +308,7 @@ public class EditorPanel implements MouseMotionListener{
 
 	        private static final long serialVersionUID = 1L;
 	    	//private MigLayout myLayout = new MigLayout();
-	    	private MigLayout myLayout = new MigLayout("", "10 [] [] [] 10", "20 [] [] [] [grow] 5");
+	    	private MigLayout myLayout = new MigLayout("", "10 [] [] [grow] 10", "20 [] [] [] [grow] 5");
 
 	        public Overlay(Window owner, EditorPanel ed) {
 	            super(owner, WindowUtils.getAlphaCompatibleGraphicsConfiguration());
@@ -323,7 +322,9 @@ public class EditorPanel implements MouseMotionListener{
 	            TitledBorder border = BorderFactory.createTitledBorder(
 	    				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
 	    				new Color(50, 150, 50, 250), new Color(50, 150, 50, 250)), "Project");
-	            border.setTitleColor(new Color(100,0,0));
+	            border.setTitleColor(new Color(50, 150, 50, 250));
+	    		border.setTitleFont(new Font("Sans Serif", Font.BOLD, 24));
+	            
 	            projectPanel.setBorder(border);
 	            projectPanel.setLayout(new MigLayout());
 	            projectPanel.add(loadBtn);
@@ -341,15 +342,10 @@ public class EditorPanel implements MouseMotionListener{
 	            
 	            add(leftSidePane, "cell 0 1 1 3, grow, width 350!, gaptop 10");
 	            
-//	            JPanel rightSidePane = new JPanel();
-//	         // must be set this before creating any trees
-//	            UIManager.put("Tree.rendererFillBackground", false);
-//	            rightSidePane.setLayout(new MigLayout());
-//	            JTree tree = new JTree();
-//	            tree.setOpaque(false);
-//	    		rightSidePane.add(tree, "grow");
-//
-//	            add(rightSidePane, "cell 3 1 1 3, grow, width 300!");
+	            JPanel rightSidePane = new JPanel();
+	            rightSidePane.setLayout(new MigLayout());
+	            rightSidePane.add(new DownloadPanel());
+	            add(rightSidePane, "dock east, gaptop 30");
 	            
 	            JPanel openPanel = new JPanel();
 	            openPanel.add(fileTextField);
@@ -358,9 +354,9 @@ public class EditorPanel implements MouseMotionListener{
 	            
 	            setFocusable(true);
 	            add(mainControlPanel, "dock south, gapbefore 30%");
-	    		state.addColourListeners(leftSidePane, textSection, audioSection, mainControlPanel, projectPanel,
+	    		state.addColourListeners(leftSidePane, textSection, audioSection, mainControlPanel, projectPanel, rightSidePane,
 	            		saveBtn, loadBtn, openPanel, openBtn, fileTextField, mainControlPanel.volumeSlider, mainControlPanel.vidPosSlider);
-	          	state.addStateListeners(leftSidePane, openPanel, projectPanel, mainControlPanel);
+	          	state.addStateListeners(leftSidePane, openPanel, projectPanel, mainControlPanel, rightSidePane);
 	    		state.addMouseListeners(mainControlPanel, mainControlPanel.volumeSlider, mainControlPanel.vidPosSlider);
 	            
 	            state.setTransparent();

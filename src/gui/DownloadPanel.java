@@ -1,10 +1,12 @@
 package gui;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
@@ -16,6 +18,14 @@ import javax.swing.JProgressBar;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
+
+import popups.LoadingScreen;
+
+import state.State;
+
+import net.miginfocom.swing.MigLayout;
 
 import download.Bubba;
 
@@ -30,98 +40,52 @@ import download.Bubba;
 @SuppressWarnings("serial")
 public class DownloadPanel extends JPanel implements ActionListener{
 
-	private JLabel title = new JLabel ("Download");
-
 	// My strings are all here so it is easy to make changes
-	private String enterURL = "Enter video or audio URL: ";
-	private String urSureOpenSource = "Is this open source?";
-	private String submit = "Start Download";
+	private String enterURL = "Enter URl to download: ";
+	private String urSureOpenSource = "Open source?";
+	private String submit = "Download";
 	
 	private String url;
-	
 	private JLabel urlInstr = new JLabel(enterURL);
 	private JTextField urlField = new JTextField(20);
-	
 	private JLabel isOpen = new JLabel(urSureOpenSource);
 	private JRadioButton openY = new JRadioButton("Yes");
 	private JRadioButton openN = new JRadioButton("No");
 	private JButton submitBtn = new JButton(submit);
 	private JButton pauseBtn = new JButton("Pause");
-	private JProgressBar prog = new JProgressBar(0, 100);
 	public static boolean isPaused = false;
-	
-	private JPanel innerPanel = new JPanel();
-	
 	private Bubba shrimp;
-	
+	private static LoadingScreen loadScreen;
+
 
 	/**
 	 * This constructor is used to set up the layout of this download panel
 	 */
 	public DownloadPanel() {
 		
-		title.setAlignmentX(Component.CENTER_ALIGNMENT);
-		title.setFont (new Font("Serif", Font.BOLD, 48));
-		add(title);
+		setLayout(new MigLayout());
+		add(urlInstr, "wrap, span 2");
+		add(urlField, "grow, wrap, span 2");
+		add(isOpen);
+	    ButtonGroup group = new ButtonGroup();
+	    group.add(openY);
+	    group.add(openN);
+		add(openY, "split 2");
+		add(openN, "wrap");
+		add(submitBtn);
+		add(pauseBtn);
 		
-		GroupLayout layout = new GroupLayout(innerPanel);
-		 innerPanel.setLayout(layout);
-		 
-		layout.setAutoCreateGaps(true);
-		layout.setAutoCreateContainerGaps(true);
+		TitledBorder border = BorderFactory.createTitledBorder(
+				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
+				new Color(255, 150, 250, 250), new Color(50, 50, 150, 250)), "Download");
+		border.setTitleColor(new Color(255, 150, 250, 250));
+		border.setTitleFont(new Font("Sans Serif", Font.BOLD, 24));
+		setBorder(border);
+        State.getState().addBorderListeners(border);
 		
-		// This section lays out all the various components in a beautiful configuration
-		layout.setHorizontalGroup(
-				layout.createSequentialGroup()
-				  .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED,
-                     GroupLayout.DEFAULT_SIZE, 50)
-			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
-			           .addComponent(urlInstr)
-			           .addComponent(isOpen)
-			           .addComponent(submitBtn))
-			      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-			           .addComponent(urlField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
-			        	          GroupLayout.PREFERRED_SIZE)
-			           .addGroup(layout.createSequentialGroup()
-			        		.addComponent(openY)
-			        		.addComponent(openN))
-			           .addComponent(pauseBtn))
-		);
-		layout.setVerticalGroup(
-		   layout.createSequentialGroup()
-		   	  .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED,
-                     GroupLayout.DEFAULT_SIZE, 50)
-		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-		           .addComponent(urlInstr)
-		           .addComponent(urlField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
-		        	          GroupLayout.PREFERRED_SIZE))
-		      .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED,
-                     GroupLayout.DEFAULT_SIZE, 15)
-		      .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-		           .addComponent(isOpen)
-		           .addComponent(openY)
-		           .addComponent(openN))
-		      .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED,
-                     GroupLayout.DEFAULT_SIZE, 15)
-              .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-		           .addComponent(submitBtn)
-		           .addComponent(pauseBtn))
-		      .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED,
-                     GroupLayout.DEFAULT_SIZE, 15)
-		      
-		);
+		State.getState().addColourListeners(this, urlInstr, urlField, isOpen, openY, openN, submitBtn, pauseBtn);
 		
 		submitBtn.addActionListener(this);
-		// Group buttons so only one can be selected
-		ButtonGroup andOrModeGrp = new ButtonGroup();
-		andOrModeGrp.add(openY);
-		andOrModeGrp.add(openN);
-		
-		// This section is the final step of the layout. It is used so that the submitBtn 
-		// can be in the center of the window
-		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-		innerPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-		add(innerPanel);
 
 		//this is used to pause the download
 		pauseBtn.addActionListener(new ActionListener(){
@@ -141,10 +105,6 @@ public class DownloadPanel extends JPanel implements ActionListener{
 			}	
 		});
 		
-		// Add the progress bar but don't show it until something is actually being downloaded
-		add(prog);
-		prog.setVisible(false);
-		
 		//ensure pause button is not active at start
 		pauseBtn.setEnabled(false);
 	}
@@ -160,7 +120,7 @@ public class DownloadPanel extends JPanel implements ActionListener{
 	public void actionPerformed(ActionEvent arg0) {
 		if (shrimp != null && !shrimp.isDone()) {
 			shrimp.cancel(true);
-			prog.setVisible(false);
+		//	prog.setVisible(false);
 			submitBtn.setText("Start Download");
 			shrimp = null;
 		} else {
@@ -223,10 +183,10 @@ public class DownloadPanel extends JPanel implements ActionListener{
 	 */
 	private void download(String cmd) {
 		try {
-			prog.setVisible(true);
 			submitBtn.setText("Cancel");
-			// Bubba is the download SwingWorker
-			shrimp = new Bubba(cmd, prog, submitBtn, pauseBtn);
+			loadScreen = new LoadingScreen();
+            loadScreen.prepare();
+			shrimp = new Bubba(cmd, loadScreen.getProgBar(), submitBtn, pauseBtn);
 			shrimp.execute();
 			
 		} catch (Exception e) {

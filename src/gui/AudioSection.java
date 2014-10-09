@@ -2,6 +2,7 @@ package gui;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -44,7 +45,7 @@ public class AudioSection extends JPanel{
 	private EditorPanel editorPanel;
 	private Component mediaPlayer;
 	
-	private static LoadingScreen loadScreen = new LoadingScreen();
+	private static LoadingScreen loadScreen;
 	
 	/**
 	 * The constructor that sets up the GUI and adds listeners to the buttons
@@ -62,7 +63,8 @@ public class AudioSection extends JPanel{
 		TitledBorder border = BorderFactory.createTitledBorder(
 				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
 				new Color(250, 150, 150, 250), new Color(250, 150, 50, 250)), "Audio");
-		border.setTitleColor(new Color(100,0,0));
+		border.setTitleColor(new Color(250, 150, 150, 250));
+		border.setTitleFont(new Font("Sans Serif", Font.BOLD, 24));
 		setBorder(border);
 		
         State.getState().addBorderListeners(border);
@@ -133,7 +135,6 @@ public class AudioSection extends JPanel{
 	 * @param option String used to distinguish between different audio worker tasks
 	 */
 	public void audioEdit(String option) {
-		loadScreen = new LoadingScreen();
 		if (editorPanel.isFileType(editorPanel.getMediaName(), "Audio")){
 			JOptionPane.showMessageDialog(mediaPlayer, "Please enter a valid video file name.");
 			return;
@@ -146,6 +147,7 @@ public class AudioSection extends JPanel{
 		        	int dur = GetAttributes.getDuration(editorPanel.getMediaName());
 		        	int fps = GetAttributes.getFPS(editorPanel.getMediaName());
 		            String audioFile = fc.getSelectedFile().getAbsolutePath().toString();
+		    		loadScreen = new LoadingScreen();
 		            loadScreen.prepare();
 			    	AudioWorker worker = new AudioWorker(editorPanel.getMediaName(), audioTextField.getText(),
 			    							option, audioFile, loadScreen.getProgBar(), dur, fps);

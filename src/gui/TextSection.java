@@ -75,7 +75,7 @@ public class TextSection extends JPanel{
 	private DateEditor de;
 	private MainControlPanel cp;
 	private EditorPanel editorPanel;
-	private static LoadingScreen loadScreen = new LoadingScreen();
+	private static LoadingScreen loadScreen;
 
 	/**
 	 * The constructor sets up the GUI and adds listeners
@@ -100,7 +100,8 @@ public class TextSection extends JPanel{
 		TitledBorder border = BorderFactory.createTitledBorder(
 				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
 				new Color(150, 150, 250, 250), new Color(50, 50, 150, 250)), "Text");
-		border.setTitleColor(new Color(100,0,0));
+		border.setTitleFont(new Font("Sans Serif", Font.BOLD, 24));
+		border.setTitleColor(new Color(150, 150, 250, 250));
 		setBorder(border);
         State.getState().addBorderListeners(border);
 
@@ -232,7 +233,6 @@ public class TextSection extends JPanel{
 	 * @param output - the user specified output file name
 	 */
 	public void addTextToVideo(String option, String output){
-		loadScreen = new LoadingScreen();
 		if (textArea.getText().split("\\s").length > 20){
 			JOptionPane.showMessageDialog(null, "Input text exceeds the 20 word limit.", "Error", JOptionPane.DEFAULT_OPTION);
 			return;
@@ -281,8 +281,10 @@ public class TextSection extends JPanel{
     	}
         //only carry out the command if the video file is valid
         if (dur > 0 && fps > 0){
-	        if (option.equals("avconv"))
+	        if (option.equals("avconv")){
+	    		loadScreen = new LoadingScreen();
 				loadScreen.prepare();
+	        }
 	        TextWorker worker = new TextWorker(cmd, loadScreen.getProgBar(), dur, fps, option);
 	        worker.execute();
 		}

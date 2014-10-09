@@ -1,5 +1,6 @@
 package popups;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
@@ -22,7 +23,9 @@ public class LoadingScreen extends JFrame{
 		setLocation(500, 250);
 		setLayout(new MigLayout());
 		add(title, "center, wrap");
-		add(progBar, "growx, height 20:45:, width 60:300:");
+		add(progBar, "growx, height 20:45:, width 60:300:, wrap");
+		add(new JButton("Hide"));
+		add(new JButton("Cancel"));
 		progBar.addChangeListener(new ChangeListener() {
 
 			@Override

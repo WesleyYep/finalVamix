@@ -65,6 +65,7 @@ public class LoadingScreen extends JFrame{
 	
 	public void prepare() {
 		progBar.setValue(0);
+		setAlwaysOnTop(true);
 		setVisible(true);
 	}
 	

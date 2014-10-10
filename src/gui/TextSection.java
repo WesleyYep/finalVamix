@@ -281,8 +281,8 @@ public class TextSection extends JPanel{
     	}
         //only carry out the command if the video file is valid
         if (dur > 0 && fps > 0){
-	        if (option.equals("avconv")){
-	    		loadScreen = new LoadingScreen();
+    		loadScreen = new LoadingScreen();
+	        if (option.equals("conv")){
 				loadScreen.prepare();
 	        }
 	        TextWorker worker = new TextWorker(cmd, loadScreen.getProgBar(), dur, fps, option);

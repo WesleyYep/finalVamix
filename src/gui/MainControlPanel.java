@@ -22,7 +22,7 @@ import uk.co.caprica.vlcj.player.MediaPlayer;
 public class MainControlPanel extends JPanel{
 	private MediaPlayer mp;
 	private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-	private boolean isPreviewing = false;
+	private static boolean isPreviewing = false;
 	private boolean isPaused = false;
 	private JLabel timeLabel = new JLabel("hh:mm:ss");
 	private long duration;
@@ -251,6 +251,10 @@ public class MainControlPanel extends JPanel{
 			forwardBtn.setEnabled(true);
 			backwardBtn.setEnabled(true);
 		}
+	}
+	
+	public static boolean getIsPreviewing(){
+		return isPreviewing;
 	}
 	
 	  public void updateVolume(int value) {

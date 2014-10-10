@@ -243,7 +243,7 @@ public class TextSection extends JPanel{
 		}
 		//get the duration and attributes for use in the progress bar
 		int dur = GetAttributes.getDuration(editorPanel.getMediaName());
-    	int fps = GetAttributes.getFPS(editorPanel.getMediaName());
+    	int frames = GetAttributes.getFrames(editorPanel.getMediaName());
         String fontPath = getFontPath(fontOption.getSelectedItem().toString());
         //get the time from the spinner, to work out the length of the title/credits
         String time = new DateEditor(timeForTextSpinner , "yy:mm:ss").getFormat().format(timeForTextSpinner.getValue());
@@ -275,19 +275,22 @@ public class TextSection extends JPanel{
     	}else if (option.equals("preview")){
     		 cmd = "avconv -re -i " + editorPanel.getMediaName() + " -vf \"drawtext=fontfile='" + fontPath + "':textfile='" + currentAbsPath + "/.text" +
 	        			"':x=" + xSpinner.getValue() + ":y=" + ySpinner.getValue() + ":fontsize=" + fontSizeSpinner.getValue() + ":fontcolor=" + colour + 
-	        			":draw='" + timeFunction + "'\" -strict experimental -f mpegts " + output;
+	        			":draw='" + timeFunction + "'\" -strict experimental -f mpegts -v debug " + output;
     		 cp.setDuration(dur*1000);
     		 cp.setIsPreviewing(true);
     	}
         //only carry out the command if the video file is valid
-        if (dur > 0 && fps > 0){
+        if (dur > 0 && frames > 0){
     		loadScreen = new LoadingScreen(editorPanel);
 	        if (option.equals("conv")){
 				loadScreen.prepare();
 	        }
-	        TextWorker worker = new TextWorker(cmd, loadScreen.getProgBar(), dur, fps, option);
+	        TextWorker worker = new TextWorker(cmd, loadScreen.getProgBar(), frames, option);
 	        worker.execute();
 		}
+        else{
+			JOptionPane.showMessageDialog(null, "Unsupported input file", "Error", JOptionPane.DEFAULT_OPTION);
+        }
 	}
 	/**Method comes from http://www.javacreed.com/how-to-get-the-hex-value-from-color/
 	 * 

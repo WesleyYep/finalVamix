@@ -350,7 +350,7 @@ public class EditorPanel implements MouseMotionListener{
 	            JPanel rightSidePane = new JPanel();
 	            rightSidePane.setLayout(new MigLayout());
 	            rightSidePane.add(new DownloadPanel(ep), "wrap");
-	            rightSidePane.add(new EffectsSection(ep, mainControlPanel));
+	            rightSidePane.add(new EffectsSection(ep, mainControlPanel), "growx");
 	            add(rightSidePane, "dock east, gaptop 30");
 	            
 	            JPanel openPanel = new JPanel();

@@ -29,11 +29,12 @@ public class TextWorker extends SwingWorker<Void, String> {
 	private String cmd;
 	private String option;
 	
-	public TextWorker(String cmd, JProgressBar progressBar, int dur, int fps, String option) {
+	public TextWorker(String cmd, JProgressBar progressBar, int fps, String option) {
 		this.cmd = cmd;
 		this.progBar = progressBar;
 		this.option = option;
-		progBar.setMaximum(dur*fps);
+		System.out.println(fps);
+		progBar.setMaximum(fps);
 	}
 	
 	@Override
@@ -46,10 +47,13 @@ public class TextWorker extends SwingWorker<Void, String> {
 				BufferedReader br = new BufferedReader(new InputStreamReader(stderr));
 				String line;
 				while ((line = br.readLine()) != null){
-					if (!TextSection.loadCancelled())
+			//		if (!TextSection.loadCancelled()){
 						publish(line);
-					else
-						process.destroy();
+			//		}
+			//		else{
+			//			System.out.println("no");
+			//			process.destroy();
+			//		}
 				}
 			} catch (IOException e) {}
 		return null;
@@ -61,7 +65,7 @@ public class TextWorker extends SwingWorker<Void, String> {
 		if (option.equals("preview"))
 			return;
 		//get the frame number for use in the progress bar
-		Pattern pattern = Pattern.compile("frame= *(\\d+) fps=");
+		Pattern pattern = Pattern.compile("frame= ?(\\d+)");
 		for (String line : chunks){
 			Matcher m = pattern.matcher(line);
 			if (m.find()){

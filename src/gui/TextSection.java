@@ -229,7 +229,7 @@ public class TextSection extends JPanel{
 	/**
 	 * This method is called when either the add text or preview text button is clicked
 	 * This will use either avconv or avplay to add the text to the video.
-	 * @oparam option - name of the command: either avconv or avplay
+	 * @oparam option - either convert or preview
 	 * @param output - the user specified output file name
 	 */
 	public void addTextToVideo(String option, String output){
@@ -281,7 +281,7 @@ public class TextSection extends JPanel{
     	}
         //only carry out the command if the video file is valid
         if (dur > 0 && fps > 0){
-    		loadScreen = new LoadingScreen();
+    		loadScreen = new LoadingScreen(editorPanel);
 	        if (option.equals("conv")){
 				loadScreen.prepare();
 	        }

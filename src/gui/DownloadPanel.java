@@ -56,13 +56,13 @@ public class DownloadPanel extends JPanel implements ActionListener{
 	public static boolean isPaused = false;
 	private Bubba shrimp;
 	private static LoadingScreen loadScreen;
-
+	private EditorPanel ep;
 
 	/**
 	 * This constructor is used to set up the layout of this download panel
 	 */
-	public DownloadPanel() {
-		
+	public DownloadPanel(EditorPanel ep) {
+		this.ep = ep;
 		setLayout(new MigLayout());
 		add(urlInstr, "wrap, span 2");
 		add(urlField, "grow, wrap, span 2");
@@ -184,7 +184,7 @@ public class DownloadPanel extends JPanel implements ActionListener{
 	private void download(String cmd) {
 		try {
 			submitBtn.setText("Cancel");
-			loadScreen = new LoadingScreen();
+			loadScreen = new LoadingScreen(ep);
             loadScreen.prepare();
 			shrimp = new Bubba(cmd, loadScreen.getProgBar(), submitBtn, pauseBtn);
 			shrimp.execute();

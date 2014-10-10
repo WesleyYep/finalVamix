@@ -72,6 +72,7 @@ public class EditorPanel implements MouseMotionListener{
 	private Frame f;
 	private State state;
 	private Window overlay;
+	private JPanel bottomPanel;
 
     public static void main(final String[] args) throws Exception {
         SwingUtilities.invokeLater(new Runnable() {
@@ -112,7 +113,7 @@ public class EditorPanel implements MouseMotionListener{
 		
         f.add(mediaPlayerComponent, BorderLayout.CENTER);
         
-        JPanel bottomPanel = new JPanel();
+        bottomPanel = new JPanel();
         showHideBtn.setBackground(Color.BLACK);
         showHideBtn.setForeground(Color.LIGHT_GRAY);
         bottomPanel.add(showHideBtn, BorderLayout.EAST);
@@ -265,6 +266,10 @@ public class EditorPanel implements MouseMotionListener{
 		return false;
 	}	
 	
+	public void addToBottomPanel(JComponent comp){
+		bottomPanel.add(comp);
+	}
+	
 	/**
 	 *  Used by the Audio/text sections to allow them to get the media file being played
 	 * @return The string which comes straight from the filetextfield
@@ -310,7 +315,7 @@ public class EditorPanel implements MouseMotionListener{
 	    	//private MigLayout myLayout = new MigLayout();
 	    	private MigLayout myLayout = new MigLayout("", "10 [] [] [grow] 10", "20 [] [] [] [grow] 5");
 
-	        public Overlay(Window owner, EditorPanel ed) {
+	        public Overlay(Window owner, EditorPanel ep) {
 	            super(owner, WindowUtils.getAlphaCompatibleGraphicsConfiguration());
 	            
 	            AWTUtilities.setWindowOpaque(this, false);
@@ -334,9 +339,9 @@ public class EditorPanel implements MouseMotionListener{
 	            
 	            JPanel leftSidePane = new JPanel();
 	            leftSidePane.setLayout(new MigLayout());
-	            audioSection = new AudioSection(ed, mediaPlayerComponent);
+	            audioSection = new AudioSection(ep, mediaPlayerComponent);
 	            leftSidePane.add(audioSection, "wrap");
-	            textSection = new TextSection(ed, mainControlPanel);
+	            textSection = new TextSection(ep, mainControlPanel);
 	            leftSidePane.add(textSection, "wrap, grow");
 	            leftSidePane.add(projectPanel, "grow");
 	            
@@ -344,7 +349,8 @@ public class EditorPanel implements MouseMotionListener{
 	            
 	            JPanel rightSidePane = new JPanel();
 	            rightSidePane.setLayout(new MigLayout());
-	            rightSidePane.add(new DownloadPanel());
+	            rightSidePane.add(new DownloadPanel(ep), "wrap");
+	            rightSidePane.add(new EffectsSection(ep, mainControlPanel));
 	            add(rightSidePane, "dock east, gaptop 30");
 	            
 	            JPanel openPanel = new JPanel();

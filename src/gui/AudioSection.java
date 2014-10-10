@@ -147,7 +147,7 @@ public class AudioSection extends JPanel{
 		        	int dur = GetAttributes.getDuration(editorPanel.getMediaName());
 		        	int fps = GetAttributes.getFPS(editorPanel.getMediaName());
 		            String audioFile = fc.getSelectedFile().getAbsolutePath().toString();
-		    		loadScreen = new LoadingScreen();
+		    		loadScreen = new LoadingScreen(editorPanel);
 		            loadScreen.prepare();
 			    	AudioWorker worker = new AudioWorker(editorPanel.getMediaName(), audioTextField.getText(),
 			    							option, audioFile, loadScreen.getProgBar(), dur, fps);

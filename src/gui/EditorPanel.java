@@ -63,7 +63,7 @@ public class EditorPanel implements MouseMotionListener{
     private JButton showHideBtn = new JButton(getString("hide"));
 	private CustomButton loadBtn = new CustomButton(getString("load"), new ImageIcon(
 			EditorPanel.class.getResource("/upload.png")), 25, 25);
-	private JButton saveBtn = new CustomButton("Save", new ImageIcon(
+	private JButton saveBtn = new CustomButton(getString("save"), new ImageIcon(
 			EditorPanel.class.getResource("/download.png")), 25, 25);
 	private ProjectFile projFile = ProjectFile.getInstance(this);
 	private AudioSection audioSection;

@@ -100,7 +100,7 @@ public class TextSection extends JPanel{
 		setLayout(new MigLayout());
 		TitledBorder border = BorderFactory.createTitledBorder(
 				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
-				new Color(150, 150, 250, 250), new Color(50, 50, 150, 250)), "Text");
+				new Color(150, 150, 250, 250), new Color(50, 50, 150, 250)), getString("text"));
 		border.setTitleFont(new Font("Sans Serif", Font.BOLD, 24));
 		border.setTitleColor(new Color(150, 150, 250, 250));
 		setBorder(border);

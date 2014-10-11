@@ -7,7 +7,9 @@ public class LanguageSelector {
 	private static LanguageSelector languageSelector;
 	private ResourceBundle bundle;
 	private LanguageSelector(){
-		bundle = ResourceBundle.getBundle("Language");
+		Locale maoriLocale = new Locale("en", "MA");//remove this for default to be english
+		
+		bundle = ResourceBundle.getBundle("Language", maoriLocale);
 	}
 	
 	public static LanguageSelector getLanguageSelector(){

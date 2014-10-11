@@ -328,7 +328,7 @@ public class EditorPanel implements MouseMotionListener{
 	            JPanel projectPanel = new JPanel();
 	            TitledBorder border = BorderFactory.createTitledBorder(
 	    				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
-	    				new Color(50, 150, 50, 250), new Color(50, 150, 50, 250)), "Project");
+	    				new Color(50, 150, 50, 250), new Color(50, 150, 50, 250)), getString("project"));
 	            border.setTitleColor(new Color(50, 150, 50, 250));
 	    		border.setTitleFont(new Font("Sans Serif", Font.BOLD, 24));
 	            

@@ -41,6 +41,7 @@ public class EffectsSection extends JPanel{
 	private JButton previewBtn = new JButton("Preview");
 	private JButton addBtn = new JButton("Add");
 	private JCheckBox gifCheckBox;
+	private boolean isDraggable;
 
 	public EffectsSection(EditorPanel ep, MainControlPanel cp){
 		this.editorPanel = ep;
@@ -236,6 +237,14 @@ public class EffectsSection extends JPanel{
 		    java.sql.Time time = new java.sql.Time(d.getTime());
 		    endSpinner.setValue(time);
 		} catch (ParseException e) {}
+	}
+
+	public void setDraggable(boolean b) {
+		isDraggable = true;
+	}
+
+	public boolean isDraggable() {
+		return isDraggable;
 	}
 
 }

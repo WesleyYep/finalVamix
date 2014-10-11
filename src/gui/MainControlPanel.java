@@ -3,6 +3,8 @@ package gui;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -83,7 +85,6 @@ public class MainControlPanel extends JPanel{
 
 
 	private void registerListeners() {
-	    
 		vidPosSlider.addChangeListener(new ChangeListener() {
 	        @Override
 	        public void stateChanged(ChangeEvent e) {

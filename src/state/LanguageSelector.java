@@ -5,12 +5,12 @@ import java.util.ResourceBundle;
 
 public class LanguageSelector {
 	private static LanguageSelector languageSelector;
-	private ResourceBundle bundle = ResourceBundle.getBundle("Language");
+	private ResourceBundle bundle;
 	private LanguageSelector(){
-		//
+		bundle = ResourceBundle.getBundle("Language");
 	}
 	
-	public static LanguageSelector getSelector(){
+	public static LanguageSelector getLanguageSelector(){
 		if (languageSelector == null){
 			languageSelector = new LanguageSelector();
 			return languageSelector;

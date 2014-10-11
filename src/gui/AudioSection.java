@@ -23,6 +23,7 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
 import popups.LoadingScreen;
+import state.LanguageSelector;
 import state.State;
 import uk.co.caprica.vlcj.component.EmbeddedMediaPlayerComponent;
 import net.miginfocom.swing.MigLayout;
@@ -36,10 +37,10 @@ import net.miginfocom.swing.MigLayout;
 public class AudioSection extends JPanel{
 
 	private JTextField audioTextField = new JTextField(40);
-	private JButton openAudioBtn = new JButton("Open");
-	private JButton replaceBtn = new JButton("Replace");
-	private JButton overlayBtn = new JButton("Overlay");
-	private JButton stripBtn = new JButton("Strip");
+	private JButton openAudioBtn = new JButton(getString("open"));
+	private JButton replaceBtn = new JButton(getString("replace"));
+	private JButton overlayBtn = new JButton(getString("overlay"));
+	private JButton stripBtn = new JButton(getString("strip"));
 	
 	// Retrieved on construction
 	private EditorPanel editorPanel;
@@ -62,7 +63,7 @@ public class AudioSection extends JPanel{
 		setLayout(new MigLayout());
 		TitledBorder border = BorderFactory.createTitledBorder(
 				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
-				new Color(250, 150, 150, 250), new Color(250, 150, 50, 250)), "Audio");
+				new Color(250, 150, 150, 250), new Color(250, 150, 50, 250)), getString("audio"));
 		border.setTitleColor(new Color(250, 150, 150, 250));
 		border.setTitleFont(new Font("Sans Serif", Font.BOLD, 24));
 		setBorder(border);
@@ -98,9 +99,9 @@ public class AudioSection extends JPanel{
         	@Override
         	public void actionPerformed(ActionEvent arg0) {
         		        		
-        		String [] buttons = { "Audio", "Video"};
+        		String [] buttons = { getString("audio"), getString("video")};
         		int choice = JOptionPane.showOptionDialog(mediaPlayer, 
-        				"Would you like to save the audio only, or video only?", "Confirmation"
+        				getString("audioOrVideo"), getString("confirmation")
         				,JOptionPane.INFORMATION_MESSAGE, 0, null, buttons, buttons[0]);
         		if (choice == 0) {
         			audioEdit("stripVideo"); //remove the video
@@ -135,7 +136,7 @@ public class AudioSection extends JPanel{
 	 */
 	public void audioEdit(String option) {
 		if (editorPanel.isFileType(editorPanel.getMediaName(), "Audio")){
-			JOptionPane.showMessageDialog(mediaPlayer, "Please enter a valid video file name.");
+			JOptionPane.showMessageDialog(mediaPlayer, getString("validVideo"));
 			return;
 		}
     	if (option.startsWith("strip") || correctFileType(audioTextField.getText(), "Audio")){
@@ -154,7 +155,7 @@ public class AudioSection extends JPanel{
 		        }
     		}
     		else
-    			JOptionPane.showMessageDialog(mediaPlayer, "Please open a valid media file.");
+    			JOptionPane.showMessageDialog(mediaPlayer, getString("validMediaFile"));
     	}
     	else
 			JOptionPane.showMessageDialog(mediaPlayer, "Please enter a valid audio file name.");
@@ -175,9 +176,9 @@ public class AudioSection extends JPanel{
 			BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
 			return (br.readLine().contains(expected));		
 		} catch (IOException e) {
-			JOptionPane.showMessageDialog(null, "Error occurred.");
+			JOptionPane.showMessageDialog(null, getString("errorOccurred"));
 		} catch (InterruptedException e) {
-			JOptionPane.showMessageDialog(null, "Error occurred.");
+			JOptionPane.showMessageDialog(null, getString("errorOccurred"));
 		}
 		return false;
 	}	
@@ -209,5 +210,9 @@ public class AudioSection extends JPanel{
 			replaceBtn.setEnabled(true);
 			overlayBtn.setEnabled(true);
 		}
+	}
+	
+	private String getString(String label){
+		return LanguageSelector.getLanguageSelector().getString(label);
 	}
 }

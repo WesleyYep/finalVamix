@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -14,12 +15,14 @@ import javax.swing.JRadioButton;
 import javax.swing.JSpinner.DateEditor;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
+
 import components.CustomSpinner;
 import components.TransparentLabel;
 import editing.GetAttributes;
 import editing.VideoWorker;
 import net.miginfocom.swing.MigLayout;
 import popups.LoadingScreen;
+import state.LanguageSelector;
 import state.State;
 
 import java.text.ParseException;
@@ -32,14 +35,14 @@ public class EffectsSection extends JPanel{
 	private MainControlPanel controlPanel;
 	private static LoadingScreen loadScreen;
 	private JComboBox<String> speedOption;
-	private JRadioButton flipH = new JRadioButton("Horz");
-	private JRadioButton flipV = new JRadioButton("Vert");
-	private JRadioButton fadeS = new JRadioButton("Start");
-	private JRadioButton fadeE = new JRadioButton("End");
+	private JRadioButton flipH = new JRadioButton(getString("horizontal"));
+	private JRadioButton flipV = new JRadioButton(getString("vertical"));
+	private JRadioButton fadeS = new JRadioButton(getString("start"));
+	private JRadioButton fadeE = new JRadioButton(getString("end"));
 	private CustomSpinner startSpinner;
 	private CustomSpinner endSpinner;
-	private JButton previewBtn = new JButton("Preview");
-	private JButton addBtn = new JButton("Add");
+	private JButton previewBtn = new JButton(getString("preview"));
+	private JButton addBtn = new JButton(getString("add"));
 	private JCheckBox gifCheckBox;
 	private boolean isDraggable;
 
@@ -51,27 +54,27 @@ public class EffectsSection extends JPanel{
 		speedOption.setSelectedIndex(2);
 		startSpinner = new CustomSpinner(0);
 		endSpinner = new CustomSpinner(20);
-		gifCheckBox = new JCheckBox("Create gif");
+		gifCheckBox = new JCheckBox(getString("createGif"));
 		
 		TitledBorder border = BorderFactory.createTitledBorder(
 				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
-				new Color(150, 250, 50, 180),new Color(150, 250, 50, 180)), "Effects");
+				new Color(150, 250, 50, 180),new Color(150, 250, 50, 180)), getString("effects"));
 		border.setTitleFont(new Font("Sans Serif", Font.BOLD, 24));
 		border.setTitleColor(new Color(150, 150, 250, 250));
 		setBorder(border);
 		
 		setLayout(new MigLayout());
-		add(speedLbl = new TransparentLabel("Speed: "), "grow");
+		add(speedLbl = new TransparentLabel(getString("speed")), "grow");
 		add(speedOption, "wrap, grow");
-		add(startLbl = new TransparentLabel("Trim - Start: "), "grow");
+		add(startLbl = new TransparentLabel(getString("trimStart")), "grow");
 		add(startSpinner, "grow, wrap");
-		add(endLbl = new TransparentLabel("Trim - End: "), "grow");
+		add(endLbl = new TransparentLabel(getString("trimEnd")), "grow");
 		add(endSpinner, "grow, wrap");
 		add(gifCheckBox, "span 2, align right, wrap");
-		add(flipLbl = new TransparentLabel("Flip: "), "grow");
+		add(flipLbl = new TransparentLabel(getString("flip")), "grow");
 		add(flipH, "split 2");
 		add(flipV, "wrap");		
-		add(fadeLbl = new TransparentLabel("Fade"), "grow");
+		add(fadeLbl = new TransparentLabel(getString("fade")), "grow");
 		add(fadeS, "split 2");
 		add(fadeE, "wrap");
 		add(previewBtn, "grow");
@@ -239,12 +242,7 @@ public class EffectsSection extends JPanel{
 		} catch (ParseException e) {}
 	}
 
-	public void setDraggable(boolean b) {
-		isDraggable = true;
+	private String getString(String label){
+		return LanguageSelector.getLanguageSelector().getString(label);
 	}
-
-	public boolean isDraggable() {
-		return isDraggable;
-	}
-
 }

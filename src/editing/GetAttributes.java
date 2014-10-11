@@ -10,6 +10,8 @@ import java.util.regex.Pattern;
 
 import javax.swing.JOptionPane;
 
+import state.LanguageSelector;
+
 public class GetAttributes{ 
 	
 	public static int getDuration(String inputFile){
@@ -28,7 +30,7 @@ public class GetAttributes{
 		try {
 			return processLinuxCmd(inputFile, pattern, "fps");
 		} catch (FileNotFoundException e) {
-			JOptionPane.showMessageDialog(null, "Unsupported input file", "Error", JOptionPane.DEFAULT_OPTION);
+			JOptionPane.showMessageDialog(null, getString("unsupportedFile"), getString("error"), JOptionPane.DEFAULT_OPTION);
 			return -1;
 		}
 	}
@@ -58,11 +60,12 @@ public class GetAttributes{
 					}
 				}
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		} catch (IOException e) {}
 		throw new FileNotFoundException();
+	}
+	
+	private static String getString(String label){
+		return LanguageSelector.getLanguageSelector().getString(label);
 	}
 	
 }

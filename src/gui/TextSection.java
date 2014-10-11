@@ -47,20 +47,21 @@ import components.CustomSpinner;
 import components.TransparentLabel;
 import popups.ColourChooser;
 import popups.LoadingScreen;
+import state.LanguageSelector;
 import state.State;
 import net.miginfocom.swing.MigLayout;
 
 /**
  * This panel contains all the controls and functionality for text manipulation
- * @author Mathew and Wesley
+ * @author Wesley
  *
  */
 @SuppressWarnings("serial")
 public class TextSection extends JPanel{
 	
-	private JTextArea textArea = new JTextArea(" -- Enter Text Here -- ",5,15);
-	private JButton addTextBtn = new JButton("Add text to Video");
-	private JButton previewBtn = new JButton("Preview");
+	private JTextArea textArea = new JTextArea(getString("defaultText"),5,15);
+	private JButton addTextBtn = new JButton(getString("addTextToVideo"));
+	private JButton previewBtn = new JButton(getString("preview"));
 	private JButton colourBtn = new JButton();
 	private JComboBox<String> titleOrCredits;
 	private JComboBox<String> fontOption;
@@ -68,7 +69,7 @@ public class TextSection extends JPanel{
 	private CustomSpinner fontSizeSpinner;
 	private CustomSpinner timeForTextSpinner;
 	private final JScrollPane textScroll = new JScrollPane(textArea);
-	private String titleText = " -- Enter Text Here -- ";
+	private String titleText = getString("defaultText");
 	private String creditsText = "";
 	private CustomSpinner xSpinner;
 	private CustomSpinner ySpinner;
@@ -86,7 +87,7 @@ public class TextSection extends JPanel{
 		
 		editorPanel = ep;
 		this.cp = cp;
-		titleOrCredits = new JComboBox<String>(new String[]{"Title", "Credits"});
+		titleOrCredits = new JComboBox<String>(new String[]{getString("title"), getString("credits")});
 		fontOption = new JComboBox<String>(new String[]{"DejaVuSans", "DroidSans", "FreeSans", "LiberationSerif-Bold", "NanumGothic", "Padauk", 
 														"TakaoPGothic", "TibetanMachineUni", "Ubuntu-C"});
        
@@ -117,17 +118,17 @@ public class TextSection extends JPanel{
 		add(textArea, "cell 0 0 2 1, grow");
 		add(titleOrCredits, "cell 0 1 2 1, grow");
 		TransparentLabel fontLbl, colourLbl, sizeLbl, xLbl, yLbl, durLbl;
-		add(fontLbl = new TransparentLabel("Font: "), "cell 0 2");
+		add(fontLbl = new TransparentLabel(getString("font")), "cell 0 2");
 		add(fontOption, "cell 1 2, grow");
-		add(colourLbl = new TransparentLabel("Colour: "), "cell 0 3");
+		add(colourLbl = new TransparentLabel(getString("colour")), "cell 0 3");
 		add(colourBtn, "cell 1 3, grow");
-		add(sizeLbl = new TransparentLabel("Size: "), "cell 0 4");
+		add(sizeLbl = new TransparentLabel(getString("size")), "cell 0 4");
 		add(fontSizeSpinner, "cell 1 4, grow");
 		add(xLbl = new TransparentLabel("X: "), "cell 0 5");
 		add(xSpinner, "cell 1 5, grow");
 		add(yLbl = new TransparentLabel("Y: "), "cell 0 6");
 		add(ySpinner, "cell 1 6, grow");
-		add(durLbl = new TransparentLabel("Duration: "), "cell 0 7");
+		add(durLbl = new TransparentLabel(getString("duration")), "cell 0 7");
 		add(timeForTextSpinner, "cell 1 7, grow");
 		add(previewBtn, "cell 0 8, grow");
 		add(addTextBtn, "cell 1 8, grow");
@@ -151,7 +152,7 @@ public class TextSection extends JPanel{
 					font = Font.createFont(Font.TRUETYPE_FONT, new File(fontPath)).deriveFont(Float.parseFloat(fontSizeSpinner.getValue().toString()));
 					textArea.setFont(font);
 				} catch (FontFormatException | IOException e) {
-					JOptionPane.showMessageDialog(null, "Font is unavailable.");
+					JOptionPane.showMessageDialog(null, getString("fontUnavailable"));
 				}
 			}
 		});
@@ -189,9 +190,9 @@ public class TextSection extends JPanel{
         titleOrCredits.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Title"))
+				if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase(getString("title")))
 	            	textArea.setText(titleText);
-				else if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Credits"))
+				else if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase(getString("credits")))
 	            	textArea.setText(creditsText);
 			}
         });
@@ -203,17 +204,17 @@ public class TextSection extends JPanel{
 
 			@Override
 			public void insertUpdate(DocumentEvent arg0) {
-				if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Title")) {
+				if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase(getString("title"))) {
 	            	titleText = textArea.getText();
-				} else if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Credits")) {
+				} else if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase(getString("credits"))) {
 					creditsText = textArea.getText();
 				}
 			}
 			@Override
 			public void removeUpdate(DocumentEvent arg0) {
-				if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Title")) {
+				if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase(getString("title"))) {
 	            	titleText = textArea.getText();
-				} else if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Credits")) {
+				} else if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase(getString("credits"))) {
 					creditsText = textArea.getText();
 				}
 			}
@@ -233,11 +234,11 @@ public class TextSection extends JPanel{
 	 */
 	public void addTextToVideo(String option, String output){
 		if (textArea.getText().split("\\s").length > 20){
-			JOptionPane.showMessageDialog(null, "Input text exceeds the 20 word limit.", "Error", JOptionPane.DEFAULT_OPTION);
+			JOptionPane.showMessageDialog(null, getString("tooMuchText"), "Error", JOptionPane.DEFAULT_OPTION);
 			return;
 		}
 		else if (Integer.parseInt(fontSizeSpinner.getValue().toString()) > 72){
-			JOptionPane.showMessageDialog(null, "Font size exceeds the 72pt limit", "Error", JOptionPane.DEFAULT_OPTION);
+			JOptionPane.showMessageDialog(null, "tooBigText", "Error", JOptionPane.DEFAULT_OPTION);
 			return;
 		}
 		//get the duration and attributes for use in the progress bar
@@ -288,7 +289,7 @@ public class TextSection extends JPanel{
 	        worker.execute();
 		}
         else{
-			JOptionPane.showMessageDialog(null, "Unsupported input file", "Error", JOptionPane.DEFAULT_OPTION);
+			JOptionPane.showMessageDialog(null, getString("unsupportedFile"), getString("error"), JOptionPane.DEFAULT_OPTION);
         }
 	}
 	/**Method comes from http://www.javacreed.com/how-to-get-the-hex-value-from-color/
@@ -321,9 +322,9 @@ public class TextSection extends JPanel{
 			String line = br.readLine();
 			return line.split(":")[0];
 		} catch (IOException e) {
-			JOptionPane.showMessageDialog(null, "Error occurred.");
+			JOptionPane.showMessageDialog(null, getString("errorOccurred"));
 		} catch (InterruptedException e) {
-			JOptionPane.showMessageDialog(null, "Error occurred.");
+			JOptionPane.showMessageDialog(null, getString("errorOccurred"));
 
 		}
 		return "";
@@ -370,5 +371,9 @@ public class TextSection extends JPanel{
 	 */
 	public static boolean loadCancelled(){
 		return loadScreen.isClosed;
+	}
+	
+	private String getString(String label){
+		return LanguageSelector.getLanguageSelector().getString(label);
 	}
 }

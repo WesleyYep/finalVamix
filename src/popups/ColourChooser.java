@@ -1,27 +1,24 @@
 package popups;
 
 import gui.TextSection;
-
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 
+import state.LanguageSelector;
 import net.miginfocom.swing.MigLayout;
 
 @SuppressWarnings("serial")
 public class ColourChooser extends JFrame{
-	private JLabel title = new JLabel("Working hard...");
 	private JColorChooser cc;
-	private JButton selectBtn = new JButton("Select");
+	private JButton selectBtn = new JButton(getString("select"));
 	private TextSection parent;
 
 	public ColourChooser(TextSection textSection) {
-		super("Colour Chooser");
+		super(getString("colourChooser"));
 		parent = textSection;
 		setLocation(500, 250);
 		setLayout(new MigLayout());
@@ -35,11 +32,14 @@ public class ColourChooser extends JFrame{
 			}
 		});
 		
-		add(title, "center, wrap");
 		add(cc, "wrap");
 		add(selectBtn, "center");
 		
 		setVisible(false);
 		this.pack();
+	}
+	
+	private static String getString(String label){
+		return LanguageSelector.getLanguageSelector().getString(label);
 	}
 }

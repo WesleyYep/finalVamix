@@ -34,11 +34,12 @@ import javax.swing.border.TitledBorder;
 
 import com.sun.jna.platform.WindowUtils;
 import com.sun.awt.AWTUtilities;
-import components.SmallColourPanel;
 
+import components.SmallColourPanel;
 import editing.ProjectFile;
 import editing.ProjectFile.ProjectSettings;
 import net.miginfocom.swing.MigLayout;
+import state.LanguageSelector;
 import state.State;
 import uk.co.caprica.vlcj.component.EmbeddedMediaPlayerComponent;
 import uk.co.caprica.vlcj.player.MediaPlayer;
@@ -55,13 +56,12 @@ import uk.co.caprica.vlcj.player.MediaPlayerEventAdapter;
 @SuppressWarnings("serial")
 public class EditorPanel implements MouseMotionListener{
 
-	private JLabel title = new JLabel ("Lets get editing");
 	private final EmbeddedMediaPlayerComponent mediaPlayerComponent;
 	private MediaPlayer mediaPlayer;
-	private JButton openBtn = new JButton("Open");
+	private JButton openBtn = new JButton(getString("open"));
 	private JTextField fileTextField = new JTextField(20);
-    private JButton showHideBtn = new JButton("Hide");
-	private CustomButton loadBtn = new CustomButton("Load", new ImageIcon(
+    private JButton showHideBtn = new JButton(getString("hide"));
+	private CustomButton loadBtn = new CustomButton(getString("load"), new ImageIcon(
 			EditorPanel.class.getResource("/upload.png")), 25, 25);
 	private JButton saveBtn = new CustomButton("Save", new ImageIcon(
 			EditorPanel.class.getResource("/download.png")), 25, 25);
@@ -100,9 +100,7 @@ public class EditorPanel implements MouseMotionListener{
       	
       	registerListeners();
 
-        //set up some stuff
-		title.setFont (new Font("Serif", Font.BOLD, 48));
-		
+        //set up some stuff		
         mainControlPanel = new MainControlPanel(mediaPlayerComponent.getMediaPlayer(), this);
 		mainControlPanel.enableStopButton();
 
@@ -184,11 +182,11 @@ public class EditorPanel implements MouseMotionListener{
         showHideBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (showHideBtn.getText().equalsIgnoreCase("Hide")){
-					showHideBtn.setText("Show");
+				if (showHideBtn.getText().equalsIgnoreCase(getString("hide"))){
+					showHideBtn.setText(getString("show"));
 					state.setVisibility(false);
-				}else if (showHideBtn.getText().equalsIgnoreCase("Show")){
-					showHideBtn.setText("Hide");
+				}else if (showHideBtn.getText().equalsIgnoreCase(getString("show"))){
+					showHideBtn.setText(getString("hide"));
 					state.setVisibility(true);
 				}
 			}
@@ -228,7 +226,7 @@ public class EditorPanel implements MouseMotionListener{
         	}
         	else
         		JOptionPane.showMessageDialog(mediaPlayerComponent, 
-        				"Please enter a valid media file name.");
+        				getString("validMediaFile"));
         }
 	}
 
@@ -263,9 +261,9 @@ public class EditorPanel implements MouseMotionListener{
 			BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
 			return (br.readLine().contains(expected));		
 		} catch (IOException e) {
-			JOptionPane.showMessageDialog(mediaPlayerComponent, "Please enter a valid file name.");
+			JOptionPane.showMessageDialog(mediaPlayerComponent, getString("validMediaFile"));
 		} catch (InterruptedException e) {
-			JOptionPane.showMessageDialog(mediaPlayerComponent, "Please enter a valid file name.");
+			JOptionPane.showMessageDialog(mediaPlayerComponent, getString("validMediaFile"));
 		}
 		return false;
 	}	
@@ -373,5 +371,8 @@ public class EditorPanel implements MouseMotionListener{
 	            
 	        }
 	    }
-
+	  
+	private String getString(String label){
+		return LanguageSelector.getLanguageSelector().getString(label);
+	}
 }

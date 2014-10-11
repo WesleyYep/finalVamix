@@ -12,6 +12,8 @@ import java.io.IOException;
 
 import javax.swing.JOptionPane;
 
+import state.LanguageSelector;
+
 public class ProjectFile {
 	
 	private static ProjectFile instance;
@@ -58,7 +60,7 @@ public class ProjectFile {
 	public void readFile(String file) {
 		if (!editorP.isText(file)) {
 			JOptionPane.showMessageDialog(null,
-    				"This is not a valid VAMIX project file", "Error"
+    				getString("notValidProj"), getString("error")
     				,JOptionPane.ERROR_MESSAGE);
 			return;
 		}
@@ -71,18 +73,16 @@ public class ProjectFile {
 			e.printStackTrace();
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(null,
-    				"This is not a valid VAMIX project file", "Error"
+					getString("notValidProj"), getString("error")
     				,JOptionPane.ERROR_MESSAGE);
 			e.printStackTrace();
 		}
 	}
 	private void readTheFile(BufferedReader input) throws IOException {
-		// TODO
-		@SuppressWarnings("unused")
 		String temp;
 		if (!(temp = input.readLine()).equals(fileStarter)) {
 			JOptionPane.showMessageDialog(null,
-    				"This is not a valid VAMIX project file", "Error"
+					getString("notValidProj"), getString("error")
     				,JOptionPane.ERROR_MESSAGE);
 			return;
 		}
@@ -113,10 +113,9 @@ public class ProjectFile {
 		editorP.loadSettings(settings);
 	}
 	
-	// TODO 
-	/**
+		/**
 	 * This class is used to house all the project settings
-	 * @author MonkeyMan707
+	 * @author Matt Smith
 	 *
 	 */
 	public class ProjectSettings {
@@ -146,9 +145,10 @@ public class ProjectFile {
 			 _y = y;
 			 _fontSize = fontSize;
 			 _duration = duration;
-		}
-		
-		
-		
+		}			
+	}
+	
+	private String getString(String label){
+		return LanguageSelector.getLanguageSelector().getString(label);
 	}
 }

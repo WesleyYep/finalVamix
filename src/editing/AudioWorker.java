@@ -15,6 +15,7 @@ import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
 
 import popups.LoadingScreen;
+import state.LanguageSelector;
 
 public class AudioWorker extends SwingWorker<Void, String> {
 	private Process process;
@@ -42,22 +43,22 @@ public class AudioWorker extends SwingWorker<Void, String> {
     	String cmd;
     	if (option.equals("stripAudio")){
     		cmd = "avconv -i " + videoFile + " -an -c:v copy -f mp4 " + file;
-    		message = "Audio track removed";
+    		message = getString("audioRemoved");
     	}
     	else  if (option.equals("stripVideo")){
     		cmd = "avconv -i " + videoFile + " -vn -c:v copy -f mp3 " + file;
-    		message = "Video track removed";
+    		message = getString("videoRemoved");
 
     	}	
     	else if (option.equals("overlay")){
     		cmd = "avconv -i " +  videoFile + " -i " + audioFile +
     				" -filter_complex amix=inputs=2 -strict experimental -v debug -f mp4 " + file;
-    		message = "Audio and video overlaid.";
+    		message = getString("videoOverlaid");
     	}
     	else{
     		cmd = "avconv -i " +  videoFile + " -i " + audioFile +
     				" -map 0:v -map 1:a -codec copy -f mp4 " + file;
-    		message = "Audio track replaced";
+    		message = getString("audioReplaced");
     	}
         	ProcessBuilder builder = new ProcessBuilder("/bin/bash", "-c", cmd);
 			try {
@@ -97,14 +98,17 @@ public class AudioWorker extends SwingWorker<Void, String> {
 		if (process.exitValue()==0)
 			JOptionPane.showMessageDialog(null, message, "Done", JOptionPane.DEFAULT_OPTION);
 		else if (option.equals("stripVideo"))
-			JOptionPane.showMessageDialog(null, "This media file has no audio track.", "Error", JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(null, getString("noAudioTrack"), getString("error"), JOptionPane.WARNING_MESSAGE);
 		else if (option.equals("stripAudio"))
-			JOptionPane.showMessageDialog(null, "This media file has no video track.", "Error", JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(null, getString("noVideoTrack"), getString("error"), JOptionPane.WARNING_MESSAGE);
 		else
-			JOptionPane.showMessageDialog(null, "Error occurred.", "Error", JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(null, getString("errorOccurred"), getString("error"), JOptionPane.WARNING_MESSAGE);
 		} catch (InterruptedException e) {
-			JOptionPane.showMessageDialog(null, "Error occurred.");
+			JOptionPane.showMessageDialog(null, getString("errorOccurred"));
 		}
     }	
 	
+	private String getString(String label){
+		return LanguageSelector.getLanguageSelector().getString(label);
+	}
 }

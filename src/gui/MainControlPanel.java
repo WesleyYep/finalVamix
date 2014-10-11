@@ -8,6 +8,7 @@ import java.awt.event.MouseMotionAdapter;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -17,7 +18,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
 import net.miginfocom.swing.MigLayout;
+import state.LanguageSelector;
 import state.State;
 import uk.co.caprica.vlcj.player.MediaPlayer;
 
@@ -25,7 +28,7 @@ import uk.co.caprica.vlcj.player.MediaPlayer;
 public class MainControlPanel extends JPanel{
 	private MediaPlayer mp;
 	private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-	private static boolean isPreviewing = false;
+	private boolean isPreviewing = false;
 	private boolean isPaused = false;
 	private long duration;
 	private long currentTime;
@@ -109,7 +112,7 @@ public class MainControlPanel extends JPanel{
         				mp.playMedia(ep.getMediaName());
             			isPaused = false;
         			}else{
-        				JOptionPane.showMessageDialog(null, "Please enter a valid file name.");
+        				JOptionPane.showMessageDialog(null, getString("validFileRequired"));
         				return;
         			}
         		}
@@ -238,7 +241,6 @@ public class MainControlPanel extends JPanel{
 		isPreviewing = true;
 		vidPosSlider.setValue(0);
 		String mediaUrl = "udp://@:1234";
-		System.out.println("yolo");
 		mp.playMedia(mediaUrl);
 		playBtn.changeIcon();
 	}
@@ -257,10 +259,6 @@ public class MainControlPanel extends JPanel{
 			forwardBtn.setEnabled(true);
 			backwardBtn.setEnabled(true);
 		}
-	}
-	
-	public static boolean getIsPreviewing(){
-		return isPreviewing;
 	}
 	
 	  public void updateVolume(int value) {
@@ -290,8 +288,6 @@ public class MainControlPanel extends JPanel{
 	    	  duration = mediaPlayer.getLength();
 	      }
 	      final int position = duration > 0 ? (int)Math.round(100.0 * (double)currentTime / (double)duration) : 0;
-//	      System.out.println("Time: " + currentTime);
-//	      System.out.println("Dur: " + duration);
 
 	      // Updates to user interface components must be executed on the Event
 	      // Dispatch Thread
@@ -314,4 +310,7 @@ public class MainControlPanel extends JPanel{
 		isFullScreen = b;
 	}
 	
+	private String getString(String label){
+		return LanguageSelector.getLanguageSelector().getString(label);
+	}
 }

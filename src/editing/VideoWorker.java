@@ -19,6 +19,7 @@ import javax.swing.JSlider;
 import javax.swing.SwingWorker;
 
 import popups.LoadingScreen;
+import state.LanguageSelector;
 
 /** 
  * The swing worker used to perform the text manipulation in the background
@@ -91,20 +92,23 @@ public class VideoWorker extends SwingWorker<Void, String> {
 
 			if (process.exitValue()==0){
 				if (type.equals("Effects")){
-					JOptionPane.showMessageDialog(null, "Effects added successfully", "Done", JOptionPane.DEFAULT_OPTION);
+					JOptionPane.showMessageDialog(null, getString("effectSuccess"), getString("done"), JOptionPane.DEFAULT_OPTION);
 				}else{
-					JOptionPane.showMessageDialog(null, "Text added successfully", "Done", JOptionPane.DEFAULT_OPTION);
+					JOptionPane.showMessageDialog(null, getString("textSuccess"), getString("done"), JOptionPane.DEFAULT_OPTION);
 				}
 			}else if (process.exitValue() > 0)
-				JOptionPane.showMessageDialog(null, "Error occurred.", "Error", JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null, getString("errorOccurred"), getString("error"), JOptionPane.WARNING_MESSAGE);
 	    	//remove the temp text file
 			Path currentRelativePath = Paths.get("");
 	    	String currentAbsPath = currentRelativePath.toAbsolutePath().toString();
 			File file = new File(currentAbsPath + "/.text");
 	        file.delete();
 		} catch (InterruptedException e) {
-			JOptionPane.showMessageDialog(null, "Error occurred.");
+			JOptionPane.showMessageDialog(null, getString("errorOccurred"), getString("error"), JOptionPane.WARNING_MESSAGE);
 		} 
     }	
 	
+	private String getString(String label){
+		return LanguageSelector.getLanguageSelector().getString(label);
+	}
 }

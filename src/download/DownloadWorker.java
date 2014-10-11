@@ -14,33 +14,37 @@ import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
 
+import popups.LoadingScreen;
+import state.LanguageSelector;
+
 /** 
  * This has been taken from my assignment 2 build of VAMIX but should still work with 
  * this assignment (perhaps with a few modifications)
  * 
  * This class is used to run the downloads of VAMIX in the background so the user
  * can continue without interruption
- * @author Mathew Smith, msmi498
+ * @author Code created by my a3 partner, Matt Smith
  *
  */
-public class Bubba extends SwingWorker<Integer, String>{
+public class DownloadWorker extends SwingWorker<Integer, String>{
 
 	private String _cmd;
 	private JProgressBar prog;
 	private JButton submitBtn;
 	private JButton pauseBtn;
-	
+	private LoadingScreen ls;
 	
 	/**
-	 * This is the standard constructor for Bubba
+	 * This is the standard constructor
 	 * @param progress the progress bar that should be updated as the download progresses
 	 * @param button the button that must not be active until download is complete
 	 */
-	public Bubba(String cmd, JProgressBar progress, JButton startButton, JButton pauseButton) {
+	public DownloadWorker(String cmd, JProgressBar progress, JButton startButton, JButton pauseButton, LoadingScreen ls) {
 		_cmd = cmd;
 		prog = progress;
 		submitBtn = startButton;
 		pauseBtn = pauseButton;
+		this.ls = ls;
 	}
 	
 	/** 
@@ -98,11 +102,12 @@ public class Bubba extends SwingWorker<Integer, String>{
 			return;
 		}
 		try {
+			ls.finishedQuite();
 			if (get() == 0) {
 				prog.setValue(100);
 				JOptionPane.showMessageDialog(submitBtn,
-					    "Download successful",
-					    "Done",
+					    getString("downloadSuccess"),
+					    getString("done"),
 					    JOptionPane.DEFAULT_OPTION);
 			
 			} else {
@@ -110,14 +115,14 @@ public class Bubba extends SwingWorker<Integer, String>{
 			}
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(submitBtn,
-				    "Download Cancelled",
-				    "Cancel",
+					getString("downloadCancel"),
+					getString("cancel"),
 				    JOptionPane.WARNING_MESSAGE);
 		}
 		
 		prog.setVisible(false);
 		prog.setValue(0);
-		submitBtn.setText("Start Download");
+		submitBtn.setText(getString("startDownload"));
 		pauseBtn.setEnabled(false);
 	}
 	
@@ -126,29 +131,31 @@ public class Bubba extends SwingWorker<Integer, String>{
 	 * @param exitCode
 	 */
 	private void wgetError(int exitCode) {
-		String msg4Error = "Download failed";
+		String msg4Error = getString("downloadFailed");
 		if (exitCode == 1) {
-			msg4Error = "Failed to download - Generic error";
+			msg4Error = getString("downloadErr1");
 		} else if (exitCode == 2) {
-			msg4Error = "Failed to download - Parse error";
+			msg4Error = getString("downloadErr2");
 		} else if (exitCode == 3) {
-			msg4Error = "Failed to download - File error";
+			msg4Error = getString("downloadErr3");
 		} else if (exitCode == 4) {
-			msg4Error = "Failed to download - Network failure";
+			msg4Error = getString("downloadErr4");
 		} else if (exitCode == 5) {
-			msg4Error = "Failed to download - Verification error";
+			msg4Error = getString("downloadErr5");
 		} else if (exitCode == 6) {
-			msg4Error = "Failed to download - Authentication failure";
+			msg4Error = getString("downloadErr6");
 		} else if (exitCode == 7) {
-			msg4Error = "Failed to download - Protocol error";
+			msg4Error = getString("downloadErr7");
 		} else if (exitCode == 8) {
-			msg4Error = "Failed to download - Server error";
+			msg4Error = getString("downloadErr8");
 		} 
 		JOptionPane.showMessageDialog(submitBtn,
 					    msg4Error,
-					    "Error",
+					    getString("error"),
 					    JOptionPane.ERROR_MESSAGE);
 	}
 	
-		
+	private String getString(String label){
+		return LanguageSelector.getLanguageSelector().getString(label);
+	}	
 }

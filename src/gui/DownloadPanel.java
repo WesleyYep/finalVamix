@@ -22,12 +22,10 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
 import popups.LoadingScreen;
-
+import state.LanguageSelector;
 import state.State;
-
 import net.miginfocom.swing.MigLayout;
-
-import download.Bubba;
+import download.DownloadWorker;
 
 /**
  * This has been taken from my assignment 2 and should be usable with a few 
@@ -40,21 +38,16 @@ import download.Bubba;
 @SuppressWarnings("serial")
 public class DownloadPanel extends JPanel implements ActionListener{
 
-	// My strings are all here so it is easy to make changes
-	private String enterURL = "Enter URl to download: ";
-	private String urSureOpenSource = "Open source?";
-	private String submit = "Download";
-	
 	private String url;
-	private JLabel urlInstr = new JLabel(enterURL);
+	private JLabel urlInstr = new JLabel(getString("enterUrl"));
 	private JTextField urlField = new JTextField(20);
-	private JLabel isOpen = new JLabel(urSureOpenSource);
-	private JRadioButton openY = new JRadioButton("Yes");
-	private JRadioButton openN = new JRadioButton("No");
-	private JButton submitBtn = new JButton(submit);
-	private JButton pauseBtn = new JButton("Pause");
+	private JLabel isOpen = new JLabel(getString("urSureOpenSource"));
+	private JRadioButton openY = new JRadioButton(getString("yes"));
+	private JRadioButton openN = new JRadioButton(getString("no"));
+	private JButton submitBtn = new JButton(getString("download"));
+	private JButton pauseBtn = new JButton(getString("pause"));
 	public static boolean isPaused = false;
-	private Bubba shrimp;
+	private DownloadWorker downloadWorker;
 	private static LoadingScreen loadScreen;
 	private EditorPanel ep;
 
@@ -77,7 +70,7 @@ public class DownloadPanel extends JPanel implements ActionListener{
 		
 		TitledBorder border = BorderFactory.createTitledBorder(
 				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
-				new Color(255, 150, 250, 250), new Color(50, 50, 150, 250)), "Download");
+				new Color(255, 150, 250, 250), new Color(50, 50, 150, 250)), getString("download"));
 		border.setTitleColor(new Color(255, 150, 250, 250));
 		border.setTitleFont(new Font("Sans Serif", Font.BOLD, 24));
 		setBorder(border);
@@ -91,13 +84,13 @@ public class DownloadPanel extends JPanel implements ActionListener{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				if (isPaused){
-					pauseBtn.setText("Pause");
+					pauseBtn.setText(getString("pause"));
 					isPaused = false;
 					submitBtn.setEnabled(true);
 					String cmd = "wget -c " + url + " 2>&1 ";
 					download(cmd);
 				}else{
-					pauseBtn.setText("Resume");
+					pauseBtn.setText(getString("resume"));
 					isPaused = true;
 					submitBtn.setEnabled(false);
 				}
@@ -117,23 +110,22 @@ public class DownloadPanel extends JPanel implements ActionListener{
 	 */
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		if (shrimp != null && !shrimp.isDone()) {
-			shrimp.cancel(true);
-		//	prog.setVisible(false);
-			submitBtn.setText("Start Download");
-			shrimp = null;
+		if (downloadWorker != null && !downloadWorker.isDone()) {
+			downloadWorker.cancel(true);
+			submitBtn.setText(getString("startDownload"));
+			downloadWorker = null;
 		} else {
 			pauseBtn.setEnabled(true);
 			url = urlField.getText();
 			if (url == null || url.equals("")) {
 				JOptionPane.showMessageDialog(submitBtn,
-					    "You have not entered a URL",
-					    "Error",
+					    getString("enterUrlPlease"),
+					    getString("error"),
 					    JOptionPane.WARNING_MESSAGE);
 			} else if (!openY.isSelected() ) { 
 				JOptionPane.showMessageDialog(submitBtn,
-					    "It may be illegal to download this so I have stopped you",
-					    "Error",
+					    getString("illegalDownload"),
+					    getString("error"),
 					    JOptionPane.ERROR_MESSAGE);
 			} else {
 				checkPreDownload();
@@ -153,11 +145,11 @@ public class DownloadPanel extends JPanel implements ActionListener{
 			Process process = builder.start();
 			String cmd;
 			if (process.waitFor() == 0) {
-				if(JOptionPane.showOptionDialog(submitBtn, "File already exists. Would you like to try to overwrite?",
-								"Error", 0, 0, null, new String[]{"Overwrite", "Cancel"}, null) == 1){
+				if(JOptionPane.showOptionDialog(submitBtn, getString("fileExists"),
+						getString("error"), 0, 0, null, new String[]{getString("overwrite"), getString("cancel")}, null) == 1){
 					JOptionPane.showMessageDialog(submitBtn,
 									    "File not overwritten",
-									    "Error",
+									    getString("error"),
 									    JOptionPane.ERROR_MESSAGE);
 					pauseBtn.setEnabled(false);
 					return;
@@ -169,8 +161,8 @@ public class DownloadPanel extends JPanel implements ActionListener{
 			download(cmd);
 		}catch (Exception e) {
 			JOptionPane.showMessageDialog(submitBtn,
-				    "Error attempting",
-				    "Error",
+				    getString("downloadError"),
+				    getString("error"),
 				    JOptionPane.ERROR_MESSAGE);
 		}
 	}
@@ -185,19 +177,21 @@ public class DownloadPanel extends JPanel implements ActionListener{
 			submitBtn.setText("Cancel");
 			loadScreen = new LoadingScreen(ep);
             loadScreen.prepare();
-			shrimp = new Bubba(cmd, loadScreen.getProgBar(), submitBtn, pauseBtn);
-			shrimp.execute();
+			downloadWorker = new DownloadWorker(cmd, loadScreen.getProgBar(), submitBtn, pauseBtn, loadScreen);
+			downloadWorker.execute();
 			
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(submitBtn,
-				    "Error attempting download",
-				    "Error",
+					getString("downloadError"),
+				    getString("error"),
 				    JOptionPane.ERROR_MESSAGE);
 		}
 		
 	}
 	
-	
+	private String getString(String label){
+		return LanguageSelector.getLanguageSelector().getString(label);
+	}
 
 }
 

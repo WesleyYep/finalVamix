@@ -2,7 +2,7 @@ package gui;
 
 import editing.GetAttributes;
 import editing.ProjectFile;
-import editing.TextWorker;
+import editing.VideoWorker;
 import editing.ProjectFile.ProjectSettings;
 
 import java.awt.Color;
@@ -284,7 +284,7 @@ public class TextSection extends JPanel{
 	        if (option.equals("conv")){
 				loadScreen.prepare();
 	        }
-	        TextWorker worker = new TextWorker(cmd, loadScreen.getProgBar(), frames, option);
+	        VideoWorker worker = new VideoWorker(cmd, loadScreen.getProgBar(), frames, option, "Text", loadScreen);
 	        worker.execute();
 		}
         else{

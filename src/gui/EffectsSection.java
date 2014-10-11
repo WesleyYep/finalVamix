@@ -17,7 +17,7 @@ import javax.swing.border.TitledBorder;
 import components.CustomSpinner;
 import components.TransparentLabel;
 import editing.GetAttributes;
-import editing.TextWorker;
+import editing.VideoWorker;
 import net.miginfocom.swing.MigLayout;
 import popups.LoadingScreen;
 import state.State;
@@ -151,7 +151,7 @@ public class EffectsSection extends JPanel{
 				loadScreen.prepare();
 	        }
 	        System.out.println(cmd);
-	        TextWorker worker = new TextWorker(cmd, loadScreen.getProgBar(), frames, option);
+	        VideoWorker worker = new VideoWorker(cmd, loadScreen.getProgBar(), frames, option, "Effects", loadScreen);
 	        worker.execute();
 		}
 	}

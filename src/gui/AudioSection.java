@@ -144,12 +144,12 @@ public class AudioSection extends JPanel{
 		        fc.showSaveDialog(fc);
 		        if (fc.getSelectedFile() != null){
 		        	int dur = GetAttributes.getDuration(editorPanel.getMediaName());
-		        	int fps = GetAttributes.getFrames(editorPanel.getMediaName());
+		        	int frames = GetAttributes.getFrames(editorPanel.getMediaName());
 		            String audioFile = fc.getSelectedFile().getAbsolutePath().toString();
 		    		loadScreen = new LoadingScreen(editorPanel);
 		            loadScreen.prepare();
 			    	AudioWorker worker = new AudioWorker(editorPanel.getMediaName(), audioTextField.getText(),
-			    							option, audioFile, loadScreen.getProgBar(), dur, fps);
+			    							option, audioFile, loadScreen.getProgBar(), dur, frames, loadScreen);
 			    	worker.execute();
 		        }
     		}

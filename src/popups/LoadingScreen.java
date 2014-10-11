@@ -52,15 +52,6 @@ public class LoadingScreen extends JFrame{
 			}
 		});
 		
-		progBar.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent arg0) {
-				if (progBar.getValue() == progBar.getMaximum() && progBar.getValue() != 0) {
-					finishedQuite();
-				}
-			}
-		});
-		
 		this.addWindowListener(new java.awt.event.WindowAdapter() {
 		    @Override
 		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {

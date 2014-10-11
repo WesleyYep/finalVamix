@@ -14,6 +14,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
 
+import popups.LoadingScreen;
+
 public class AudioWorker extends SwingWorker<Void, String> {
 	private Process process;
 	private String videoFile;
@@ -22,15 +24,17 @@ public class AudioWorker extends SwingWorker<Void, String> {
 	private String file;
 	private JProgressBar progBar;
 	private String message = "";
+	private LoadingScreen ls;
 	
 	public AudioWorker(String videoFile, String audioFile, String option, String file, JProgressBar progressBar,
-						int duration, int fps){
+						int duration, int frames, LoadingScreen ls){
 		this.videoFile = videoFile;
 		this.audioFile = audioFile;
 		this.option = option;
 		this.file = file;
 		this.progBar = progressBar;
-		progBar.setMaximum(fps*duration);
+		progBar.setMaximum(frames);
+		this.ls = ls;
 	}
 	
 	@Override
@@ -89,6 +93,7 @@ public class AudioWorker extends SwingWorker<Void, String> {
 		try {
 			process.waitFor();
 			progBar.setValue(progBar.getMaximum());
+			ls.finishedQuite();
 		if (process.exitValue()==0)
 			JOptionPane.showMessageDialog(null, message, "Done", JOptionPane.DEFAULT_OPTION);
 		else if (option.equals("stripVideo"))
@@ -100,7 +105,6 @@ public class AudioWorker extends SwingWorker<Void, String> {
 		} catch (InterruptedException e) {
 			JOptionPane.showMessageDialog(null, "Error occurred.");
 		}
-		
     }	
 	
 }

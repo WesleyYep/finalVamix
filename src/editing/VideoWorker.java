@@ -18,22 +18,27 @@ import javax.swing.JProgressBar;
 import javax.swing.JSlider;
 import javax.swing.SwingWorker;
 
+import popups.LoadingScreen;
+
 /** 
  * The swing worker used to perform the text manipulation in the background
  * @author Mathew and Wesley
  *
  */
-public class TextWorker extends SwingWorker<Void, String> {
+public class VideoWorker extends SwingWorker<Void, String> {
 	private Process process;
 	private JProgressBar progBar;
 	private String cmd;
 	private String option;
+	private LoadingScreen ls;
+	private String type;
 	
-	public TextWorker(String cmd, JProgressBar progressBar, int fps, String option) {
+	public VideoWorker(String cmd, JProgressBar progressBar, int fps, String option, String type, LoadingScreen ls) {
 		this.cmd = cmd;
 		this.progBar = progressBar;
 		this.option = option;
-		System.out.println(fps);
+		this.ls = ls;
+		this.type = type;
 		progBar.setMaximum(fps);
 	}
 	
@@ -82,19 +87,24 @@ public class TextWorker extends SwingWorker<Void, String> {
 		try {
 			process.waitFor();
 			progBar.setValue(progBar.getMaximum());
-		if (process.exitValue()==0)
-			JOptionPane.showMessageDialog(null, "Text added successfully", "Done", JOptionPane.DEFAULT_OPTION);
-		else if (process.exitValue() > 0)
-			JOptionPane.showMessageDialog(null, "Error occurred.", "Error", JOptionPane.WARNING_MESSAGE);
-    	//remove the temp text file
-		Path currentRelativePath = Paths.get("");
-    	String currentAbsPath = currentRelativePath.toAbsolutePath().toString();
-		File file = new File(currentAbsPath + "/.text");
-        file.delete();
+			ls.finishedQuite();
+
+			if (process.exitValue()==0){
+				if (type.equals("Effects")){
+					JOptionPane.showMessageDialog(null, "Effects added successfully", "Done", JOptionPane.DEFAULT_OPTION);
+				}else{
+					JOptionPane.showMessageDialog(null, "Text added successfully", "Done", JOptionPane.DEFAULT_OPTION);
+				}
+			}else if (process.exitValue() > 0)
+				JOptionPane.showMessageDialog(null, "Error occurred.", "Error", JOptionPane.WARNING_MESSAGE);
+	    	//remove the temp text file
+			Path currentRelativePath = Paths.get("");
+	    	String currentAbsPath = currentRelativePath.toAbsolutePath().toString();
+			File file = new File(currentAbsPath + "/.text");
+	        file.delete();
 		} catch (InterruptedException e) {
 			JOptionPane.showMessageDialog(null, "Error occurred.");
-
-		}
+		} 
     }	
 	
 }

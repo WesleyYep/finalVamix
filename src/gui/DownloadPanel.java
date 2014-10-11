@@ -148,7 +148,7 @@ public class DownloadPanel extends JPanel implements ActionListener{
 				if(JOptionPane.showOptionDialog(submitBtn, getString("fileExists"),
 						getString("error"), 0, 0, null, new String[]{getString("overwrite"), getString("cancel")}, null) == 1){
 					JOptionPane.showMessageDialog(submitBtn,
-									    "File not overwritten",
+									    getString("notOverwritten"),
 									    getString("error"),
 									    JOptionPane.ERROR_MESSAGE);
 					pauseBtn.setEnabled(false);

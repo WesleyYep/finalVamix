@@ -115,7 +115,8 @@ public class EditorPanel implements MouseMotionListener{
         bottomPanel = new JPanel();
         showHideBtn.setBackground(Color.BLACK);
         showHideBtn.setForeground(Color.LIGHT_GRAY);
-        bottomPanel.add(showHideBtn, BorderLayout.EAST);
+        bottomPanel.add(new JButton("Maori"));
+        bottomPanel.add(showHideBtn);
         bottomPanel.add(new SmallColourPanel(this));
         bottomPanel.setBackground(Color.BLACK);
         f.add(bottomPanel, BorderLayout.SOUTH);
@@ -346,7 +347,7 @@ public class EditorPanel implements MouseMotionListener{
 	            leftSidePane.add(textSection, "wrap, grow");
 	            leftSidePane.add(projectPanel, "grow");
 	            
-	            add(leftSidePane, "cell 0 1 1 3, grow, width 350!, gaptop 10");
+	            add(leftSidePane, "cell 0 1 1 3, grow, gaptop 10");
 	            
 	            JPanel rightSidePane = new JPanel();
 	            rightSidePane.setLayout(new MigLayout());

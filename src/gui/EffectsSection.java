@@ -203,9 +203,9 @@ public class EffectsSection extends JPanel{
     	}if (flipV.isSelected()){
     		cmd += "vflip,";
     	}if (fadeS.isSelected()){
-    		cmd += "fade=in:0:60";
+    		cmd += "fade=in:0:60,";
     	}if (fadeE.isSelected()){
-    		cmd += "fade=out:" + (frames-60) + ":60";
+    		cmd += "fade=out:" + (frames-60) + ":60,";
     	}
 	
     	if (cmd.endsWith(",")){

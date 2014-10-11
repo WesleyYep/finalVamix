@@ -36,7 +36,7 @@ import net.miginfocom.swing.MigLayout;
 @SuppressWarnings("serial")
 public class AudioSection extends JPanel{
 
-	private JTextField audioTextField = new JTextField(40);
+	private JTextField audioTextField = new JTextField(15);
 	private JButton openAudioBtn = new JButton(getString("open"));
 	private JButton replaceBtn = new JButton(getString("replace"));
 	private JButton overlayBtn = new JButton(getString("overlay"));
@@ -60,7 +60,7 @@ public class AudioSection extends JPanel{
 		editorPanel = ep;
 		mediaPlayer = mpc;
 		
-		setLayout(new MigLayout());
+		setLayout(new MigLayout("","[][][]", "[]"));
 		TitledBorder border = BorderFactory.createTitledBorder(
 				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
 				new Color(250, 150, 150, 250), new Color(250, 150, 50, 250)), getString("audio"));
@@ -70,11 +70,11 @@ public class AudioSection extends JPanel{
 		
 		State.getState().addColourListeners(audioTextField, openAudioBtn, replaceBtn, overlayBtn, stripBtn);
 		
-		add(audioTextField, "grow, split 2");
-		add(openAudioBtn, "wrap");
-		add(replaceBtn, "grow, split 3");
-		add(overlayBtn, "grow");
-		add(stripBtn, "grow");
+		add(audioTextField, "cell 0 0 2 1");
+		add(openAudioBtn, "cell 2 0 1 1");
+		add(replaceBtn, "cell 0 1 1 1");
+		add(overlayBtn, "cell 1 1 1 1, grow");
+		add(stripBtn, "cell 2 1 1 1");
 		
 		replaceBtn.setEnabled(false);
 		overlayBtn.setEnabled(false);

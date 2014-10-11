@@ -1,5 +1,7 @@
 package state;
 
+import gui.CustomButton;
+
 import java.awt.Color;
 import java.awt.Font;
 import java.util.ArrayList;
@@ -7,6 +9,8 @@ import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.TitledBorder;
 
 import components.CustomSpinner;
@@ -108,6 +112,14 @@ public class State {
 		}
 		for (CustomSpinner spinner : spinnerColourListeners){
 			spinner.getEditor().getComponent(0).setForeground(colour);
+		}
+	}
+	
+	public void changeLanguage(){
+		try {
+			UIManager.setLookAndFeel(UIManager.getLookAndFeel().getClass().getName());
+		} catch (ClassNotFoundException | InstantiationException
+				| IllegalAccessException | UnsupportedLookAndFeelException e) {
 		}
 	}
 }

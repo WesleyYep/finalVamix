@@ -213,6 +213,6 @@ public class AudioSection extends JPanel{
 	}
 	
 	private String getString(String label){
-		return LanguageSelector.getLanguageSelector().getString(label);
+		return LanguageSelector.getString(label);
 	}
 }

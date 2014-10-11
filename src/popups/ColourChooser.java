@@ -40,6 +40,6 @@ public class ColourChooser extends JFrame{
 	}
 	
 	private static String getString(String label){
-		return LanguageSelector.getLanguageSelector().getString(label);
+		return LanguageSelector.getString(label);
 	}
 }

@@ -4,29 +4,20 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class LanguageSelector {
-	private static LanguageSelector languageSelector;
-	private ResourceBundle bundle;
-	private LanguageSelector(){
-		Locale maoriLocale = new Locale("en", "MA");//remove this for default to be english
-		
-		bundle = ResourceBundle.getBundle("Language", maoriLocale);
-	}
+	private static ResourceBundle bundle;
 	
-	public static LanguageSelector getLanguageSelector(){
-		if (languageSelector == null){
-			languageSelector = new LanguageSelector();
-			return languageSelector;
-		} else {
-			return languageSelector;
-		}
-	}
-	
-	public void setLanguage(String langCode1, String langCode2){
+	public static void setLanguage(String langCode1, String langCode2){
 		Locale locale = new Locale(langCode1, langCode2);
+		// print this locale
+	      System.out.println("Locale1:" + locale);
+
+	      // print the country of this locale
+	      System.out.println("Country:" + locale.getCountry());
 		bundle = ResourceBundle.getBundle("Language", locale);
+		System.out.println("set" + bundle.getLocale());
 	}
 	
-	public String getString(String label){
+	public static String getString(String label){
 		return bundle.getString(label);
 	}
 	

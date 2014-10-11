@@ -115,11 +115,5 @@ public class State {
 		}
 	}
 	
-	public void changeLanguage(){
-		try {
-			UIManager.setLookAndFeel(UIManager.getLookAndFeel().getClass().getName());
-		} catch (ClassNotFoundException | InstantiationException
-				| IllegalAccessException | UnsupportedLookAndFeelException e) {
-		}
-	}
+
 }

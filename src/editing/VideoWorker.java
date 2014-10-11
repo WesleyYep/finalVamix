@@ -109,6 +109,6 @@ public class VideoWorker extends SwingWorker<Void, String> {
     }	
 	
 	private String getString(String label){
-		return LanguageSelector.getLanguageSelector().getString(label);
+		return LanguageSelector.getString(label);
 	}
 }

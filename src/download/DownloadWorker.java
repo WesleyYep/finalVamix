@@ -156,6 +156,6 @@ public class DownloadWorker extends SwingWorker<Integer, String>{
 	}
 	
 	private String getString(String label){
-		return LanguageSelector.getLanguageSelector().getString(label);
+		return LanguageSelector.getString(label);
 	}	
 }

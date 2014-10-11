@@ -149,6 +149,6 @@ public class ProjectFile {
 	}
 	
 	private String getString(String label){
-		return LanguageSelector.getLanguageSelector().getString(label);
+		return LanguageSelector.getString(label);
 	}
 }

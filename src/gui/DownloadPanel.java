@@ -190,7 +190,7 @@ public class DownloadPanel extends JPanel implements ActionListener{
 	}
 	
 	private String getString(String label){
-		return LanguageSelector.getLanguageSelector().getString(label);
+		return LanguageSelector.getString(label);
 	}
 
 }

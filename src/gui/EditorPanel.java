@@ -13,9 +13,12 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -29,6 +32,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
@@ -61,6 +66,8 @@ public class EditorPanel implements MouseMotionListener{
 	private JButton openBtn = new JButton(getString("open"));
 	private JTextField fileTextField = new JTextField(20);
     private JButton showHideBtn = new JButton(getString("hide"));
+    private JButton languageBtn = new JButton();
+
 	private CustomButton loadBtn = new CustomButton(getString("load"), new ImageIcon(
 			EditorPanel.class.getResource("/upload.png")), 25, 25);
 	private JButton saveBtn = new CustomButton(getString("save"), new ImageIcon(
@@ -74,8 +81,15 @@ public class EditorPanel implements MouseMotionListener{
 	private Window overlay;
 	private JPanel bottomPanel;
 	private EffectsSection effectsSection;
+	private static String language = "en NZ";
 
     public static void main(final String[] args) throws Exception {
+    	if (args.length!=0){
+    		LanguageSelector.setLanguage(args[0], args[1]);
+    		language = args[0] + " " + args[1];
+    	}else{
+    		LanguageSelector.setLanguage("en", "NZ");
+    	}
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -109,13 +123,21 @@ public class EditorPanel implements MouseMotionListener{
         loadBtn.setHorizontalTextPosition(SwingConstants.RIGHT);
         saveBtn.setVerticalTextPosition(SwingConstants.CENTER);
         saveBtn.setHorizontalTextPosition(SwingConstants.RIGHT);
+        
+        if(language.equals("en NZ")){
+        	languageBtn.setText(getString("maori"));
+        }else{
+        	languageBtn.setText(getString("english"));
+        }
 		
         f.add(mediaPlayerComponent, BorderLayout.CENTER);
         
         bottomPanel = new JPanel();
         showHideBtn.setBackground(Color.BLACK);
         showHideBtn.setForeground(Color.LIGHT_GRAY);
-        bottomPanel.add(new JButton("Maori"));
+        languageBtn.setBackground(Color.BLACK);
+        languageBtn.setForeground(Color.LIGHT_GRAY);
+        bottomPanel.add(languageBtn, BorderLayout.EAST);
         bottomPanel.add(showHideBtn);
         bottomPanel.add(new SmallColourPanel(this));
         bottomPanel.setBackground(Color.BLACK);
@@ -192,8 +214,48 @@ public class EditorPanel implements MouseMotionListener{
 				}
 			}
         });
+        
+        languageBtn.addActionListener(new ActionListener(){
+        	@Override
+			public void actionPerformed(ActionEvent e) {
+				if (languageBtn.getText().equalsIgnoreCase(getString("english"))){
+					restartApplication("en", "NZ");
+				}else if (languageBtn.getText().equalsIgnoreCase(getString("maori"))){
+					restartApplication("en", "MA");
+				}
+				
+			}
+        });
+        
 	}
 	
+	public void restartApplication(String code1, String code2)
+	{
+		final String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+		File currentJar;
+		try {
+			currentJar = new File(EditorPanel.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+			if(!currentJar.getName().endsWith(".jar")){
+				JOptionPane.showMessageDialog(mediaPlayerComponent, "Language features only work when program is run from jar file");
+				return;
+			}
+			/* Build command: java -jar Vamix.jar en NZ*/
+			final ArrayList<String> command = new ArrayList<String>();
+			command.add(javaBin);
+			command.add("-jar");
+			command.add(currentJar.getPath());
+			command.add(code1);
+			command.add(code2);
+			System.out.println(command);
+		
+			final ProcessBuilder builder = new ProcessBuilder(command);
+			builder.start();
+			System.exit(0);
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		} catch (IOException e) {e.printStackTrace();}
+	}
+
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		state.showMouseControls();
@@ -374,6 +436,6 @@ public class EditorPanel implements MouseMotionListener{
 	    }
 	  
 	private String getString(String label){
-		return LanguageSelector.getLanguageSelector().getString(label);
+		return LanguageSelector.getString(label);
 	}
 }

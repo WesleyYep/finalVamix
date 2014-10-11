@@ -1,0 +1,22 @@
+s works fine.
+
+import java.util.Locale;
+import java.util.ResourceBundle;
+
+
+public class ResourceBundleTester
+{
+    public static void main(String[] args)
+    {
+        Locale locale = Locale.getDefault();
+        String basename ="lang/System";
+        ResourceBundle resourceBundle =
+ResourceBundle.getBundle(basename, locale);
+        System.out.println(resourceBundle.getString("STARTING_MYAPP"));
+    }
+}
+
+In the src/lang folder I created a file named System.properties
+that contains...
+
+STARTING_MYAPP=Starting my app

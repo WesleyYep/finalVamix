@@ -249,6 +249,10 @@ public class MainControlPanel extends JPanel{
 		duration = dur;
 	}
 	
+	public long getTime(){
+		return mp.getTime();
+	}
+	
 	public void setIsPreviewing(boolean previewing){
 		this.isPreviewing = previewing;
 		if (previewing){

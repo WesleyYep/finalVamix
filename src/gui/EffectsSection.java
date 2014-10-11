@@ -109,6 +109,9 @@ public class EffectsSection extends JPanel{
 			@Override
         	public void actionPerformed(ActionEvent arg0) {
 				if (gifCheckBox.isSelected()){
+					endSpinner.setValue(startSpinner.getNextValue());
+					for (int i = 1; i < 20; i++)
+						endSpinner.setValue(endSpinner.getNextValue());
 					previewBtn.setEnabled(false);
 				}else{
 					previewBtn.setEnabled(true);

@@ -229,6 +229,11 @@ public class EditorPanel implements MouseMotionListener{
         
 	}
 	
+	/**The code for this method comes mostly from http://stackoverflow.com/questions/4159802/how-can-i-restart-a-java-application
+	 * 
+	 * @param code1 language code 1
+	 * @param code2 language code 2
+	 */
 	public void restartApplication(String code1, String code2)
 	{
 		final String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";

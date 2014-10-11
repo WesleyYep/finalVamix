@@ -87,7 +87,7 @@ public class TextSection extends JPanel{
 		
 		editorPanel = ep;
 		this.cp = cp;
-		titleOrCredits = new JComboBox<String>(new String[]{getString("title"), getString("credits")});
+		titleOrCredits = new JComboBox<String>(new String[]{getString("title"), getString("credits"), getString("thisPoint")});
 		fontOption = new JComboBox<String>(new String[]{"DejaVuSans", "DroidSans", "FreeSans", "LiberationSerif-Bold", "NanumGothic", "Padauk", 
 														"TakaoPGothic", "TibetanMachineUni", "Ubuntu-C"});
        
@@ -250,10 +250,12 @@ public class TextSection extends JPanel{
         String[] timeArray = time.split(":");
         int timeInSecs = 60 * 60 *Integer.parseInt(timeArray[0]) + 60 * Integer.parseInt(timeArray[1]) + Integer.parseInt(timeArray[2]);
         String timeFunction;
-        if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase("Title"))
+        if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase(getString("title")))
         	timeFunction = "lt(t," + timeInSecs + ")";
-        else
+        else if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase(getString("credits")))
         	timeFunction = "gt(t," + (dur - timeInSecs) + ")";
+        else
+        	timeFunction = "gt(t," + cp.getTime()/1000 + ")*" + "lt(t," + (cp.getTime()/1000 + timeInSecs) + ")";
         //write text firstly to file, so special characters can be used
         try {
 			BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(".text", false), "utf-8"));

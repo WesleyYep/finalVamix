@@ -365,9 +365,9 @@ public class EditorPanel implements MouseMotionListener{
 	            setFocusable(true);
 	            add(mainControlPanel, "dock south, gapbefore 30%");
 	    		state.addColourListeners(leftSidePane, textSection, audioSection, mainControlPanel, projectPanel, rightSidePane,
-	            		saveBtn, loadBtn, openPanel, openBtn, fileTextField, mainControlPanel.volumeSlider, mainControlPanel.vidPosSlider);
+	            		saveBtn, loadBtn, openPanel, openBtn, fileTextField);
 	          	state.addStateListeners(leftSidePane, openPanel, projectPanel, mainControlPanel, rightSidePane);
-	    		state.addMouseListeners(mainControlPanel, mainControlPanel.volumeSlider, mainControlPanel.vidPosSlider);
+	    		state.addMouseListeners(mainControlPanel);
 	            
 	            state.setTransparent();
 	            

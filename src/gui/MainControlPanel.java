@@ -16,6 +16,7 @@ import javax.swing.Timer;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import net.miginfocom.swing.MigLayout;
+import state.State;
 import uk.co.caprica.vlcj.player.MediaPlayer;
 
 @SuppressWarnings("serial")
@@ -24,13 +25,13 @@ public class MainControlPanel extends JPanel{
 	private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 	private static boolean isPreviewing = false;
 	private boolean isPaused = false;
-	private JLabel timeLabel = new JLabel("hh:mm:ss");
 	private long duration;
 	private long currentTime;
 	//the use of setPositionValue is so that the position slider only fires change requests
 	//when the user actually is changing its position
 	private boolean setPositionValue;
-	protected JSlider vidPosSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
+	private JSlider vidPosSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
+	private JLabel timeLabel = new JLabel("hh:mm:ss");
 	private CustomButton fullScreenBtn = new CustomButton(
 			new ImageIcon(EditorPanel.class.getResource("/full_screen.png")), 30,30);
 	private CustomButton playBtn = new CustomButton(
@@ -42,7 +43,7 @@ public class MainControlPanel extends JPanel{
 			new ImageIcon(EditorPanel.class.getResource("/player_fwd.png")), 40, 40);
 	private CustomButton backwardBtn = new CustomButton(
 			new ImageIcon(EditorPanel.class.getResource("/player_start.png")), 40, 40);
-	protected JSlider volumeSlider = new JSlider(0, 200, 100);
+	private JSlider volumeSlider = new JSlider(0, 200, 100);
 	private CustomButton soundBtn = new CustomButton
     		(new ImageIcon(EditorPanel.class.getResource("/volume_loud.png")), 30, 30, 
     				new ImageIcon(EditorPanel.class.getResource("/volume_silent2.png")));
@@ -66,7 +67,8 @@ public class MainControlPanel extends JPanel{
 		videoMovementTimer.start();
 		
 		setLayout(new MigLayout());
-        add(vidPosSlider, "cell 0 0, wrap, grow");
+        add(vidPosSlider, "cell 0 0, grow");
+        add(timeLabel, "wrap");
         add(fullScreenBtn);
         add(backwardBtn, "cell 0 1, split 5");
         add(playBtn);
@@ -74,7 +76,9 @@ public class MainControlPanel extends JPanel{
         add(forwardBtn);
         add(soundBtn, "cell 1 1, top");
         add(volumeSlider, "cell 1 1");
-
+        
+        State.getState().addColourListeners(volumeSlider, vidPosSlider, timeLabel);
+        
 	}
 
 

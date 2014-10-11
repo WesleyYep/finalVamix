@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
@@ -39,15 +40,17 @@ public class EffectsSection extends JPanel{
 	private CustomSpinner endSpinner;
 	private JButton previewBtn = new JButton("Preview");
 	private JButton addBtn = new JButton("Add");
+	private JCheckBox gifCheckBox;
 
 	public EffectsSection(EditorPanel ep, MainControlPanel cp){
 		this.editorPanel = ep;
 		this.controlPanel = cp;
-		TransparentLabel speedLbl, startLbl, endLbl, flipLbl, fadeLbl;
+		TransparentLabel speedLbl, startLbl, endLbl, flipLbl, fadeLbl, gifLbl;
 		speedOption = new JComboBox<String>(new String[] {"0.25x", "0.5x", "1x", "2x", "3x", "5x"});
 		speedOption.setSelectedIndex(2);
 		startSpinner = new CustomSpinner(0);
-		endSpinner = new CustomSpinner(20); //change default time later??
+		endSpinner = new CustomSpinner(20);
+		gifCheckBox = new JCheckBox("Create gif");
 		
 		TitledBorder border = BorderFactory.createTitledBorder(
 				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
@@ -60,9 +63,10 @@ public class EffectsSection extends JPanel{
 		add(speedLbl = new TransparentLabel("Speed: "), "grow");
 		add(speedOption, "wrap, grow");
 		add(startLbl = new TransparentLabel("Trim - Start: "), "grow");
-		add(startSpinner, "wrap, grow");
+		add(startSpinner, "grow, wrap");
 		add(endLbl = new TransparentLabel("Trim - End: "), "grow");
-		add(endSpinner, "wrap, grow");
+		add(endSpinner, "grow, wrap");
+		add(gifCheckBox, "span 2, align right, wrap");
 		add(flipLbl = new TransparentLabel("Flip: "), "grow");
 		add(flipH, "split 2");
 		add(flipV, "wrap");		
@@ -73,7 +77,7 @@ public class EffectsSection extends JPanel{
 		add(addBtn, "grow");
 		
 		State.getState().addColourListeners(speedLbl, startLbl, endLbl, flipLbl, fadeLbl, speedOption, startSpinner,
-				endSpinner, flipH, flipV, fadeS, fadeE, previewBtn, addBtn, this);
+				endSpinner, flipH, flipV, fadeS, fadeE, previewBtn, addBtn, gifCheckBox, this);
 		State.getState().addSpinnerListeners(startSpinner, endSpinner);
 		
 		previewBtn.addActionListener(new ActionListener(){
@@ -96,23 +100,19 @@ public class EffectsSection extends JPanel{
 		        }
         	}
         });
+		
+		gifCheckBox.addActionListener(new ActionListener(){
+			@Override
+        	public void actionPerformed(ActionEvent arg0) {
+				if (gifCheckBox.isSelected()){
+					previewBtn.setEnabled(false);
+				}else{
+					previewBtn.setEnabled(true);
+				}
+        	}
+		});
 	}
 	
-	private String initialiseCmd(String option) {
-        String startTime = new DateEditor(startSpinner , "yy:mm:ss").getFormat().format(startSpinner.getValue());
-        String endTime = new DateEditor(endSpinner , "yy:mm:ss").getFormat().format(endSpinner.getValue());
-        String durTime = getTimeDiff(startTime, endTime);
-    	String cmd = "";
-    	if (option.equals("conv")){
-    		cmd = "avconv -i " + editorPanel.getMediaName() + " -ss " + startTime + 
-    				" -t " + durTime + " -vf \"";
-    	}else{
-    		cmd = "avplay -i " + editorPanel.getMediaName() + " -ss " + startTime + 
-    				" -t " + durTime + " -vf \"";
-    	}
-    	return cmd;
-	}
-
 	/**
 	 * This method is called when either the add or preview  button is clicked
 	 * This will use either avconv or avplay to add the effects to the video.
@@ -128,7 +128,15 @@ public class EffectsSection extends JPanel{
     	cmd = addEffectsToCmd(cmd, frames);
     	
     	if (option.equals("conv")){
-	        cmd += " -strict experimental -f mp4 -v debug " + output;
+    		if (gifCheckBox.isSelected()){
+    			if (!output.endsWith(".gif")){
+    				cmd += "-v debug " + output + ".gif";
+    			}else {
+    				cmd += "-v debug " + output;
+    			}
+    		}else{
+    			cmd += " -strict experimental -f mp4 -v debug " + output;
+    		}
     	}else if (option.equals("preview")){
     		 cmd += " -strict experimental";
     		 controlPanel.setDuration(dur*1000);
@@ -146,7 +154,7 @@ public class EffectsSection extends JPanel{
 	        worker.execute();
 		}
 	}
-	
+
 	private String getTimeDiff(String startTime, String endTime) {
         java.text.DateFormat df = new java.text.SimpleDateFormat("hh:mm:ss");
         java.util.Date start, end;
@@ -168,6 +176,21 @@ public class EffectsSection extends JPanel{
 			    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
 	}
 
+	private String initialiseCmd(String option) {
+        String startTime = new DateEditor(startSpinner , "yy:mm:ss").getFormat().format(startSpinner.getValue());
+        String endTime = new DateEditor(endSpinner , "yy:mm:ss").getFormat().format(endSpinner.getValue());
+        String durTime = getTimeDiff(startTime, endTime);
+    	String cmd = "";
+    	if (option.equals("conv")){
+    		cmd = "avconv -i " + editorPanel.getMediaName() + " -ss " + startTime + 
+    				" -t " + durTime + " -vf \"";
+    	}else{
+    		cmd = "avplay -i " + editorPanel.getMediaName() + " -ss " + startTime + 
+    				" -t " + durTime + " -vf \"";
+    	}
+    	return cmd;
+	}
+	
 	private String addEffectsToCmd(String cmd, int frames) {
     	if (!speedOption.getSelectedItem().toString().equals("1x")){
     		cmd += "setpts=" + 1/Double.parseDouble(speedOption.getSelectedItem().toString().split("x")[0]) + "*PTS,";
@@ -189,6 +212,11 @@ public class EffectsSection extends JPanel{
     	}else {
     		cmd += "\"";
     	}
+    	
+    	if (gifCheckBox.isSelected()){
+    		cmd += " -pix_fmt rgb24 -s 320x240 ";
+    	}
+    	
     	return cmd;
 	}
 
@@ -207,10 +235,7 @@ public class EffectsSection extends JPanel{
 			Date d = (java.util.Date)format.parse(hrStr + ":" + mnStr + ":" + secStr);
 		    java.sql.Time time = new java.sql.Time(d.getTime());
 		    endSpinner.setValue(time);
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		} catch (ParseException e) {}
 	}
 
 }

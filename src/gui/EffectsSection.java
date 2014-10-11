@@ -4,19 +4,15 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.SpinnerNumberModel;
+import javax.swing.JSpinner.DateEditor;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
-
 import components.CustomSpinner;
 import components.TransparentLabel;
 import editing.GetAttributes;
@@ -24,6 +20,11 @@ import editing.TextWorker;
 import net.miginfocom.swing.MigLayout;
 import popups.LoadingScreen;
 import state.State;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 public class EffectsSection extends JPanel{
 	private EditorPanel editorPanel;
@@ -54,7 +55,6 @@ public class EffectsSection extends JPanel{
 		border.setTitleFont(new Font("Sans Serif", Font.BOLD, 24));
 		border.setTitleColor(new Color(150, 150, 250, 250));
 		setBorder(border);
-        State.getState().addBorderListeners(border);
 		
 		setLayout(new MigLayout());
 		add(speedLbl = new TransparentLabel("Speed: "), "grow");
@@ -98,6 +98,21 @@ public class EffectsSection extends JPanel{
         });
 	}
 	
+	private String initialiseCmd(String option) {
+        String startTime = new DateEditor(startSpinner , "yy:mm:ss").getFormat().format(startSpinner.getValue());
+        String endTime = new DateEditor(endSpinner , "yy:mm:ss").getFormat().format(endSpinner.getValue());
+        String durTime = getTimeDiff(startTime, endTime);
+    	String cmd = "";
+    	if (option.equals("conv")){
+    		cmd = "avconv -i " + editorPanel.getMediaName() + " -ss " + startTime + 
+    				" -t " + durTime + " -vf \"";
+    	}else{
+    		cmd = "avplay -i " + editorPanel.getMediaName() + " -ss " + startTime + 
+    				" -t " + durTime + " -vf \"";
+    	}
+    	return cmd;
+	}
+
 	/**
 	 * This method is called when either the add or preview  button is clicked
 	 * This will use either avconv or avplay to add the effects to the video.
@@ -109,32 +124,13 @@ public class EffectsSection extends JPanel{
 		int dur = GetAttributes.getDuration(editorPanel.getMediaName());
     	int frames = GetAttributes.getFrames(editorPanel.getMediaName());
     	
-    	String cmd;
-    	if (option.equals("conv")){
-    		cmd = "avconv -i " + editorPanel.getMediaName() + " -vf \"";
-    	}else{
-    		cmd = "avconv -re -i " + editorPanel.getMediaName() + " -vf \"";
-    	}
+    	String cmd = initialiseCmd(option);
+    	cmd = addEffectsToCmd(cmd, frames);
     	
-    	if (!speedOption.getSelectedItem().toString().equals("1x")){
-    		cmd += "setpts=" + 1/Double.parseDouble(speedOption.getSelectedItem().toString().split("x")[0]) + "*PTS,";
-    	}if (flipH.isSelected()){
-    		cmd += "hflip,";
-    	}if (flipV.isSelected()){
-    		cmd += "vflip,";
-    	}if (fadeS.isSelected()){
-    		cmd += "fade=in:0:30";
-    	}if (fadeE.isSelected()){
-    		cmd += "fade=out:" + frames + ":30";
-    	}
-    	
-    	if (cmd.endsWith(",")){
-    		cmd = cmd.substring(0, cmd.length()-1);
-    	}
     	if (option.equals("conv")){
-	        cmd += "\" -strict experimental -f mp4 -v debug " + output;
+	        cmd += " -strict experimental -f mp4 -v debug " + output;
     	}else if (option.equals("preview")){
-    		 cmd += "\" -strict experimental -f mpegts " + output;
+    		 cmd += " -strict experimental";
     		 controlPanel.setDuration(dur*1000);
     		 controlPanel.setIsPreviewing(true);
     	}
@@ -150,4 +146,71 @@ public class EffectsSection extends JPanel{
 	        worker.execute();
 		}
 	}
+	
+	private String getTimeDiff(String startTime, String endTime) {
+        java.text.DateFormat df = new java.text.SimpleDateFormat("hh:mm:ss");
+        java.util.Date start, end;
+		try {
+	        start = df.parse(startTime);
+			end = df.parse(endTime);
+	        long diff = end.getTime() - start.getTime();
+	        return millisToString(diff);
+		} catch (ParseException e) {}
+		return null;
+	}
+	
+	private String millisToString(long millis){
+		return String.format("%02d:%02d:%02d", 
+			    TimeUnit.MILLISECONDS.toHours(millis),
+			    TimeUnit.MILLISECONDS.toMinutes(millis) - 
+			    TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)),
+			    TimeUnit.MILLISECONDS.toSeconds(millis) - 
+			    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
+	}
+
+	private String addEffectsToCmd(String cmd, int frames) {
+    	if (!speedOption.getSelectedItem().toString().equals("1x")){
+    		cmd += "setpts=" + 1/Double.parseDouble(speedOption.getSelectedItem().toString().split("x")[0]) + "*PTS,";
+    	}if (flipH.isSelected()){
+    		cmd += "hflip,";
+    	}if (flipV.isSelected()){
+    		cmd += "vflip,";
+    	}if (fadeS.isSelected()){
+    		cmd += "fade=in:0:60";
+    	}if (fadeE.isSelected()){
+    		cmd += "fade=out:" + (frames-60) + ":60";
+    	}
+	
+    	if (cmd.endsWith(",")){
+    		cmd = cmd.substring(0, cmd.length()-1);
+    	}
+    	if (cmd.endsWith("\"")){
+    		cmd = cmd.substring(0, cmd.length()-5);
+    	}else {
+    		cmd += "\"";
+    	}
+    	return cmd;
+	}
+
+	public void setSpinnerDefault() {
+		int dur = GetAttributes.getDuration(editorPanel.getMediaName());
+		int hr = dur/3600;
+		int rem = dur%3600;
+		int mn = rem/60;
+		int sec = rem%60;
+		String hrStr = (hr<10 ? "0" : "")+hr;
+		String mnStr = (mn<10 ? "0" : "")+mn;
+		String secStr = (sec<10 ? "0" : "")+sec; 
+		System.out.println(mn + " - " + mnStr);
+		SimpleDateFormat format = new SimpleDateFormat("yy:mm:ss");
+		try {
+			Date d = (java.util.Date)format.parse(hrStr + ":" + mnStr + ":" + secStr);
+		    java.sql.Time time = new java.sql.Time(d.getTime());
+		    endSpinner.setValue(time);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 }

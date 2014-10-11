@@ -73,6 +73,7 @@ public class EditorPanel implements MouseMotionListener{
 	private State state;
 	private Window overlay;
 	private JPanel bottomPanel;
+	private EffectsSection effectsSection;
 
     public static void main(final String[] args) throws Exception {
         SwingUtilities.invokeLater(new Runnable() {
@@ -175,6 +176,7 @@ public class EditorPanel implements MouseMotionListener{
 			        fileName = fc.getSelectedFile().getAbsolutePath().toString();
 					projFile.readFile(fileName);
 				    audioSection.enableButtons();
+	        		effectsSection.setSpinnerDefault();
 		        }
 			}
         });
@@ -220,8 +222,10 @@ public class EditorPanel implements MouseMotionListener{
 		final JFileChooser fc = new JFileChooser();
         fc.showOpenDialog(fc);
         if (fc.getSelectedFile() != null){
-        	if (isMediaFile(fc.getSelectedFile().getAbsolutePath().toString()))
+        	if (isMediaFile(fc.getSelectedFile().getAbsolutePath().toString())){
         		fileTextField.setText(fc.getSelectedFile().getAbsolutePath().toString());
+        		effectsSection.setSpinnerDefault();
+        	}
         	else
         		JOptionPane.showMessageDialog(mediaPlayerComponent, 
         				"Please enter a valid media file name.");
@@ -335,7 +339,6 @@ public class EditorPanel implements MouseMotionListener{
 	            projectPanel.add(loadBtn);
 	            projectPanel.add(new CustomButton("   "), "grow");
 	            projectPanel.add(saveBtn, "right");
-	            state.addBorderListeners(border);
 	            
 	            JPanel leftSidePane = new JPanel();
 	            leftSidePane.setLayout(new MigLayout());
@@ -350,7 +353,8 @@ public class EditorPanel implements MouseMotionListener{
 	            JPanel rightSidePane = new JPanel();
 	            rightSidePane.setLayout(new MigLayout());
 	            rightSidePane.add(new DownloadPanel(ep), "wrap");
-	            rightSidePane.add(new EffectsSection(ep, mainControlPanel), "growx");
+	            effectsSection = new EffectsSection(ep, mainControlPanel);
+	            rightSidePane.add(effectsSection, "growx");
 	            add(rightSidePane, "dock east, gaptop 30");
 	            
 	            JPanel openPanel = new JPanel();

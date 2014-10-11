@@ -233,6 +233,7 @@ public class MainControlPanel extends JPanel{
 		isPreviewing = true;
 		vidPosSlider.setValue(0);
 		String mediaUrl = "udp://@:1234";
+		System.out.println("yolo");
 		mp.playMedia(mediaUrl);
 		playBtn.changeIcon();
 	}

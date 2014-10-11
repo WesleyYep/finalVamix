@@ -67,7 +67,6 @@ public class AudioSection extends JPanel{
 		border.setTitleFont(new Font("Sans Serif", Font.BOLD, 24));
 		setBorder(border);
 		
-        State.getState().addBorderListeners(border);
 		State.getState().addColourListeners(audioTextField, openAudioBtn, replaceBtn, overlayBtn, stripBtn);
 		
 		add(audioTextField, "grow, split 2");

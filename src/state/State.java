@@ -16,14 +16,12 @@ public class State {
 	private List<JComponent> stateListeners;
 	private List<JComponent> mouseListeners;
 	private List<JComponent> colourListeners;
-	private List<TitledBorder> borderTitleColourListeners;
 	private List<CustomSpinner> spinnerColourListeners;
 	
 	private State(){
 		stateListeners = new ArrayList<JComponent>();
 		mouseListeners = new ArrayList<JComponent>();
 		colourListeners = new ArrayList<JComponent>();
-		borderTitleColourListeners = new ArrayList<TitledBorder>();
 		spinnerColourListeners = new ArrayList<CustomSpinner>();
 
 	}
@@ -53,10 +51,6 @@ public class State {
 		for (JComponent comp : components){
 			colourListeners.add(comp);
 		}
-	}
-	
-	public void addBorderListeners(TitledBorder border){
-		borderTitleColourListeners.add(border);
 	}
 	
 	public void addSpinnerListeners(CustomSpinner ... spinners){
@@ -111,9 +105,6 @@ public class State {
 	public void changeForeground(Color colour){
 		for (JComponent comp : colourListeners){
 	  		comp.setForeground(colour);
-		}
-		for (TitledBorder border : borderTitleColourListeners){
-			border.setTitleColor(colour);
 		}
 		for (CustomSpinner spinner : spinnerColourListeners){
 			spinner.getEditor().getComponent(0).setForeground(colour);

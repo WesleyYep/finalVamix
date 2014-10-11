@@ -103,7 +103,6 @@ public class TextSection extends JPanel{
 		border.setTitleFont(new Font("Sans Serif", Font.BOLD, 24));
 		border.setTitleColor(new Color(150, 150, 250, 250));
 		setBorder(border);
-        State.getState().addBorderListeners(border);
 
 		
 		textArea.setBorder(BorderFactory.createEtchedBorder());

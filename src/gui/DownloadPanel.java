@@ -81,7 +81,6 @@ public class DownloadPanel extends JPanel implements ActionListener{
 		border.setTitleColor(new Color(255, 150, 250, 250));
 		border.setTitleFont(new Font("Sans Serif", Font.BOLD, 24));
 		setBorder(border);
-        State.getState().addBorderListeners(border);
 		
 		State.getState().addColourListeners(this, urlInstr, urlField, isOpen, openY, openN, submitBtn, pauseBtn);
 		

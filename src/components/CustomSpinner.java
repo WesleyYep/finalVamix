@@ -22,14 +22,13 @@ public class CustomSpinner extends JSpinner{
 	}
 	
 	public CustomSpinner(int defaultTime){
-		Calendar calendar = Calendar.getInstance();
-		calendar.set(Calendar.YEAR, 100); //to allow it to go up to 99, rather than stop at 24
-		calendar.set(Calendar.MINUTE, 0);
-		calendar.set(Calendar.SECOND, defaultTime);
-        SpinnerDateModel timeModel = new SpinnerDateModel();
-		timeModel.setValue(calendar.getTime());
-		setModel(timeModel);
-		DateEditor de = new DateEditor(this , "yy:mm:ss");
+			Calendar calendar = Calendar.getInstance();
+			calendar.set(Calendar.YEAR, 100); //to allow it to go up to 99, rather than stop at 24
+			calendar.set(Calendar.MINUTE, 0);
+			calendar.set(Calendar.SECOND, defaultTime);
+	        SpinnerDateModel timeModel = new SpinnerDateModel();
+			timeModel.setValue(calendar.getTime());
+			setModel(timeModel);		DateEditor de = new DateEditor(this , "yy:mm:ss");
 		setEditor(de);
 		de.setOpaque(false);
         de.getTextField().setOpaque(false);

@@ -189,6 +189,13 @@ public class DownloadPanel extends JPanel implements ActionListener{
 		
 	}
 	
+	public String getUrl() {
+		return urlField.getText();
+	}
+	public void setUrl(String url){
+		urlField.setText(url);
+	}
+	
 	public void downloadFinished(JButton submit){
 		add(submit);
 	}
@@ -196,6 +203,8 @@ public class DownloadPanel extends JPanel implements ActionListener{
 	private String getString(String label){
 		return LanguageSelector.getString(label);
 	}
+
+
 
 }
 

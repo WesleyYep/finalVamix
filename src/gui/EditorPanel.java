@@ -76,6 +76,7 @@ public class EditorPanel implements MouseMotionListener{
 	private Window overlay;
 	private JPanel bottomPanel;
 	private EffectsSection effectsSection;
+	private DownloadPanel downloadPanel;
 	private static String language = "en NZ";
 
     public static void main(final String[] args) throws Exception {
@@ -365,8 +366,10 @@ public class EditorPanel implements MouseMotionListener{
 	public void loadSettings(ProjectSettings projSettings) {
 		mediaPlayerComponent.getMediaPlayer().stop();
 		fileTextField.setText(projSettings._mediaFile);
+		downloadPanel.setUrl(projSettings._downloadUrl);
 		audioSection.setAudioString(projSettings._audioFile);
 		textSection.loadProjectSettings(projSettings);
+		effectsSection.loadProjectSettings(projSettings);
 	}
 	/**
 	 * 
@@ -377,6 +380,8 @@ public class EditorPanel implements MouseMotionListener{
 		ProjectSettings settings = textSection.createProjectSettings();
 		settings._mediaFile = fileTextField.getText();
 		settings._audioFile = audioSection.getAudioString();
+		settings = effectsSection.createProjectSettings(settings);
+		settings._downloadUrl = downloadPanel.getUrl();
 		return settings;
 	}
 	/**
@@ -427,9 +432,10 @@ public class EditorPanel implements MouseMotionListener{
 	            add(leftSidePane, "cell 0 1 1 3, grow, gaptop 10");
 	    		this.addMouseListener(textSection);
 
+	    		downloadPanel = new DownloadPanel(ep);
 	            JPanel rightSidePane = new JPanel();
 	            rightSidePane.setLayout(new MigLayout());
-	            rightSidePane.add(new DownloadPanel(ep), "wrap");
+	            rightSidePane.add(downloadPanel, "wrap");
 	            effectsSection = new EffectsSection(ep, mainControlPanel);
 	            rightSidePane.add(effectsSection, "growx");
 	            add(rightSidePane, "dock east, gaptop 30");

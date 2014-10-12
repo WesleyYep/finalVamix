@@ -22,6 +22,8 @@ import components.CustomSpinner;
 import components.TransparentLabel;
 import editing.CheckFileExists;
 import editing.GetAttributes;
+import editing.ProjectFile;
+import editing.ProjectFile.ProjectSettings;
 import editing.VideoWorker;
 import net.miginfocom.swing.MigLayout;
 import popups.LoadingScreen;
@@ -261,7 +263,45 @@ public class EffectsSection extends JPanel{
 		} catch (ParseException e) {}
 	}
 
+	public ProjectSettings createProjectSettings(ProjectSettings settings) {
+		String newStartTime = new DateEditor(startSpinner , "yy:mm:ss").getFormat().format(startSpinner.getValue());
+        String newEndTime = new DateEditor(endSpinner , "yy:mm:ss").getFormat().format(endSpinner.getValue());
+		settings._speed = speedOption.getSelectedIndex();
+		settings._effectsStartTime = newStartTime;
+		settings._effectsEndTime = newEndTime;
+		settings._createGif = gifCheckBox.isSelected();
+		settings._flipH = flipH.isSelected();
+		settings._flipV = flipV.isSelected();
+		settings._fadeS = fadeS.isSelected();
+		settings._fadeE = fadeE.isSelected();
+
+		return settings;
+	}
+
+	public void loadProjectSettings(ProjectSettings ps) {
+		speedOption.setSelectedIndex(ps._speed);
+		gifCheckBox.setSelected(ps._createGif);
+		flipH.setSelected(ps._flipH);
+		flipV.setSelected(ps._flipV);
+		fadeS.setSelected(ps._fadeS);
+		fadeE.setSelected(ps._fadeE);
+		String startTime = ps._effectsStartTime;
+		String endTime = ps._effectsEndTime;
+		SimpleDateFormat format = new SimpleDateFormat("yy:mm:ss");
+		try {
+			Date d = (java.util.Date)format.parse(startTime);
+			Date d1 = (java.util.Date)format.parse(endTime);
+			java.sql.Time time = new java.sql.Time(d.getTime());
+			java.sql.Time time1 = new java.sql.Time(d1.getTime());
+		    startSpinner.setValue(time);
+		    endSpinner.setValue(time1);
+		} catch (ParseException e) {
+			JOptionPane.showMessageDialog(null, getString("invalidSettings"));
+		}
+	}
+	
 	private String getString(String label){
 		return LanguageSelector.getString(label);
 	}
+
 }

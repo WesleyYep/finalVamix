@@ -369,7 +369,6 @@ public class TextSection extends JPanel implements MouseListener {
 	
 
 	public ProjectSettings createProjectSettings() {
-
         String duration = new DateEditor(timeForTextSpinner , "yy:mm:ss").getFormat().format(timeForTextSpinner.getValue());
 		
 		return ProjectFile.getInstance(editorPanel).new ProjectSettings(null, null, titleText, 
@@ -377,6 +376,7 @@ public class TextSection extends JPanel implements MouseListener {
 				 (int)xSpinner.getValue(), (int)ySpinner.getValue(), 
 				 (Integer)fontSizeSpinner.getValue(),  duration);
 	}
+	
 	public void loadProjectSettings(ProjectSettings ps) {
 		titleText = ps._titleText;
 		creditsText = ps._creditsText;

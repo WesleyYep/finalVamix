@@ -55,6 +55,15 @@ public class ProjectFile {
 		output.write(ps._y + "\n");
 		output.write(ps._fontSize + "\n");
 		output.write(ps._duration + "\n");
+		output.write(ps._downloadUrl + "\n");
+		output.write(ps._speed + "\n");
+		output.write(ps._effectsStartTime + "\n");
+		output.write(ps._effectsEndTime + "\n");
+		output.write(ps._createGif + "\n");
+		output.write(ps._flipH + "\n");
+		output.write(ps._flipV + "\n");
+		output.write(ps._fadeS + "\n");
+		output.write(ps._fadeE + "\n");
 	}
 	
 	public void readFile(String file) {
@@ -106,10 +115,29 @@ public class ProjectFile {
 		
 		String duration = input.readLine();
 		
+		String downloadUrl = input.readLine();
+		String speed = input.readLine();
+		String est = input.readLine();
+		String eet = input.readLine();
+		String createGif = input.readLine();
+		String flipH = input.readLine();
+		String flipV = input.readLine();
+		String fadeS = input.readLine();
+		String fadeE = input.readLine();
 		
 		ProjectSettings settings = new ProjectSettings( mediaName,  audioName,  titleText, 
 				 creditsText,  Integer.parseInt(titleOrCredits),  Integer.parseInt(font),  colour, 
 				 Integer.parseInt(x), Integer.parseInt(y), Integer.parseInt(fontSize),  duration);
+		settings._speed = Integer.parseInt(speed);
+		settings._effectsStartTime = est;
+		settings._effectsEndTime = eet;
+		settings._createGif = Boolean.parseBoolean(createGif);
+		settings._flipH = Boolean.parseBoolean(flipH);
+		settings._flipV = Boolean.parseBoolean(flipV);
+		settings._fadeS = Boolean.parseBoolean(fadeS);
+		settings._fadeE = Boolean.parseBoolean(fadeE);
+		settings._downloadUrl = downloadUrl;
+
 		editorP.loadSettings(settings);
 	}
 	
@@ -130,6 +158,15 @@ public class ProjectFile {
 		public int _y;
 		public Integer _fontSize;
 		public String _duration;
+		public String _downloadUrl;
+		public int _speed;
+		public String _effectsStartTime;
+		public String _effectsEndTime;
+		public boolean _createGif;
+		public boolean _flipH;
+		public boolean _flipV;
+		public boolean _fadeS;
+		public boolean _fadeE;
 		
 		public ProjectSettings(String mediaName, String audioName, String titleText, 
 				String creditsText, int titleOrCredits, int fontOption, String string, 

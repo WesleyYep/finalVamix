@@ -8,11 +8,6 @@ public class LanguageSelector {
 	
 	public static void setLanguage(String langCode1, String langCode2){
 		Locale locale = new Locale(langCode1, langCode2);
-		// print this locale
-	      System.out.println("Locale1:" + locale);
-
-	      // print the country of this locale
-	      System.out.println("Country:" + locale.getCountry());
 		bundle = ResourceBundle.getBundle("Language", locale);
 		System.out.println("set" + bundle.getLocale());
 	}

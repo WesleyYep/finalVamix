@@ -26,6 +26,7 @@ public class AudioWorker extends SwingWorker<Void, String> {
 	private JProgressBar progBar;
 	private String message = "";
 	private LoadingScreen ls;
+	private boolean isCancelled;
 	
 	public AudioWorker(String videoFile, String audioFile, String option, String file, JProgressBar progressBar,
 						int duration, int frames, LoadingScreen ls){
@@ -42,21 +43,21 @@ public class AudioWorker extends SwingWorker<Void, String> {
 	protected Void doInBackground() {
     	String cmd;
     	if (option.equals("stripAudio")){
-    		cmd = "avconv -i " + videoFile + " -an -c:v copy -f mp4 " + file;
+    		cmd = "avconv -y -i " + videoFile + " -an -c:v copy -f mp4 " + file;
     		message = getString("audioRemoved");
     	}
     	else  if (option.equals("stripVideo")){
-    		cmd = "avconv -i " + videoFile + " -vn -c:v copy -f mp3 " + file;
+    		cmd = "avconv -y -i " + videoFile + " -vn -c:v copy -f mp3 " + file;
     		message = getString("videoRemoved");
 
     	}	
     	else if (option.equals("overlay")){
-    		cmd = "avconv -i " +  videoFile + " -i " + audioFile +
+    		cmd = "avconv -y -i " +  videoFile + " -i " + audioFile +
     				" -filter_complex amix=inputs=2 -strict experimental -v debug -f mp4 " + file;
     		message = getString("videoOverlaid");
     	}
     	else{
-    		cmd = "avconv -i " +  videoFile + " -i " + audioFile +
+    		cmd = "avconv -y -i " +  videoFile + " -i " + audioFile +
     				" -map 0:v -map 1:a -codec copy -f mp4 " + file;
     		message = getString("audioReplaced");
     	}
@@ -68,7 +69,7 @@ public class AudioWorker extends SwingWorker<Void, String> {
 				BufferedReader br = new BufferedReader(new InputStreamReader(stderr));
 				String line;
 				while ((line = br.readLine()) != null){
-					if (!AudioSection.loadCancelled())
+					if (!isCancelled)
 						publish(line);
 					else
 						process.destroy();
@@ -107,6 +108,10 @@ public class AudioWorker extends SwingWorker<Void, String> {
 			JOptionPane.showMessageDialog(null, getString("errorOccurred"));
 		}
     }	
+	
+	public void cancel(){
+		isCancelled = true;
+	}
 	
 	private String getString(String label){
 		return LanguageSelector.getString(label);

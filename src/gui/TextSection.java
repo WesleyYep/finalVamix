@@ -1,15 +1,20 @@
 package gui;
 
+import editing.CheckFileExists;
 import editing.GetAttributes;
 import editing.ProjectFile;
 import editing.VideoWorker;
 import editing.ProjectFile.ProjectSettings;
-
+import java.awt.event.MouseAdapter;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -23,7 +28,6 @@ import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Calendar;
-
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -42,7 +46,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-
 import components.CustomSpinner;
 import components.TransparentLabel;
 import popups.ColourChooser;
@@ -57,12 +60,13 @@ import net.miginfocom.swing.MigLayout;
  *
  */
 @SuppressWarnings("serial")
-public class TextSection extends JPanel{
+public class TextSection extends JPanel implements MouseListener {
 	
 	private JTextArea textArea = new JTextArea(getString("defaultText"),5,15);
 	private JButton addTextBtn = new JButton(getString("addTextToVideo"));
 	private JButton previewBtn = new JButton(getString("preview"));
 	private JButton colourBtn = new JButton();
+	private JButton textPosBtn = new JButton(getString("setPosition"));
 	private JComboBox<String> titleOrCredits;
 	private JComboBox<String> fontOption;
 	private ColourChooser cc = new ColourChooser(this);
@@ -76,14 +80,16 @@ public class TextSection extends JPanel{
 	private DateEditor de;
 	private MainControlPanel cp;
 	private EditorPanel editorPanel;
+	private boolean isSelecting = false;
 	private static LoadingScreen loadScreen;
+	private VideoWorker worker;
 
 	/**
 	 * The constructor sets up the GUI and adds listeners
 	 * @param ep The EditorPanel that this is housed in. This is used to get the name
 	 * 		of the currently playing media.
 	 */
-	public TextSection(EditorPanel ep, final MainControlPanel cp) {
+	public TextSection(final EditorPanel ep, final MainControlPanel cp){
 		
 		editorPanel = ep;
 		this.cp = cp;
@@ -110,18 +116,19 @@ public class TextSection extends JPanel{
 		textArea.setLineWrap(true);
 		textArea.setFont( textArea.getFont().deriveFont(Float.parseFloat(fontSizeSpinner.getValue().toString())) );
 
-		colourBtn.setBackground(Color.black);
+		colourBtn.setBackground(Color.RED);
 		
-		State.getState().addColourListeners(textArea, textScroll, titleOrCredits, fontOption, colourBtn, fontSizeSpinner,
-		xSpinner, ySpinner,	timeForTextSpinner,	previewBtn,	addTextBtn);
+		State.getState().addColourListeners(textArea, textScroll, titleOrCredits, fontOption, fontSizeSpinner,
+		xSpinner, ySpinner,	timeForTextSpinner,	previewBtn,	addTextBtn, textPosBtn);
 		
 		add(textArea, "cell 0 0 2 1, grow");
 		add(titleOrCredits, "cell 0 1 2 1, grow");
 		TransparentLabel fontLbl, colourLbl, sizeLbl, xLbl, yLbl, durLbl;
 		add(fontLbl = new TransparentLabel(getString("font")), "cell 0 2");
 		add(fontOption, "cell 1 2, grow");
-		add(colourLbl = new TransparentLabel(getString("colour")), "cell 0 3");
-		add(colourBtn, "cell 1 3, grow");
+		add(colourLbl = new TransparentLabel(getString("colour")), "cell 0 3, split 2");
+		add(colourBtn, "cell 0 3, grow");
+		add(textPosBtn, "cell 1 3, grow");
 		add(sizeLbl = new TransparentLabel(getString("size")), "cell 0 4");
 		add(fontSizeSpinner, "cell 1 4, grow");
 		add(xLbl = new TransparentLabel("X: "), "cell 0 5");
@@ -164,6 +171,14 @@ public class TextSection extends JPanel{
 			}
 		});
 		
+		textPosBtn.addActionListener(new ActionListener(){
+			@Override
+        	public void actionPerformed(ActionEvent arg0) {
+				isSelecting = true;
+				editorPanel.setCursorOnOverlay(true);
+        	}
+		});
+		
 		//prompt the user to enter an output filename. Then add the text and save it.
 		addTextBtn.addActionListener(new ActionListener(){
 			@Override
@@ -171,6 +186,13 @@ public class TextSection extends JPanel{
 				final JFileChooser fc = new JFileChooser();
 		        fc.showSaveDialog(fc);
 		        if (fc.getSelectedFile() != null){
+		        	if (CheckFileExists.check(fc.getSelectedFile().getAbsolutePath().toString())){
+						if (JOptionPane.showConfirmDialog((Component) null, "File already exists. Do you wish to overwrite?",
+						        "alert", JOptionPane.OK_CANCEL_OPTION) != 0){
+							JOptionPane.showMessageDialog(null, getString("notOverwritten"));
+							return;
+						}
+		        	}
 		            String outputFile = fc.getSelectedFile().getAbsolutePath().toString();
 					addTextToVideo("conv", outputFile);
 		        }
@@ -181,6 +203,7 @@ public class TextSection extends JPanel{
 		previewBtn.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				cp.stopPlaying();
 				addTextToVideo("preview", "udp://localhost:1234");
 				cp.playPreview();
 			}
@@ -224,6 +247,13 @@ public class TextSection extends JPanel{
 	public void changeColour(Color colour){
 		colourBtn.setBackground(colour);
 		textArea.setForeground(colour);
+	}
+	
+	public void cancelPreview(){
+		try{
+			worker.cancel();
+		}
+		catch (NullPointerException ex){}
 	}
 	
 	/**
@@ -271,7 +301,7 @@ public class TextSection extends JPanel{
         //write the command
     	String cmd = "";
     	if (option.equals("conv")){
-	        cmd = "avconv -i " + editorPanel.getMediaName() + " -vf \"drawtext=fontfile='" + fontPath + "':textfile='" + currentAbsPath + "/.text" +
+	        cmd = "avconv -y -i " + editorPanel.getMediaName() + " -vf \"drawtext=fontfile='" + fontPath + "':textfile='" + currentAbsPath + "/.text" +
 	        			"':x=" + xSpinner.getValue() + ":y=" + ySpinner.getValue() + ":fontsize=" + fontSizeSpinner.getValue() + ":fontcolor=" + colour + 
 	        			":draw='" + timeFunction + "'\" -strict experimental -f mp4 -v debug " + output;
     	}else if (option.equals("preview")){
@@ -284,10 +314,11 @@ public class TextSection extends JPanel{
         //only carry out the command if the video file is valid
         if (dur > 0 && frames > 0){
     		loadScreen = new LoadingScreen(editorPanel);
+	        worker = new VideoWorker(cmd, loadScreen.getProgBar(), frames, option, "Text", loadScreen);
 	        if (option.equals("conv")){
 				loadScreen.prepare();
+				loadScreen.setWorker(worker);
 	        }
-	        VideoWorker worker = new VideoWorker(cmd, loadScreen.getProgBar(), frames, option, "Text", loadScreen);
 	        worker.execute();
 		}
         else{
@@ -367,15 +398,31 @@ public class TextSection extends JPanel{
 		timeForTextSpinner.setEditor(de);
 	}
 	
-	/**
-	 * This method checks if the loading screen is cancelled
-	 * @return true if cancelled, false otherwise
-	 */
-	public static boolean loadCancelled(){
-		return loadScreen.isClosed;
-	}
-	
 	private String getString(String label){
 		return LanguageSelector.getString(label);
 	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		if (isSelecting){
+			int x = GetAttributes.getWidth(editorPanel.getMediaName());
+			int y = GetAttributes.getHeight(editorPanel.getMediaName());
+			xSpinner.setValue(e.getPoint().x*x/EditorPanel.WIDTH);
+			ySpinner.setValue(e.getPoint().y*y/EditorPanel.HEIGHT);
+			isSelecting = false;
+			editorPanel.setCursorOnOverlay(false);
+		}
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e){ 	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {	}
 }

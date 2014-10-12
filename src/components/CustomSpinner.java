@@ -19,7 +19,7 @@ public class CustomSpinner extends JSpinner{
         setOpaque(false);
         getEditor().setOpaque(false);
         ((JSpinner.NumberEditor)getEditor()).getTextField().setOpaque(false);
-        getEditor().getComponent(0).setForeground(new Color(100,0,0));
+        getEditor().getComponent(0).setForeground(new Color(255,0,0));
 	}
 	
 	public CustomSpinner(int defaultTime){
@@ -47,7 +47,7 @@ public class CustomSpinner extends JSpinner{
 		setEditor(de);
 		de.setOpaque(false);
         de.getTextField().setOpaque(false);
-        getEditor().getComponent(0).setForeground(new Color(100,0,0));
+        getEditor().getComponent(0).setForeground(new Color(255,0,0));
 	}
 	
 }

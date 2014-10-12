@@ -1,5 +1,7 @@
 package popups;
 
+import editing.AudioWorker;
+import editing.VideoWorker;
 import gui.EditorPanel;
 
 import java.awt.event.ActionEvent;
@@ -9,6 +11,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
+import javax.swing.SwingWorker;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -25,6 +28,7 @@ public class LoadingScreen extends JFrame{
 	private JButton hideBtn = new JButton(getString("hide"));
 	private JButton cancelBtn = new JButton(getString("cancel"));
 	private EditorPanel ep;
+	private SwingWorker<Void, String> worker;
 	
 	public LoadingScreen(final EditorPanel ep) {
 		super(getString("saving"));
@@ -49,7 +53,7 @@ public class LoadingScreen extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				setVisible(false);
-				isClosed = true;
+				cancel();
 			}
 		});
 		
@@ -62,6 +66,43 @@ public class LoadingScreen extends JFrame{
 		
 	}
 	
+	public void cancel(){
+		isClosed = true;
+		if (worker instanceof VideoWorker){
+			((VideoWorker)worker).cancel();
+		}else if (worker instanceof AudioWorker){
+			((AudioWorker)worker).cancel();
+		}
+	}
+	
+	public LoadingScreen(final EditorPanel ep, JButton cancel) {
+		super(getString("saving"));
+		this.ep = ep;
+		this.cancelBtn = cancel;
+		setSize(300,150);
+		setLocation(500, 250);
+		setLayout(new MigLayout());
+		add(title, "center, wrap");
+		add(progBar, "growx, height 20:45:, width 60:300:, wrap");
+		add(hideBtn, "align center");
+		add(cancelBtn, "align center");
+		
+		hideBtn.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				setVisible(false);
+				ep.addToBottomPanel(progBar);
+			}
+		});
+		
+		this.addWindowListener(new java.awt.event.WindowAdapter() {
+		    @Override
+		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+		        isClosed = true;
+		    }
+		});
+	}
+
 	public JProgressBar getProgBar() {
 		return progBar;
 	}
@@ -78,5 +119,9 @@ public class LoadingScreen extends JFrame{
 	
 	private static  String getString(String label){
 		return LanguageSelector.getString(label);
+	}
+
+	public void setWorker(SwingWorker<Void,String> worker) {
+		this.worker = worker;
 	}
 }

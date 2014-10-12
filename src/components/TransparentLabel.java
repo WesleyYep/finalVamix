@@ -8,7 +8,7 @@ public class TransparentLabel extends JLabel{
 	
 	public TransparentLabel(String caption){
 		super(caption);
-		this.setForeground(new Color(100,0,0));
+		this.setForeground(new Color(255,0,0));
 	}
 	
 }

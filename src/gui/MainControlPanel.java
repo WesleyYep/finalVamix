@@ -232,13 +232,18 @@ public class MainControlPanel extends JPanel{
 		} else if (mp.isPlayable()) {
 			mp.stop();
 		} 
-		setIsPreviewing(false);
+		if (isPreviewing){
+			setIsPreviewing(false);
+			ep.cancelPreviewTextSection();
+			ep.cancelPreviewEffectsSection();
+		}
 		stopBtn.setEnabled(false);
 		vidPosSlider.setValue(0);
     }
     
 	public void playPreview(){
 		isPreviewing = true;
+		currentTime = 0;
 		vidPosSlider.setValue(0);
 		String mediaUrl = "udp://@:1234";
 		mp.playMedia(mediaUrl);
@@ -263,6 +268,10 @@ public class MainControlPanel extends JPanel{
 			forwardBtn.setEnabled(true);
 			backwardBtn.setEnabled(true);
 		}
+	}
+	
+	public boolean getIsPreviewing(){
+		return isPreviewing;
 	}
 	
 	  public void updateVolume(int value) {

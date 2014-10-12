@@ -33,18 +33,19 @@ public class DownloadWorker extends SwingWorker<Integer, String>{
 	private JButton submitBtn;
 	private JButton pauseBtn;
 	private LoadingScreen ls;
-	
+	private DownloadPanel panel;
 	/**
 	 * This is the standard constructor
 	 * @param progress the progress bar that should be updated as the download progresses
 	 * @param button the button that must not be active until download is complete
 	 */
-	public DownloadWorker(String cmd, JProgressBar progress, JButton startButton, JButton pauseButton, LoadingScreen ls) {
+	public DownloadWorker(String cmd, JProgressBar progress, JButton startButton, JButton pauseButton, LoadingScreen ls, DownloadPanel panel) {
 		_cmd = cmd;
 		prog = progress;
 		submitBtn = startButton;
 		pauseBtn = pauseButton;
 		this.ls = ls;
+		this.panel = panel;
 	}
 	
 	/** 
@@ -123,6 +124,7 @@ public class DownloadWorker extends SwingWorker<Integer, String>{
 		prog.setVisible(false);
 		prog.setValue(0);
 		submitBtn.setText(getString("startDownload"));
+		panel.downloadFinished(submitBtn);
 		pauseBtn.setEnabled(false);
 	}
 	

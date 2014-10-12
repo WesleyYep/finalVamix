@@ -1,6 +1,7 @@
 package gui;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -10,6 +11,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSpinner.DateEditor;
@@ -18,6 +20,7 @@ import javax.swing.border.TitledBorder;
 
 import components.CustomSpinner;
 import components.TransparentLabel;
+import editing.CheckFileExists;
 import editing.GetAttributes;
 import editing.VideoWorker;
 import net.miginfocom.swing.MigLayout;
@@ -30,6 +33,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+@SuppressWarnings("serial")
 public class EffectsSection extends JPanel{
 	private EditorPanel editorPanel;
 	private MainControlPanel controlPanel;
@@ -44,7 +48,7 @@ public class EffectsSection extends JPanel{
 	private JButton previewBtn = new JButton(getString("preview"));
 	private JButton addBtn = new JButton(getString("add"));
 	private JCheckBox gifCheckBox;
-	private boolean isDraggable;
+	private VideoWorker worker;
 
 	public EffectsSection(EditorPanel ep, MainControlPanel cp){
 		this.editorPanel = ep;
@@ -88,7 +92,6 @@ public class EffectsSection extends JPanel{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				addEffects("preview", "udp://localhost:1234");
-				controlPanel.playPreview();
 			}
 		});
 		
@@ -99,6 +102,13 @@ public class EffectsSection extends JPanel{
 				final JFileChooser fc = new JFileChooser();
 		        fc.showSaveDialog(fc);
 		        if (fc.getSelectedFile() != null){
+		        	if (CheckFileExists.check(fc.getSelectedFile().getAbsolutePath().toString())){
+						if (JOptionPane.showConfirmDialog((Component) null, "File already exists. Do you wish to overwrite?",
+						        "alert", JOptionPane.OK_CANCEL_OPTION) != 0){
+							JOptionPane.showMessageDialog(null, getString("notOverwritten"));
+							return;
+						}
+		        	}
 		            String outputFile = fc.getSelectedFile().getAbsolutePath().toString();
 					addEffects("conv", outputFile);
 		        }
@@ -118,6 +128,13 @@ public class EffectsSection extends JPanel{
 				}
         	}
 		});
+	}
+	
+	public void cancelPreview(){
+		try{
+			worker.cancel();
+		}
+		catch (NullPointerException ex){}
 	}
 	
 	/**
@@ -146,20 +163,20 @@ public class EffectsSection extends JPanel{
     		}
     	}else if (option.equals("preview")){
     		 cmd += " -strict experimental";
-    		 controlPanel.setDuration(dur*1000);
-    		 controlPanel.setIsPreviewing(true);
     	}
-    	System.out.println(cmd);
         //only carry out the command if the video file is valid
         if (dur > 0 && frames > 0){
     		loadScreen = new LoadingScreen(editorPanel);
+	        worker = new VideoWorker(cmd, loadScreen.getProgBar(), frames, option, "Effects", loadScreen);
 	        if (option.equals("conv")){
 				loadScreen.prepare();
+		        loadScreen.setWorker(worker);
 	        }
-	        System.out.println(cmd);
-	        VideoWorker worker = new VideoWorker(cmd, loadScreen.getProgBar(), frames, option, "Effects", loadScreen);
 	        worker.execute();
 		}
+        else{
+			JOptionPane.showMessageDialog(null, getString("unsupportedFile"), getString("error"), JOptionPane.DEFAULT_OPTION);
+        }
 	}
 
 	private String getTimeDiff(String startTime, String endTime) {
@@ -189,7 +206,7 @@ public class EffectsSection extends JPanel{
         String durTime = getTimeDiff(startTime, endTime);
     	String cmd = "";
     	if (option.equals("conv")){
-    		cmd = "avconv -i " + editorPanel.getMediaName() + " -ss " + startTime + 
+    		cmd = "avconv -y -i " + editorPanel.getMediaName() + " -ss " + startTime + 
     				" -t " + durTime + " -vf \"";
     	}else{
     		cmd = "avplay -i " + editorPanel.getMediaName() + " -ss " + startTime + 

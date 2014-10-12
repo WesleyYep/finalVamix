@@ -68,7 +68,7 @@ public class State {
 			comp.setOpaque(false);
 	  		comp.setBackground(new Color(0,0,0,10));
 	  		comp.setFont(new Font("Sans", Font.BOLD, 16));
-	  		comp.setForeground(new Color(100,0,0));
+	  		comp.setForeground(new Color(255,0,0));
 		}
 	}
 	

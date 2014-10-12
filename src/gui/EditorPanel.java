@@ -2,6 +2,7 @@ package gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Window;
@@ -11,7 +12,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -19,27 +19,21 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
-
 import com.sun.jna.platform.WindowUtils;
 import com.sun.awt.AWTUtilities;
-
 import components.SmallColourPanel;
 import editing.ProjectFile;
 import editing.ProjectFile.ProjectSettings;
@@ -61,13 +55,14 @@ import uk.co.caprica.vlcj.player.MediaPlayerEventAdapter;
 @SuppressWarnings("serial")
 public class EditorPanel implements MouseMotionListener{
 
+	public static final int WIDTH = 1280;
+	public static final int HEIGHT = 750;
 	private final EmbeddedMediaPlayerComponent mediaPlayerComponent;
 	private MediaPlayer mediaPlayer;
 	private JButton openBtn = new JButton(getString("open"));
 	private JTextField fileTextField = new JTextField(20);
     private JButton showHideBtn = new JButton(getString("hide"));
     private JButton languageBtn = new JButton();
-
 	private CustomButton loadBtn = new CustomButton(getString("load"), new ImageIcon(
 			EditorPanel.class.getResource("/upload.png")), 25, 25);
 	private JButton saveBtn = new CustomButton(getString("save"), new ImageIcon(
@@ -100,7 +95,7 @@ public class EditorPanel implements MouseMotionListener{
 
 	EditorPanel () {
         f = new Frame("Vamix");
-        f.setSize(1280, 750);
+        f.setSize(WIDTH, HEIGHT);
         f.setBackground(Color.black);
         f.addWindowListener(new WindowAdapter() {
             @Override
@@ -226,7 +221,7 @@ public class EditorPanel implements MouseMotionListener{
 				
 			}
         });
-        
+                
 	}
 	
 	/**The code for this method comes mostly from http://stackoverflow.com/questions/4159802/how-can-i-restart-a-java-application
@@ -270,7 +265,7 @@ public class EditorPanel implements MouseMotionListener{
 	public void mouseMoved(MouseEvent e) {
 		state.showMouseControls();
 	}
-	
+
 	public void setFullScreen(long currentTime, EditorPanel ep, boolean isPaused){
 	    f.setExtendedState(JFrame.MAXIMIZED_BOTH);
 	}
@@ -340,6 +335,21 @@ public class EditorPanel implements MouseMotionListener{
 		bottomPanel.add(comp);
 	}
 	
+	public void setCursorOnOverlay(boolean bool){
+		if (bool)
+			overlay.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+		else
+			overlay.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+	}
+	
+	public void cancelPreviewTextSection() {
+		textSection.cancelPreview();
+	}
+	
+	public void cancelPreviewEffectsSection() {
+		effectsSection.cancelPreview();
+	}
+	
 	/**
 	 *  Used by the Audio/text sections to allow them to get the media file being played
 	 * @return The string which comes straight from the filetextfield
@@ -379,7 +389,7 @@ public class EditorPanel implements MouseMotionListener{
 		return (isFileType(file, "ASCII text"));
 	}
 	  
-	  private class Overlay extends Window {
+	  private class Overlay extends Window{
 
 	        private static final long serialVersionUID = 1L;
 	    	//private MigLayout myLayout = new MigLayout();
@@ -415,7 +425,8 @@ public class EditorPanel implements MouseMotionListener{
 	            leftSidePane.add(projectPanel, "grow");
 	            
 	            add(leftSidePane, "cell 0 1 1 3, grow, gaptop 10");
-	            
+	    		this.addMouseListener(textSection);
+
 	            JPanel rightSidePane = new JPanel();
 	            rightSidePane.setLayout(new MigLayout());
 	            rightSidePane.add(new DownloadPanel(ep), "wrap");

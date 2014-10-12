@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import editing.AudioWorker;
+import editing.CheckFileExists;
 import editing.GetAttributes;
 
 import javax.swing.BorderFactory;
@@ -144,13 +145,22 @@ public class AudioSection extends JPanel{
 				final JFileChooser fc = new JFileChooser();
 		        fc.showSaveDialog(fc);
 		        if (fc.getSelectedFile() != null){
+		        	if (CheckFileExists.check(fc.getSelectedFile().getAbsolutePath().toString())){
+						if (JOptionPane.showConfirmDialog((Component) null, "File already exists. Do you wish to overwrite?",
+						        "alert", JOptionPane.OK_CANCEL_OPTION) != 0){
+							JOptionPane.showMessageDialog(null, getString("notOverwritten"));
+							return;
+						}
+		        	}
 		        	int dur = GetAttributes.getDuration(editorPanel.getMediaName());
 		        	int frames = GetAttributes.getFrames(editorPanel.getMediaName());
 		            String audioFile = fc.getSelectedFile().getAbsolutePath().toString();
-		    		loadScreen = new LoadingScreen(editorPanel);
+		            AudioWorker worker = null;
+			    	loadScreen = new LoadingScreen(editorPanel);
 		            loadScreen.prepare();
-			    	AudioWorker worker = new AudioWorker(editorPanel.getMediaName(), audioTextField.getText(),
+			    	worker = new AudioWorker(editorPanel.getMediaName(), audioTextField.getText(),
 			    							option, audioFile, loadScreen.getProgBar(), dur, frames, loadScreen);
+			    	loadScreen.setWorker(worker);
 			    	worker.execute();
 		        }
     		}
@@ -195,14 +205,6 @@ public class AudioSection extends JPanel{
 	 */
 	public void setAudioString(String audioString) {
 		audioTextField.setText(audioString);
-	}
-	
-	/**
-	 * This method checks if the loading screen is cancelled
-	 * @return true if cancelled, false otherwise
-	 */
-	public static boolean loadCancelled(){
-		return loadScreen.isClosed;
 	}
 
 	public void enableButtons() {

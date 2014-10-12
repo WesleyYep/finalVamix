@@ -44,7 +44,7 @@ public class DownloadPanel extends JPanel implements ActionListener{
 	private JLabel isOpen = new JLabel(getString("urSureOpenSource"));
 	private JRadioButton openY = new JRadioButton(getString("yes"));
 	private JRadioButton openN = new JRadioButton(getString("no"));
-	private JButton submitBtn = new JButton(getString("download"));
+	private JButton submitBtn = new JButton(getString("startDownload"));
 	private JButton pauseBtn = new JButton(getString("pause"));
 	public static boolean isPaused = false;
 	private DownloadWorker downloadWorker;
@@ -66,7 +66,7 @@ public class DownloadPanel extends JPanel implements ActionListener{
 		add(openY, "split 2");
 		add(openN, "wrap");
 		add(submitBtn);
-		add(pauseBtn);
+	//	add(pauseBtn);
 		
 		TitledBorder border = BorderFactory.createTitledBorder(
 				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
@@ -175,9 +175,9 @@ public class DownloadPanel extends JPanel implements ActionListener{
 	private void download(String cmd) {
 		try {
 			submitBtn.setText("Cancel");
-			loadScreen = new LoadingScreen(ep);
+			loadScreen = new LoadingScreen(ep, submitBtn);
             loadScreen.prepare();
-			downloadWorker = new DownloadWorker(cmd, loadScreen.getProgBar(), submitBtn, pauseBtn, loadScreen);
+			downloadWorker = new DownloadWorker(cmd, loadScreen.getProgBar(), submitBtn, pauseBtn, loadScreen, this);
 			downloadWorker.execute();
 			
 		} catch (Exception e) {
@@ -187,6 +187,10 @@ public class DownloadPanel extends JPanel implements ActionListener{
 				    JOptionPane.ERROR_MESSAGE);
 		}
 		
+	}
+	
+	public void downloadFinished(JButton submit){
+		add(submit);
 	}
 	
 	private String getString(String label){

@@ -15,7 +15,6 @@ import state.LanguageSelector;
 public class GetAttributes{ 
 	
 	public static int getDuration(String inputFile){
-		//Pattern pattern = Pattern.compile("Duration: (\\d\\d):(\\d\\d):(\\d\\d)\\.\\d\\d, ");
 		Pattern pattern = Pattern.compile("duration=(\\d+\\.\\d+)");
 		try {
 			return processLinuxCmd(inputFile, pattern, "dur");
@@ -25,16 +24,33 @@ public class GetAttributes{
 	}
 	
 	public static int getFrames(String inputFile){
-		//Pattern pattern = Pattern.compile(", (\\d+)(\\.\\d+)? fps");
 		Pattern pattern = Pattern.compile("nb_frames=(\\d+)");
 		try {
 			return processLinuxCmd(inputFile, pattern, "fps");
 		} catch (FileNotFoundException e) {
-			JOptionPane.showMessageDialog(null, getString("unsupportedFile"), getString("error"), JOptionPane.DEFAULT_OPTION);
 			return -1;
 		}
 	}
 	
+	public static int getWidth(String inputFile)
+	{
+		Pattern pattern = Pattern.compile("width=(\\d+)");
+		try {
+			return processLinuxCmd(inputFile, pattern, "fps");
+		} catch (FileNotFoundException e) {
+			return -1;
+		}
+	}
+	
+	public static int getHeight(String inputFile)
+	{
+		Pattern pattern = Pattern.compile("height=(\\d+)");
+		try {
+			return processLinuxCmd(inputFile, pattern, "fps");
+		} catch (FileNotFoundException e) {
+			return -1;
+		}
+	}
 	
 	private static int processLinuxCmd(String inputFile, Pattern p, String option) throws FileNotFoundException{
 		String cmd = "avprobe -show_streams " + inputFile;
@@ -62,10 +78,6 @@ public class GetAttributes{
 			}
 		} catch (IOException e) {}
 		throw new FileNotFoundException();
-	}
-	
-	private static String getString(String label){
-		return LanguageSelector.getString(label);
 	}
 	
 }

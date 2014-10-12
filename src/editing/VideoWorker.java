@@ -33,6 +33,7 @@ public class VideoWorker extends SwingWorker<Void, String> {
 	private String option;
 	private LoadingScreen ls;
 	private String type;
+	private boolean isCancelled = false;
 	
 	public VideoWorker(String cmd, JProgressBar progressBar, int fps, String option, String type, LoadingScreen ls) {
 		this.cmd = cmd;
@@ -53,13 +54,12 @@ public class VideoWorker extends SwingWorker<Void, String> {
 				BufferedReader br = new BufferedReader(new InputStreamReader(stderr));
 				String line;
 				while ((line = br.readLine()) != null){
-			//		if (!TextSection.loadCancelled()){
+					if (!isCancelled){
 						publish(line);
-			//		}
-			//		else{
-			//			System.out.println("no");
-			//			process.destroy();
-			//		}
+					}
+					else{
+						process.destroy();
+					}
 				}
 			} catch (IOException e) {}
 		return null;
@@ -107,6 +107,10 @@ public class VideoWorker extends SwingWorker<Void, String> {
 			JOptionPane.showMessageDialog(null, getString("errorOccurred"), getString("error"), JOptionPane.WARNING_MESSAGE);
 		} 
     }	
+	
+	public void cancel(){
+		isCancelled = true;
+	}
 	
 	private String getString(String label){
 		return LanguageSelector.getString(label);

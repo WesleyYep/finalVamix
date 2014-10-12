@@ -56,9 +56,8 @@ public class MainControlPanel extends JPanel{
 	private final Timer videoMovementTimer = new Timer(100, null);
 	private EditorPanel ep;
 	private boolean isFullScreen = false;
-//	private State state;
 	
-	public MainControlPanel(MediaPlayer mp, EditorPanel ep/*, State state*/){
+	public MainControlPanel(MediaPlayer mp, EditorPanel ep){
 		this.mp = mp;
 		this.ep = ep;
 		registerListeners();
@@ -125,6 +124,10 @@ public class MainControlPanel extends JPanel{
         stopBtn.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				if (!isPaused){
+					playBtn.changeIcon();
+				}
+				stopBtn.setEnabled(false);
 				isPaused = false;
 				stopPlaying();
 			}      	
@@ -167,10 +170,13 @@ public class MainControlPanel extends JPanel{
         fullScreenBtn.addActionListener(new ActionListener() {
         	@Override
         	public void actionPerformed(ActionEvent arg0) {
-        		if(!isFullScreen)
+        		if(!isFullScreen){
         			ep.setFullScreen(currentTime, ep, isPaused);
-        		else
+        			isFullScreen = true;
+        		}else{
         			ep.exitFullScreen();
+        			isFullScreen = false;
+        		}
         	}
         });
         
@@ -210,10 +216,10 @@ public class MainControlPanel extends JPanel{
 	    setPositionValue = false;
 	}
 	
-	public void changePlayIcon(){
-		playBtn.changeIcon();
-	}
-	  
+//	public void changePlayIcon(){
+//		playBtn.changeIcon();
+//	}
+//	  
 	private void updateTime(long millis) {
 		String s = String.format("%02d:%02d:%02d",
 	    TimeUnit.MILLISECONDS.toHours(millis),
@@ -228,7 +234,6 @@ public class MainControlPanel extends JPanel{
     public void stopPlaying(){
 		if (mp.isPlaying()) {
 			mp.stop();
-			playBtn.changeIcon();
 		} else if (mp.isPlayable()) {
 			mp.stop();
 		} 
@@ -237,7 +242,6 @@ public class MainControlPanel extends JPanel{
 			ep.cancelPreviewTextSection();
 			ep.cancelPreviewEffectsSection();
 		}
-		stopBtn.setEnabled(false);
 		vidPosSlider.setValue(0);
     }
     

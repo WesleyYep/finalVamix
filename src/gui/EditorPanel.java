@@ -273,7 +273,7 @@ public class EditorPanel implements MouseMotionListener{
 	
 	public void exitFullScreen() {
 		f.setExtendedState(JFrame.NORMAL);
-        f.setSize(1200, 750);
+        f.setSize(WIDTH, HEIGHT);
 	}
 	
 	/** 

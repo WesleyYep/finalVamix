@@ -146,7 +146,7 @@ public class AudioSection extends JPanel{
 		        fc.showSaveDialog(fc);
 		        if (fc.getSelectedFile() != null){
 		        	if (CheckFileExists.check(fc.getSelectedFile().getAbsolutePath().toString())){
-						if (JOptionPane.showConfirmDialog((Component) null, "File already exists. Do you wish to overwrite?",
+						if (JOptionPane.showConfirmDialog((Component) null, getString("fileExists"),
 						        "alert", JOptionPane.OK_CANCEL_OPTION) != 0){
 							JOptionPane.showMessageDialog(null, getString("notOverwritten"));
 							return;

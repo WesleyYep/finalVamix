@@ -253,7 +253,6 @@ public class EffectsSection extends JPanel{
 		String hrStr = (hr<10 ? "0" : "")+hr;
 		String mnStr = (mn<10 ? "0" : "")+mn;
 		String secStr = (sec<10 ? "0" : "")+sec; 
-		System.out.println(mn + " - " + mnStr);
 		SimpleDateFormat format = new SimpleDateFormat("yy:mm:ss");
 		try {
 			Date d = (java.util.Date)format.parse(hrStr + ":" + mnStr + ":" + secStr);

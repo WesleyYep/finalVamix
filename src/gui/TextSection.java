@@ -27,7 +27,11 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -383,19 +387,15 @@ public class TextSection extends JPanel implements MouseListener {
 		ySpinner.setValue(ps._y);
 		fontSizeSpinner.setValue(ps._fontSize);
 		String duration = ps._duration;
-		String[] dur = duration.split(":");
-		
-		Calendar d = Calendar.getInstance();
-		if (Integer.parseInt(dur[0]) == 0)
-			d.set(Calendar.YEAR, Integer.parseInt(dur[0] + 100));
-		else
-			d.set(Calendar.YEAR, Integer.parseInt(dur[0]));
-		d.set(Calendar.MINUTE, Integer.parseInt(dur[1]));
-		d.set(Calendar.SECOND, Integer.parseInt(dur[2]));
-		SpinnerDateModel timeModel = new SpinnerDateModel();
-		timeModel.setValue(d.getTime());
-		timeForTextSpinner.setModel(timeModel);
-		timeForTextSpinner.setEditor(de);
+		SimpleDateFormat format = new SimpleDateFormat("yy:mm:ss");
+		try {
+			Date d = (java.util.Date)format.parse(duration);
+			java.sql.Time time = new java.sql.Time(d.getTime());
+		    timeForTextSpinner.setValue(time);
+		} catch (ParseException e) {
+			JOptionPane.showMessageDialog(null, getString("invalidSettings"));
+		}
+
 	}
 	
 	private String getString(String label){

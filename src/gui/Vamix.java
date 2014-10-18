@@ -47,13 +47,11 @@ import uk.co.caprica.vlcj.player.MediaPlayerEventAdapter;
 /**
  * This screen is used for all your video editing needs
  * The images used in the buttons have been taken from: http://www.softicons.com/
- * The timing services including the executor service and UpdateRunnable class have been taken from
- * http://vlcj.googlecode.com/svn-history/r412/trunk/vlcj/src/test/java/uk/co/caprica/vlcj/test/PlayerControlsPanel.java
  * 
  * @author Wesley
  */
 @SuppressWarnings("serial")
-public class EditorPanel implements MouseMotionListener{
+public class Vamix implements MouseMotionListener{
 
 	public static final int WIDTH = 1280;
 	public static final int HEIGHT = 750;
@@ -64,9 +62,9 @@ public class EditorPanel implements MouseMotionListener{
     private JButton showHideBtn = new JButton(getString("hide"));
     private JButton languageBtn = new JButton();
 	private CustomButton loadBtn = new CustomButton(getString("load"), new ImageIcon(
-			EditorPanel.class.getResource("/upload.png")), 25, 25);
+			Vamix.class.getResource("/upload.png")), 25, 25);
 	private JButton saveBtn = new CustomButton(getString("save"), new ImageIcon(
-			EditorPanel.class.getResource("/download.png")), 25, 25);
+			Vamix.class.getResource("/download.png")), 25, 25);
 	private ProjectFile projFile = ProjectFile.getInstance(this);
 	private AudioSection audioSection;
 	private TextSection textSection;
@@ -80,22 +78,24 @@ public class EditorPanel implements MouseMotionListener{
 	private static String language = "en NZ";
 
     public static void main(final String[] args) throws Exception {
+    	//check the language on initialisation
     	if (args.length!=0){
     		LanguageSelector.setLanguage(args[0], args[1]);
     		language = args[0] + " " + args[1];
     	}else{
-    		LanguageSelector.setLanguage("en", "NZ");
+    		LanguageSelector.setLanguage("en", "NZ"); //default to english
     	}
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new EditorPanel();
+                new Vamix();
             }
         });
     }
 
-	EditorPanel () {
+	Vamix () {
         f = new Frame("Vamix");
+		f.setIconImage(new ImageIcon(getClass().getClassLoader().getResource("icon.png")).getImage());
         f.setSize(WIDTH, HEIGHT);
         f.setBackground(Color.black);
         f.addWindowListener(new WindowAdapter() {
@@ -142,9 +142,9 @@ public class EditorPanel implements MouseMotionListener{
         f.setVisible(true);
         state = State.getState();
         
+		//set up the overlay
         overlay = new Overlay(f,this);
 		overlay.addMouseMotionListener(this);
-
       	mediaPlayerComponent.getMediaPlayer().setOverlay(overlay);
       	mediaPlayerComponent.getMediaPlayer().enableOverlay(true);
 	}
@@ -235,7 +235,7 @@ public class EditorPanel implements MouseMotionListener{
 		final String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
 		File currentJar;
 		try {
-			currentJar = new File(EditorPanel.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+			currentJar = new File(Vamix.class.getProtectionDomain().getCodeSource().getLocation().toURI());
 			if(!currentJar.getName().endsWith(".jar")){
 				JOptionPane.showMessageDialog(mediaPlayerComponent, "Language features only work when program is run from jar file");
 				return;
@@ -257,6 +257,7 @@ public class EditorPanel implements MouseMotionListener{
 		} catch (IOException e) {e.printStackTrace();}
 	}
 
+	//show the mouse controls in case the overlay window is hidden
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		state.showMouseControls();
@@ -267,7 +268,7 @@ public class EditorPanel implements MouseMotionListener{
 		state.showMouseControls();
 	}
 
-	public void setFullScreen(long currentTime, EditorPanel ep, boolean isPaused){
+	public void setFullScreen(long currentTime, Vamix ep, boolean isPaused){
 	    f.setExtendedState(JFrame.MAXIMIZED_BOTH);
 	}
 	
@@ -332,21 +333,23 @@ public class EditorPanel implements MouseMotionListener{
 		return false;
 	}	
 	
+	//this is used by LoadingScreen to move the progress bar onto the bottom panel
 	public void addToBottomPanel(JComponent comp){
 		bottomPanel.add(comp);
 	}
 	
+	//changes the cursor to a crosshair if the textsection needs to get a certain position
 	public void setCursorOnOverlay(boolean bool){
 		if (bool)
 			overlay.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
 		else
 			overlay.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
-	
+	//used as an intermediate to cancel previewing
 	public void cancelPreviewTextSection() {
 		textSection.cancelPreview();
 	}
-	
+	//used as an intermediate to cancel previewing
 	public void cancelPreviewEffectsSection() {
 		effectsSection.cancelPreview();
 	}
@@ -394,33 +397,41 @@ public class EditorPanel implements MouseMotionListener{
 		return (isFileType(file, "ASCII text"));
 	}
 	  
+	/**
+	 * This class represents the overlay window.
+	 * It incorporates all the other sections for editing
+	 * It is also transparent, and can be hidden or made to change foreground colour.
+	 * @author wesley
+	 *
+	 */
 	  private class Overlay extends Window{
 
 	        private static final long serialVersionUID = 1L;
 	    	//private MigLayout myLayout = new MigLayout();
 	    	private MigLayout myLayout = new MigLayout("", "10 [] [] [grow] 10", "20 [] [] [] [grow] 5");
 
-	        public Overlay(Window owner, EditorPanel ep) {
+	        public Overlay(Window owner, Vamix ep) {
 	            super(owner, WindowUtils.getAlphaCompatibleGraphicsConfiguration());
-	            
+	            //if this line has an error, go >project>properties>Java compiler>Errors/Warnings
 	            AWTUtilities.setWindowOpaque(this, false);
 
 	            setLayout(myLayout);
 	            repaint(500, 0, 0, 1200, 1200);
            
+	            //firstly add the load/save buttons
 	            JPanel projectPanel = new JPanel();
 	            TitledBorder border = BorderFactory.createTitledBorder(
 	    				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
 	    				new Color(50, 150, 50, 250), new Color(50, 150, 50, 250)), getString("project"));
 	            border.setTitleColor(new Color(50, 150, 50, 250));
 	    		border.setTitleFont(new Font("Sans Serif", Font.BOLD, 24));
-	            
 	            projectPanel.setBorder(border);
 	            projectPanel.setLayout(new MigLayout());
 	            projectPanel.add(loadBtn);
 	            projectPanel.add(new CustomButton("   "), "grow");
 	            projectPanel.add(saveBtn, "right");
 	            
+	            //now we add the entire left side pane
 	            JPanel leftSidePane = new JPanel();
 	            leftSidePane.setLayout(new MigLayout());
 	            audioSection = new AudioSection(ep, mediaPlayerComponent);
@@ -428,10 +439,10 @@ public class EditorPanel implements MouseMotionListener{
 	            textSection = new TextSection(ep, mainControlPanel);
 	            leftSidePane.add(textSection, "wrap, grow");
 	            leftSidePane.add(projectPanel, "grow");
-	            
 	            add(leftSidePane, "cell 0 1 1 3, grow, gaptop 10");
 	    		this.addMouseListener(textSection);
 
+	    		//now we add the download panel, followed by the right side pane
 	    		downloadPanel = new DownloadPanel(ep);
 	            JPanel rightSidePane = new JPanel();
 	            rightSidePane.setLayout(new MigLayout());
@@ -440,11 +451,11 @@ public class EditorPanel implements MouseMotionListener{
 	            rightSidePane.add(effectsSection, "growx");
 	            add(rightSidePane, "dock east, gaptop 30");
 	            
+	            //finally, the open panel which goes on the top
 	            JPanel openPanel = new JPanel();
 	            openPanel.add(fileTextField);
 	            openPanel.add(openBtn);
 	            add(openPanel, "cell 1 1 2 1");
-	            
 	            setFocusable(true);
 	            add(mainControlPanel, "dock south, gapbefore 30%");
 	    		state.addColourListeners(leftSidePane, textSection, audioSection, mainControlPanel, projectPanel, rightSidePane,
@@ -452,6 +463,7 @@ public class EditorPanel implements MouseMotionListener{
 	          	state.addStateListeners(leftSidePane, openPanel, projectPanel, mainControlPanel, rightSidePane);
 	    		state.addMouseListeners(mainControlPanel);
 	            
+	    		//now set everything transparent
 	            state.setTransparent();
 	            
 	        }

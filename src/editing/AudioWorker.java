@@ -16,7 +16,11 @@ import javax.swing.SwingWorker;
 
 import popups.LoadingScreen;
 import state.LanguageSelector;
-
+/**
+ * This class is used to process audio editing commands in a background thread
+ * @author wesley
+ *
+ */
 public class AudioWorker extends SwingWorker<Void, String> {
 	private Process process;
 	private String videoFile;
@@ -109,6 +113,9 @@ public class AudioWorker extends SwingWorker<Void, String> {
 		}
     }	
 	
+	/**
+	 * Other methods can call this to cancel the audio editing process thread.
+	 */
 	public void cancel(){
 		isCancelled = true;
 	}

@@ -24,6 +24,12 @@ import state.LanguageSelector;
 import state.State;
 import uk.co.caprica.vlcj.player.MediaPlayer;
 
+/**
+ * represents the main control panel that is found on the main window
+ * 
+ * @author wesley
+ *
+ */
 @SuppressWarnings("serial")
 public class MainControlPanel extends JPanel{
 	private MediaPlayer mp;
@@ -38,28 +44,28 @@ public class MainControlPanel extends JPanel{
 	private JSlider vidPosSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
 	private JLabel timeLabel = new JLabel("hh:mm:ss");
 	private CustomButton fullScreenBtn = new CustomButton(
-			new ImageIcon(EditorPanel.class.getResource("/full_screen.png")), 30,30);
+			new ImageIcon(Vamix.class.getResource("/full_screen.png")), 30,30);
 	private CustomButton playBtn = new CustomButton(
-			new ImageIcon(EditorPanel.class.getResource("/player_play.png")), 60, 60, 
-			new ImageIcon(EditorPanel.class.getResource("/pause.png")));
+			new ImageIcon(Vamix.class.getResource("/player_play.png")), 60, 60, 
+			new ImageIcon(Vamix.class.getResource("/pause.png")));
 	private CustomButton stopBtn = new CustomButton(
-			new ImageIcon(EditorPanel.class.getResource("/agt_action_fail1.png")), 50, 50);
+			new ImageIcon(Vamix.class.getResource("/agt_action_fail1.png")), 50, 50);
 	private CustomButton forwardBtn = new CustomButton(
-			new ImageIcon(EditorPanel.class.getResource("/player_fwd.png")), 40, 40);
+			new ImageIcon(Vamix.class.getResource("/player_fwd.png")), 40, 40);
 	private CustomButton backwardBtn = new CustomButton(
-			new ImageIcon(EditorPanel.class.getResource("/player_start.png")), 40, 40);
+			new ImageIcon(Vamix.class.getResource("/player_start.png")), 40, 40);
 	private JSlider volumeSlider = new JSlider(0, 200, 100);
 	private CustomButton soundBtn = new CustomButton
-    		(new ImageIcon(EditorPanel.class.getResource("/volume_loud.png")), 30, 30, 
-    				new ImageIcon(EditorPanel.class.getResource("/volume_silent2.png")));
+    		(new ImageIcon(Vamix.class.getResource("/volume_loud.png")), 30, 30, 
+    				new ImageIcon(Vamix.class.getResource("/volume_silent2.png")));
 	private videoMovement currentMove = videoMovement.Nothing;
 	private final Timer videoMovementTimer = new Timer(100, null);
-	private EditorPanel ep;
+	private Vamix vamix;
 	private boolean isFullScreen = false;
 	
-	public MainControlPanel(MediaPlayer mp, EditorPanel ep){
+	public MainControlPanel(MediaPlayer mp, Vamix v){
 		this.mp = mp;
-		this.ep = ep;
+		this.vamix = v;
 		registerListeners();
       	executorService.scheduleAtFixedRate(new UpdateRunnable(mp), 0L, 1L, TimeUnit.SECONDS);
         vidPosSlider.setMajorTickSpacing(10);
@@ -80,13 +86,14 @@ public class MainControlPanel extends JPanel{
         add(forwardBtn);
         add(soundBtn, "cell 1 1, top");
         add(volumeSlider, "cell 1 1");
-        
+        //add all gui components as colour listeners
         State.getState().addColourListeners(volumeSlider, vidPosSlider, timeLabel);
         
 	}
 
 
 	private void registerListeners() {
+		//set slider to change position of video if it gets changed
 		vidPosSlider.addChangeListener(new ChangeListener() {
 	        @Override
 	        public void stateChanged(ChangeEvent e) {
@@ -96,7 +103,7 @@ public class MainControlPanel extends JPanel{
 	          }
 	        }
 	      });
-	    
+	    //play/pause media
 		playBtn.addActionListener(new ActionListener(){
         	@Override
         	public void actionPerformed(ActionEvent arg0) {
@@ -107,8 +114,8 @@ public class MainControlPanel extends JPanel{
         				mp.play();
         				isPaused = false;
         		}else{
-        			if (ep.isMediaFile(ep.getMediaName())){
-        				mp.playMedia(ep.getMediaName());
+        			if (vamix.isMediaFile(vamix.getMediaName())){
+        				mp.playMedia(vamix.getMediaName());
             			isPaused = false;
         			}else{
         				JOptionPane.showMessageDialog(null, getString("validFileRequired"));
@@ -120,7 +127,7 @@ public class MainControlPanel extends JPanel{
     			stopBtn.setEnabled(true);
         	}
         });
-        
+        //stop and reset media
         stopBtn.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -132,7 +139,7 @@ public class MainControlPanel extends JPanel{
 				stopPlaying();
 			}      	
         });
-        
+        //fast forward
         forwardBtn.addActionListener(new ActionListener(){
         	@Override
         	public void actionPerformed(ActionEvent arg0) {
@@ -143,7 +150,7 @@ public class MainControlPanel extends JPanel{
         		}
         	}
         });
-        
+        //rewind
         backwardBtn.addActionListener(new ActionListener(){
         	@Override
         	public void actionPerformed(ActionEvent arg0) {
@@ -154,7 +161,7 @@ public class MainControlPanel extends JPanel{
         		}
         	}
         });
-        
+        //change volume when volume slider is changed
         soundBtn.addActionListener(new ActionListener() {
         	@Override
         	public void actionPerformed(ActionEvent arg0) {
@@ -167,19 +174,20 @@ public class MainControlPanel extends JPanel{
         	}
         });
         
+        //toggle fullscreen
         fullScreenBtn.addActionListener(new ActionListener() {
         	@Override
         	public void actionPerformed(ActionEvent arg0) {
         		if(!isFullScreen){
-        			ep.setFullScreen(currentTime, ep, isPaused);
+        			vamix.setFullScreen(currentTime, vamix, isPaused);
         			isFullScreen = true;
         		}else{
-        			ep.exitFullScreen();
+        			vamix.exitFullScreen();
         			isFullScreen = false;
         		}
         	}
         });
-        
+        //this checks if media is muted or not
         volumeSlider.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
@@ -196,6 +204,7 @@ public class MainControlPanel extends JPanel{
 		Forward, Back, Nothing
 	}
 	
+	//this is used for fastforward and rewinding
 	ActionListener secondTimerListener = new ActionListener() {
 	    @Override 
 	    public void actionPerformed(ActionEvent e) {
@@ -209,6 +218,7 @@ public class MainControlPanel extends JPanel{
 	    }
 	};
 	
+	//update position of slider every so often
 	private void updatePosition(int value) {
 	    // Set the guard to stop the update from firing a change event
 		setPositionValue = true;
@@ -216,10 +226,7 @@ public class MainControlPanel extends JPanel{
 	    setPositionValue = false;
 	}
 	
-//	public void changePlayIcon(){
-//		playBtn.changeIcon();
-//	}
-//	  
+	//update the time display
 	private void updateTime(long millis) {
 		String s = String.format("%02d:%02d:%02d",
 	    TimeUnit.MILLISECONDS.toHours(millis),
@@ -239,12 +246,13 @@ public class MainControlPanel extends JPanel{
 		} 
 		if (isPreviewing){
 			setIsPreviewing(false);
-			ep.cancelPreviewTextSection();
-			ep.cancelPreviewEffectsSection();
+			vamix.cancelPreviewTextSection();
+			vamix.cancelPreviewEffectsSection();
 		}
 		vidPosSlider.setValue(0);
     }
     
+    //used for previewing through the main videoplayer
 	public void playPreview(){
 		isPreviewing = true;
 		currentTime = 0;
@@ -254,14 +262,17 @@ public class MainControlPanel extends JPanel{
 		playBtn.changeIcon();
 	}
 	
+	//sets the duration
 	public void setDuration(long dur){
 		duration = dur;
 	}
 	
+	//used by others to get the current time in the media
 	public long getTime(){
 		return mp.getTime();
 	}
 	
+	//set if mediaplayer is currently previewing
 	public void setIsPreviewing(boolean previewing){
 		this.isPreviewing = previewing;
 		if (previewing){
@@ -273,19 +284,20 @@ public class MainControlPanel extends JPanel{
 			backwardBtn.setEnabled(true);
 		}
 	}
-	
+	//get if mediaplayer is currently previewing
 	public boolean getIsPreviewing(){
 		return isPreviewing;
 	}
-	
-	  public void updateVolume(int value) {
-		  volumeSlider.setValue(value);
-	  }
+	public void updateVolume(int value) {
+		 volumeSlider.setValue(value);
+	}
 	
 	/**
 	 * This class was taken from 
 	 * http://vlcj.googlecode.com/svn-history/r412/trunk/vlcj/src/test/java/uk/co/caprica/vlcj/test/PlayerControlsPanel.java
 	 * which is a demo vlcj project.
+	 * 
+	 * It is used to change time and position of the video slider
 	 *
 	 */
 	private final class UpdateRunnable implements Runnable {

@@ -2,7 +2,7 @@ package popups;
 
 import editing.AudioWorker;
 import editing.VideoWorker;
-import gui.EditorPanel;
+import gui.Vamix;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -18,19 +18,23 @@ import javax.swing.event.ChangeListener;
 import state.LanguageSelector;
 import net.miginfocom.swing.MigLayout;
 
+/**
+ * Loading screen for all the time consuming tasks. Includes a progress bar, and can be hidden
+ * @author wesley and matt
+ *
+ */
 @SuppressWarnings("serial")
 public class LoadingScreen extends JFrame{
-
 	
 	private JLabel title = new JLabel(getString("workingHard"));
 	private JProgressBar progBar = new JProgressBar(0, 100);
 	public boolean isClosed = false;
 	private JButton hideBtn = new JButton(getString("hide"));
 	private JButton cancelBtn = new JButton(getString("cancel"));
-	private EditorPanel ep;
+	private Vamix ep;
 	private SwingWorker<Void, String> worker;
 	
-	public LoadingScreen(final EditorPanel ep) {
+	public LoadingScreen(final Vamix ep) {
 		super(getString("saving"));
 		this.ep = ep;
 		setSize(300,150);
@@ -75,7 +79,7 @@ public class LoadingScreen extends JFrame{
 		}
 	}
 	
-	public LoadingScreen(final EditorPanel ep, JButton cancel) {
+	public LoadingScreen(final Vamix ep, JButton cancel) {
 		super(getString("saving"));
 		this.ep = ep;
 		this.cancelBtn = cancel;

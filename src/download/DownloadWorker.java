@@ -18,12 +18,10 @@ import popups.LoadingScreen;
 import state.LanguageSelector;
 
 /** 
- * This has been taken from my assignment 2 build of VAMIX but should still work with 
- * this assignment (perhaps with a few modifications)
- * 
+ *  
  * This class is used to run the downloads of VAMIX in the background so the user
  * can continue without interruption
- * @author Code created by my a3 partner, Matt Smith
+ * @author Code created partly by my a3 partner, Matt Smith
  *
  */
 public class DownloadWorker extends SwingWorker<Integer, String>{

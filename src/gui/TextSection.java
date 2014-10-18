@@ -9,6 +9,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.event.ActionEvent;
@@ -40,7 +41,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.JViewport;
 import javax.swing.SpinnerDateModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.JSpinner.DateEditor;
@@ -56,6 +59,7 @@ import popups.ColourChooser;
 import popups.LoadingScreen;
 import state.LanguageSelector;
 import state.State;
+import models.TextTableModel;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -67,45 +71,60 @@ import net.miginfocom.swing.MigLayout;
 public class TextSection extends JPanel implements MouseListener {
 	
 	private JTextArea textArea = new JTextArea(getString("defaultText"),5,15);
-	private JButton addTextBtn = new JButton(getString("addTextToVideo"));
+	private JButton renderBtn = new JButton(getString("render"));
 	private JButton previewBtn = new JButton(getString("preview"));
 	private JButton colourBtn = new JButton();
 	private JButton textPosBtn = new JButton(getString("setPosition"));
-	private JComboBox<String> titleOrCredits;
+//	private JComboBox<String> titleOrCredits;
 	private JComboBox<String> fontOption;
 	private ColourChooser cc = new ColourChooser(this);
 	private CustomSpinner fontSizeSpinner;
-	private CustomSpinner timeForTextSpinner;
+//	private CustomSpinner timeForTextSpinner;
 	private final JScrollPane textScroll = new JScrollPane(textArea);
-	private String titleText = getString("defaultText");
-	private String creditsText = "";
-	private CustomSpinner xSpinner;
-	private CustomSpinner ySpinner;
-	private DateEditor de;
+//	private String titleText = getString("defaultText");
+//	private String creditsText = "";
+//	private CustomSpinner xSpinner;
+//	private CustomSpinner ySpinner;
+//	private DateEditor de;
+	private JButton startTimeBtn = new JButton(getString("setStart"));
+	private JButton endTimeBtn = new JButton(getString("setEnd"));
+	private JButton addBtn = new JButton(getString("add"));
+//	private JButton removeBtn = new JButton(getString("remove"));
+	private TextTableModel tableModel;
+	private JTable textTable;
+	private JScrollPane tableScroll;
 	private MainControlPanel cp;
-	private EditorPanel editorPanel;
+	private Vamix vamix;
 	private boolean isSelecting = false;
 	private static LoadingScreen loadScreen;
 	private VideoWorker worker;
+	
+	private int xPos = 0;
+	private int yPos = 0;
+	private long startTime = 0;
+	private long endTime = 10;
 
 	/**
 	 * The constructor sets up the GUI and adds listeners
-	 * @param ep The EditorPanel that this is housed in. This is used to get the name
+	 * @param v The main frame that this is housed in. This is used to get the name
 	 * 		of the currently playing media.
+	 * @param cp The main control panel of the video, so that we can retrieve current time of media
 	 */
-	public TextSection(final EditorPanel ep, final MainControlPanel cp){
+	public TextSection(final Vamix v, final MainControlPanel cp){
 		
-		editorPanel = ep;
+		vamix = v;
 		this.cp = cp;
-		titleOrCredits = new JComboBox<String>(new String[]{getString("title"), getString("credits"), getString("thisPoint")});
+	//	titleOrCredits = new JComboBox<String>(new String[]{getString("title"), getString("credits"), getString("thisPoint")});
 		fontOption = new JComboBox<String>(new String[]{"DejaVuSans", "DroidSans", "FreeSans", "LiberationSerif-Bold", "NanumGothic", "Padauk", 
 														"TakaoPGothic", "TibetanMachineUni", "Ubuntu-C"});
        
 		fontSizeSpinner = new CustomSpinner(18, new SpinnerNumberModel(0, 0, 72, 1));
-		xSpinner = new CustomSpinner(10, new SpinnerNumberModel(0,0,380,1));
-		ySpinner = new CustomSpinner(10, new SpinnerNumberModel(0,0,380,1));
-		timeForTextSpinner = new CustomSpinner(20);
-		State.getState().addSpinnerListeners(fontSizeSpinner, xSpinner, ySpinner, timeForTextSpinner);
+	//	xSpinner = new CustomSpinner(10, new SpinnerNumberModel(0,0,380,1));
+	//	ySpinner = new CustomSpinner(10, new SpinnerNumberModel(0,0,380,1));
+	//	timeForTextSpinner = new CustomSpinner(20);
+	//	State.getState().addSpinnerListeners(fontSizeSpinner, xSpinner, ySpinner, timeForTextSpinner);
+		State.getState().addSpinnerListeners(fontSizeSpinner);
+
         
 		setLayout(new MigLayout());
 		TitledBorder border = BorderFactory.createTitledBorder(
@@ -115,36 +134,67 @@ public class TextSection extends JPanel implements MouseListener {
 		border.setTitleColor(new Color(150, 150, 250, 250));
 		setBorder(border);
 
+		tableModel = new TextTableModel();
+		textTable = new JTable(tableModel);
+		tableScroll = new JScrollPane(textTable);
+		textTable.setTableHeader(null);
+		tableScroll.setPreferredSize(new Dimension(300,100));
+		textPosBtn.setMargin(new java.awt.Insets(1, 5, 1, 5));
+		endTimeBtn.setMargin(new java.awt.Insets(1, 5, 1, 5));
 		
 		textArea.setBorder(BorderFactory.createEtchedBorder());
 		textArea.setLineWrap(true);
 		textArea.setFont( textArea.getFont().deriveFont(Float.parseFloat(fontSizeSpinner.getValue().toString())) );
-
+		textArea.setMaximumSize(new Dimension(350,100));
+		textScroll.setMaximumSize(new Dimension(350,100));
 		colourBtn.setBackground(Color.RED);
 		
-		State.getState().addColourListeners(textArea, textScroll, titleOrCredits, fontOption, fontSizeSpinner,
-		xSpinner, ySpinner,	timeForTextSpinner,	previewBtn,	addTextBtn, textPosBtn);
+		State.getState().addColourListeners(textArea, textScroll, textScroll.getViewport(), fontOption, fontSizeSpinner, tableScroll, textTable,
+		tableScroll.getViewport(), previewBtn,	renderBtn, textPosBtn,
+		startTimeBtn, endTimeBtn, addBtn);
 		
-		add(textArea, "cell 0 0 2 1, grow");
-		add(titleOrCredits, "cell 0 1 2 1, grow");
-		TransparentLabel fontLbl, colourLbl, sizeLbl, xLbl, yLbl, durLbl;
+		add(textScroll, "cell 0 0 2 1, grow");
+		TransparentLabel fontLbl, colourLbl, sizeLbl;
 		add(fontLbl = new TransparentLabel(getString("font")), "cell 0 2");
 		add(fontOption, "cell 1 2, grow");
-		add(colourLbl = new TransparentLabel(getString("colour")), "cell 0 3, split 2");
-		add(colourBtn, "cell 0 3, grow");
-		add(textPosBtn, "cell 1 3, grow");
+		add(colourLbl = new TransparentLabel(getString("colour")), "cell 0 3");
+		add(colourBtn, "cell 1 3, grow");
 		add(sizeLbl = new TransparentLabel(getString("size")), "cell 0 4");
 		add(fontSizeSpinner, "cell 1 4, grow");
-		add(xLbl = new TransparentLabel("X: "), "cell 0 5");
-		add(xSpinner, "cell 1 5, grow");
-		add(yLbl = new TransparentLabel("Y: "), "cell 0 6");
-		add(ySpinner, "cell 1 6, grow");
-		add(durLbl = new TransparentLabel(getString("duration")), "cell 0 7");
-		add(timeForTextSpinner, "cell 1 7, grow");
+		add(startTimeBtn, "cell 0 5");
+		add(endTimeBtn, "cell 1 5, split 2, grow");
+		add(textPosBtn, "cell 0 5, grow");
+		add(addBtn, "cell 0 6, span 2, grow");
+		add(tableScroll, "cell 0 7, span 2, grow");
 		add(previewBtn, "cell 0 8, grow");
-		add(addTextBtn, "cell 1 8, grow");
+		add(renderBtn, "cell 1 8, grow");
 		
-		State.getState().addColourListeners(fontLbl, colourLbl, sizeLbl, xLbl, yLbl, durLbl);
+		State.getState().addColourListeners(fontLbl, colourLbl, sizeLbl, textScroll);
+		
+		registerListeners();
+		
+	}
+	
+	private void registerListeners() {
+		startTimeBtn.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (vamix.isMediaFile(vamix.getMediaName())){
+					startTime = cp.getTime()/1000;
+					startTimeBtn.setText(secsToString(startTime));
+				}
+			}
+		});
+		
+		endTimeBtn.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (vamix.isMediaFile(vamix.getMediaName())){
+					endTime = cp.getTime()/1000;
+					endTimeBtn.setText(secsToString(endTime));
+				}
+			}
+		});
 		
 		//bring up the JColorChooser
 		colourBtn.addActionListener(new ActionListener(){
@@ -157,21 +207,14 @@ public class TextSection extends JPanel implements MouseListener {
 		fontOption.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Font font;
-				try {
-			        String fontPath = getFontPath(fontOption.getSelectedItem().toString());
-					font = Font.createFont(Font.TRUETYPE_FONT, new File(fontPath)).deriveFont(Float.parseFloat(fontSizeSpinner.getValue().toString()));
-					textArea.setFont(font);
-				} catch (FontFormatException | IOException e) {
-					JOptionPane.showMessageDialog(null, getString("fontUnavailable"));
-				}
+				setFont();
 			}
 		});
 		
 		fontSizeSpinner.addChangeListener(new ChangeListener(){
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
-				textArea.setFont( textArea.getFont().deriveFont(Float.parseFloat(fontSizeSpinner.getValue().toString())) );
+				setFont();
 			}
 		});
 		
@@ -179,12 +222,45 @@ public class TextSection extends JPanel implements MouseListener {
 			@Override
         	public void actionPerformed(ActionEvent arg0) {
 				isSelecting = true;
-				editorPanel.setCursorOnOverlay(true);
+				vamix.setCursorOnOverlay(true);
+        	}
+		});
+		
+		addBtn.addActionListener(new ActionListener(){
+			@Override
+        	public void actionPerformed(ActionEvent arg0) {
+				if (textArea.getText().split("\\s").length > 20){
+					JOptionPane.showMessageDialog(null, getString("tooMuchText"), "Error", JOptionPane.DEFAULT_OPTION);
+					return;
+				}
+				else if (Integer.parseInt(fontSizeSpinner.getValue().toString()) > 72){
+					JOptionPane.showMessageDialog(null, "tooBigText", "Error", JOptionPane.DEFAULT_OPTION);
+					return;
+				}
+				String start = "00:00:00";
+				String end = "00:00:10";
+				if (!startTimeBtn.getText().equals(getString("setStart"))){
+					start = startTimeBtn.getText();
+				}
+				if (!endTimeBtn.getText().equals(getString("setEnd"))){
+					end = endTimeBtn.getText();
+				}
+		        String fontPath = getFontPath(fontOption.getSelectedItem().toString());
+				tableModel.add(textArea.getText(), start, end);
+		    	String colour = toHexString(colourBtn.getBackground());
+				tableModel.addFullData(textArea.getText(), startTime, endTime, xPos, yPos, fontPath, colour, Integer.parseInt(fontSizeSpinner.getValue().toString()));
+				tableModel.fireTableDataChanged();
+				
+				//reset stuff
+				startTimeBtn.setText(getString("setStart"));
+				endTimeBtn.setText(getString("setEnd"));
+				startTime = 0;
+				endTime = 10;
         	}
 		});
 		
 		//prompt the user to enter an output filename. Then add the text and save it.
-		addTextBtn.addActionListener(new ActionListener(){
+		renderBtn.addActionListener(new ActionListener(){
 			@Override
         	public void actionPerformed(ActionEvent arg0) {
 				final JFileChooser fc = new JFileChooser();
@@ -208,46 +284,23 @@ public class TextSection extends JPanel implements MouseListener {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				cp.stopPlaying();
-				addTextToVideo("preview", "udp://localhost:1234");
+				addTextToVideo("preview", "");
 				cp.playPreview();
 			}
 		});
-		
-		//display either the title text or credits text in the text area
-        titleOrCredits.addActionListener(new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase(getString("title")))
-	            	textArea.setText(titleText);
-				else if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase(getString("credits")))
-	            	textArea.setText(creditsText);
-			}
-        });
-        
-        textArea.getDocument().addDocumentListener(new DocumentListener() {
-
-			@Override
-			public void changedUpdate(DocumentEvent arg0) {}
-
-			@Override
-			public void insertUpdate(DocumentEvent arg0) {
-				if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase(getString("title"))) {
-	            	titleText = textArea.getText();
-				} else if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase(getString("credits"))) {
-					creditsText = textArea.getText();
-				}
-			}
-			@Override
-			public void removeUpdate(DocumentEvent arg0) {
-				if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase(getString("title"))) {
-	            	titleText = textArea.getText();
-				} else if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase(getString("credits"))) {
-					creditsText = textArea.getText();
-				}
-			}
-        });
 	}
 	
+	public void setFont(){
+		Font font;
+		try {
+	        String fontPath = getFontPath(fontOption.getSelectedItem().toString());
+			font = Font.createFont(Font.TRUETYPE_FONT, new File(fontPath)).deriveFont(Float.parseFloat(fontSizeSpinner.getValue().toString()));
+			textArea.setFont(font);
+		} catch (FontFormatException | IOException e) {
+			JOptionPane.showMessageDialog(null, getString("fontUnavailable"));
+		}
+	}
+
 	public void changeColour(Color colour){
 		colourBtn.setBackground(colour);
 		textArea.setForeground(colour);
@@ -267,57 +320,57 @@ public class TextSection extends JPanel implements MouseListener {
 	 * @param output - the user specified output file name
 	 */
 	public void addTextToVideo(String option, String output){
-		if (textArea.getText().split("\\s").length > 20){
-			JOptionPane.showMessageDialog(null, getString("tooMuchText"), "Error", JOptionPane.DEFAULT_OPTION);
-			return;
-		}
-		else if (Integer.parseInt(fontSizeSpinner.getValue().toString()) > 72){
-			JOptionPane.showMessageDialog(null, "tooBigText", "Error", JOptionPane.DEFAULT_OPTION);
-			return;
-		}
-		//get the duration and attributes for use in the progress bar
-		int dur = GetAttributes.getDuration(editorPanel.getMediaName());
-    	int frames = GetAttributes.getFrames(editorPanel.getMediaName());
-        String fontPath = getFontPath(fontOption.getSelectedItem().toString());
-        //get the time from the spinner, to work out the length of the title/credits
-        String time = new DateEditor(timeForTextSpinner , "yy:mm:ss").getFormat().format(timeForTextSpinner.getValue());
-        String[] timeArray = time.split(":");
-        int timeInSecs = 60 * 60 *Integer.parseInt(timeArray[0]) + 60 * Integer.parseInt(timeArray[1]) + Integer.parseInt(timeArray[2]);
-        String timeFunction;
-        if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase(getString("title")))
-        	timeFunction = "lt(t," + timeInSecs + ")";
-        else if (titleOrCredits.getSelectedItem().toString().equalsIgnoreCase(getString("credits")))
-        	timeFunction = "gt(t," + (dur - timeInSecs) + ")";
-        else
-        	timeFunction = "gt(t," + cp.getTime()/1000 + ")*" + "lt(t," + (cp.getTime()/1000 + timeInSecs) + ")";
-        //write text firstly to file, so special characters can be used
-        try {
-			BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(".text", false), "utf-8"));
-			writer.write(textArea.getText());
-			writer.close();
-		} catch (UnsupportedEncodingException e) {
-		} catch (FileNotFoundException e) {
-		} catch (IOException e) {
-		}
-    	Path currentRelativePath = Paths.get("");
-    	String currentAbsPath = currentRelativePath.toAbsolutePath().toString();
-    	String colour = toHexString(colourBtn.getBackground());
-        //write the command
+//		//get the duration and attributes for use in the progress bar
+		int dur = GetAttributes.getDuration(vamix.getMediaName());
+    	int frames = GetAttributes.getFrames(vamix.getMediaName());
+    	
     	String cmd = "";
     	if (option.equals("conv")){
-	        cmd = "avconv -y -i " + editorPanel.getMediaName() + " -vf \"drawtext=fontfile='" + fontPath + "':textfile='" + currentAbsPath + "/.text" +
-	        			"':x=" + xSpinner.getValue() + ":y=" + ySpinner.getValue() + ":fontsize=" + fontSizeSpinner.getValue() + ":fontcolor=" + colour + 
-	        			":draw='" + timeFunction + "'\" -strict experimental -f mp4 -v debug " + output;
-    	}else if (option.equals("preview")){
-    		 cmd = "avconv -re -i " + editorPanel.getMediaName() + " -vf \"drawtext=fontfile='" + fontPath + "':textfile='" + currentAbsPath + "/.text" +
-	        			"':x=" + xSpinner.getValue() + ":y=" + ySpinner.getValue() + ":fontsize=" + fontSizeSpinner.getValue() + ":fontcolor=" + colour + 
-	        			":draw='" + timeFunction + "'\" -strict experimental -f mpegts -v debug " + output;
-    		 cp.setDuration(dur*1000);
-    		 cp.setIsPreviewing(true);
+    		cmd = "avconv -y -i " + vamix.getMediaName() + " -vf \"";
+    	} else {
+    		cmd = "avplay -i " + vamix.getMediaName() + " -vf \"";
+    	}
+
+    	for (int i = 0; i < tableModel.getRowCount(); i++){
+    		Object[] data = tableModel.getFullData(i);
+    		String text = (String) data[0];
+    		long startTime = (long) data[1];
+    		long endTime = (long) data[2];
+    		int x = (int) data[3];
+    		int y = (int) data[4];
+    		String fontPath = (String) data[5];
+    		String colour = (String) data[6];
+    		int size = (int) data[7];
+    	
+	    	String timeFunction = "gt(t," + startTime + ")*lt(t," + endTime + ")";
+	        //write text firstly to file, so special characters can be used
+	        try {
+				BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(".text" + i, false), "utf-8"));
+				writer.write(text);
+				writer.close();
+			} catch (UnsupportedEncodingException e) {
+			} catch (FileNotFoundException e) {
+			} catch (IOException e) {
+			}
+	        Path currentRelativePath = Paths.get("");
+	        String currentAbsPath = currentRelativePath.toAbsolutePath().toString();
+	        //write the command
+	        cmd += "drawtext=fontfile='" + fontPath + "':textfile='" + currentAbsPath + "/.text" + i +
+	        			"':x=" + x + ":y=" + y + ":fontsize=" + size + ":fontcolor=" + colour + 
+	        			":draw='" + timeFunction + "'";
+	        if (i != tableModel.getRowCount()-1){
+	        	cmd += ",";
+	        }
+    	}
+    	if (option.equals("conv")){
+        	cmd += "\" -strict experimental -f mp4 -v debug " + output;
+    	} else {
+        	cmd += "\" -strict experimental";
     	}
         //only carry out the command if the video file is valid
         if (dur > 0 && frames > 0){
-    		loadScreen = new LoadingScreen(editorPanel);
+    		loadScreen = new LoadingScreen(vamix);
+    		System.out.println(cmd);
 	        worker = new VideoWorker(cmd, loadScreen.getProgBar(), frames, option, "Text", loadScreen);
 	        if (option.equals("conv")){
 				loadScreen.prepare();
@@ -328,6 +381,7 @@ public class TextSection extends JPanel implements MouseListener {
         else{
 			JOptionPane.showMessageDialog(null, getString("unsupportedFile"), getString("error"), JOptionPane.DEFAULT_OPTION);
         }
+    	
 	}
 	/**Method comes from http://www.javacreed.com/how-to-get-the-hex-value-from-color/
 	 * 
@@ -340,6 +394,23 @@ public class TextSection extends JPanel implements MouseListener {
 		    hexColour = "000000".substring(0, 6 - hexColour.length()) + hexColour;
 		  }
 		  return "0x" + hexColour;
+	}
+	
+	/**
+	 * Method to convert seconds to hhmmss string.
+	 * Taken from http://stackoverflow.com/questions/19205920/how-to-convert-seconds-of-timer-to-hhmmss
+	 * @param seconds
+	 * @return hhmmss string
+	 */
+	private String secsToString(long seconds){
+		long hr = seconds/3600;
+		long rem = seconds%3600;
+		long mn = rem/60;
+		long sec = rem%60;
+		String hrStr = (hr<10 ? "0" : "")+hr;
+		String mnStr = (mn<10 ? "0" : "")+mn;
+		String secStr = (sec<10 ? "0" : "")+sec; 
+		return hrStr+ ":"+mnStr+ ":"+secStr;
 	}
 	
 	/**
@@ -369,32 +440,33 @@ public class TextSection extends JPanel implements MouseListener {
 	
 
 	public ProjectSettings createProjectSettings() {
-        String duration = new DateEditor(timeForTextSpinner , "yy:mm:ss").getFormat().format(timeForTextSpinner.getValue());
-		
-		return ProjectFile.getInstance(editorPanel).new ProjectSettings(null, null, titleText, 
-				 creditsText,  titleOrCredits.getSelectedIndex(),  fontOption.getSelectedIndex(), toHexString(colourBtn.getBackground()), 
-				 (int)xSpinner.getValue(), (int)ySpinner.getValue(), 
-				 (Integer)fontSizeSpinner.getValue(),  duration);
+//        String duration = new DateEditor(timeForTextSpinner , "yy:mm:ss").getFormat().format(timeForTextSpinner.getValue());
+//		
+//		return ProjectFile.getInstance(vamix).new ProjectSettings(null, null, titleText, 
+//				 creditsText,  titleOrCredits.getSelectedIndex(),  fontOption.getSelectedIndex(), toHexString(colourBtn.getBackground()), 
+//				 (int)xSpinner.getValue(), (int)ySpinner.getValue(), 
+//				 (Integer)fontSizeSpinner.getValue(),  duration);
+		return null;
 	}
 	
 	public void loadProjectSettings(ProjectSettings ps) {
-		titleText = ps._titleText;
-		creditsText = ps._creditsText;
-		titleOrCredits.setSelectedIndex(ps._title_credits);
-		fontOption.setSelectedIndex(ps._fontOption);
-		colourBtn.setBackground(Color.decode(ps._colour));
-		xSpinner.setValue(ps._x);
-		ySpinner.setValue(ps._y);
-		fontSizeSpinner.setValue(ps._fontSize);
-		String duration = ps._duration;
-		SimpleDateFormat format = new SimpleDateFormat("yy:mm:ss");
-		try {
-			Date d = (java.util.Date)format.parse(duration);
-			java.sql.Time time = new java.sql.Time(d.getTime());
-		    timeForTextSpinner.setValue(time);
-		} catch (ParseException e) {
-			JOptionPane.showMessageDialog(null, getString("invalidSettings"));
-		}
+//		titleText = ps._titleText;
+//		creditsText = ps._creditsText;
+//		titleOrCredits.setSelectedIndex(ps._title_credits);
+//		fontOption.setSelectedIndex(ps._fontOption);
+//		colourBtn.setBackground(Color.decode(ps._colour));
+//		xSpinner.setValue(ps._x);
+//		ySpinner.setValue(ps._y);
+//		fontSizeSpinner.setValue(ps._fontSize);
+//		String duration = ps._duration;
+//		SimpleDateFormat format = new SimpleDateFormat("yy:mm:ss");
+//		try {
+//			Date d = (java.util.Date)format.parse(duration);
+//			java.sql.Time time = new java.sql.Time(d.getTime());
+//		    timeForTextSpinner.setValue(time);
+//		} catch (ParseException e) {
+//			JOptionPane.showMessageDialog(null, getString("invalidSettings"));
+//		}
 
 	}
 	
@@ -405,12 +477,12 @@ public class TextSection extends JPanel implements MouseListener {
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		if (isSelecting){
-			int x = GetAttributes.getWidth(editorPanel.getMediaName());
-			int y = GetAttributes.getHeight(editorPanel.getMediaName());
-			xSpinner.setValue(e.getPoint().x*x/EditorPanel.WIDTH);
-			ySpinner.setValue(e.getPoint().y*y/EditorPanel.HEIGHT);
+			int x = GetAttributes.getWidth(vamix.getMediaName());
+			int y = GetAttributes.getHeight(vamix.getMediaName());
+			xPos = e.getPoint().x*x/Vamix.WIDTH;
+			yPos = e.getPoint().y*y/Vamix.HEIGHT;
 			isSelecting = false;
-			editorPanel.setCursorOnOverlay(false);
+			vamix.setCursorOnOverlay(false);
 		}
 	}
 

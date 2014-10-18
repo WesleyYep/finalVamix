@@ -4,8 +4,18 @@ import java.io.IOException;
 import javax.swing.JOptionPane;
 import state.LanguageSelector;
 
+/**
+ * Simple class that is used statically to check if certain filenames are already in use
+ * @author wesley
+ *
+ */
 public class CheckFileExists {
 	
+	/**
+	 * Method that checks if a file exists. Uses a linux process
+	 * @param filename name of file to check
+	 * @return true if exists, false otherwise
+	 */
 	public static boolean check(String filename){
 		String cmd = "file \"" + filename + "\"";
 		ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", cmd);

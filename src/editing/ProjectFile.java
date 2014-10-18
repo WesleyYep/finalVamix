@@ -1,6 +1,6 @@
 package editing;
 
-import gui.EditorPanel;
+import gui.Vamix;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -14,26 +14,41 @@ import javax.swing.JOptionPane;
 
 import state.LanguageSelector;
 
+/**
+ * This class is used to store and load project settings in a text file.
+ * Created initially by matt for a3. Developed further by wesley
+ * @author matt and wesley
+ *
+ */
 public class ProjectFile {
 	
 	private static ProjectFile instance;
 	private String fileStarter = "#$%^";
+	private Vamix vamix;
 	
-	private EditorPanel editorP;
-	
-	public static ProjectFile getInstance(EditorPanel ep) {
+	/**
+	 * use singleton design patter
+	 * @param v the reference to the Vamix object
+	 * @return the corresponding project file
+	 */
+	public static ProjectFile getInstance(Vamix v) {
 		if (instance == null) {
-			instance = new ProjectFile(ep);
+			instance = new ProjectFile(v);
 		}
 		return instance;
 	}
-	private ProjectFile(EditorPanel ep) {
-		editorP = ep;
+	private ProjectFile(Vamix ep) {
+		vamix = ep;
 	}
 	
+	/**
+	 * Method to open up the stream to write to a file
+	 * @param projSettings the settings to be written
+	 * @param fileName name of file to be written to
+	 */
 	public void writeFile(ProjectSettings projSettings, String fileName) {
 		try {
-	          File projectFile = new File(fileName); // Need to change this
+	          File projectFile = new File(fileName); 
 	          BufferedWriter output = new BufferedWriter(new FileWriter(projectFile));
 	          writeToFile(projSettings, output);
 	          output.close();
@@ -41,6 +56,7 @@ public class ProjectFile {
 	           e.printStackTrace();
 	        }
 	}
+	//this actually writes to the file through the stream
 	private void writeToFile(ProjectSettings ps, BufferedWriter output) 
 			throws IOException {
 		output.write(fileStarter + "\n");
@@ -66,8 +82,12 @@ public class ProjectFile {
 		output.write(ps._fadeE + "\n");
 	}
 	
+	/**
+	 * Method that reads the settings from an existing file
+	 * @param file the name of file to read
+	 */
 	public void readFile(String file) {
-		if (!editorP.isText(file)) {
+		if (!vamix.isText(file)) {
 			JOptionPane.showMessageDialog(null,
     				getString("notValidProj"), getString("error")
     				,JOptionPane.ERROR_MESSAGE);
@@ -87,6 +107,7 @@ public class ProjectFile {
 			e.printStackTrace();
 		}
 	}
+	//converts the input to settings
 	private void readTheFile(BufferedReader input) throws IOException {
 		String temp;
 		if (!(temp = input.readLine()).equals(fileStarter)) {
@@ -138,12 +159,12 @@ public class ProjectFile {
 		settings._fadeE = Boolean.parseBoolean(fadeE);
 		settings._downloadUrl = downloadUrl;
 
-		editorP.loadSettings(settings);
+		vamix.loadSettings(settings);
 	}
 	
-		/**
+	/**
 	 * This class is used to house all the project settings
-	 * @author Matt Smith
+	 * @author Matt Smith, Wesley Yep
 	 *
 	 */
 	public class ProjectSettings {

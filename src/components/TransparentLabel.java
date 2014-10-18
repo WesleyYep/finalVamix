@@ -4,6 +4,11 @@ import java.awt.Color;
 
 import javax.swing.JLabel;
 
+/**
+ * A simple JLabel that is transparent, and has initially a red foreground colour
+ * @author wesley
+ *
+ */
 public class TransparentLabel extends JLabel{
 	
 	public TransparentLabel(String caption){

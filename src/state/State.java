@@ -1,20 +1,19 @@
 package state;
 
-import gui.CustomButton;
-
 import java.awt.Color;
 import java.awt.Font;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.border.TitledBorder;
-
 import components.CustomSpinner;
 
+/**
+ * This represents the state of the gui.
+ * It is used to show/hide the gui features, and change the colour.
+ * @author wesley
+ *
+ */
 public class State {
 	private static State state;
 	private List<JComponent> stateListeners;
@@ -63,6 +62,9 @@ public class State {
 		}
 	}
 	
+	/**
+	 * This makes everything transparent
+	 */
 	public void setTransparent(){
 		for (JComponent comp : colourListeners){
 			comp.setOpaque(false);
@@ -72,12 +74,20 @@ public class State {
 		}
 	}
 	
+	/**
+	 * Hide all the editing features if user chooses to
+	 * @param visible
+	 */
 	public void setVisibility(boolean visible){
 		for (JComponent comp : stateListeners){
 	  		comp.setVisible(visible);
 		}
 	}
 	
+	/**
+	 * If the gui is invisible, make certain important gui components appear if the mouse is moved
+	 * Then they will disappear after 3 seconds
+	 */
 	public void showMouseControls(){
 		final List<JComponent> temp = new ArrayList<JComponent>();
 		for (JComponent comp : mouseListeners){
@@ -106,6 +116,10 @@ public class State {
 
 	}
 	
+	/**
+	 * This is used to change the foreground text
+	 * @param colour the colour to change it to
+	 */
 	public void changeForeground(Color colour){
 		for (JComponent comp : colourListeners){
 	  		comp.setForeground(colour);

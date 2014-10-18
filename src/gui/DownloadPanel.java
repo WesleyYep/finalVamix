@@ -28,12 +28,11 @@ import net.miginfocom.swing.MigLayout;
 import download.DownloadWorker;
 
 /**
- * This has been taken from my assignment 2 and should be usable with a few 
- * (or perhaps a lot of) changes
  * 
- * This screen is used to download either video or audio 
+ * This section is used to download either video or audio.
+ * It is incorporated into the main window
  * 
- * @author group 27
+ * @author matt and wesley
  */
 @SuppressWarnings("serial")
 public class DownloadPanel extends JPanel implements ActionListener{
@@ -49,13 +48,13 @@ public class DownloadPanel extends JPanel implements ActionListener{
 	public static boolean isPaused = false;
 	private DownloadWorker downloadWorker;
 	private static LoadingScreen loadScreen;
-	private EditorPanel ep;
+	private Vamix vamix;
 
 	/**
 	 * This constructor is used to set up the layout of this download panel
 	 */
-	public DownloadPanel(EditorPanel ep) {
-		this.ep = ep;
+	public DownloadPanel(Vamix v) {
+		this.vamix = v;
 		setLayout(new MigLayout());
 		add(urlInstr, "wrap, span 2");
 		add(urlField, "grow, wrap, span 2");
@@ -66,8 +65,8 @@ public class DownloadPanel extends JPanel implements ActionListener{
 		add(openY, "split 2");
 		add(openN, "wrap");
 		add(submitBtn);
-	//	add(pauseBtn);
 		
+		//create a colourful border
 		TitledBorder border = BorderFactory.createTitledBorder(
 				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
 				new Color(255, 150, 250, 250), new Color(50, 50, 150, 250)), getString("download"));
@@ -75,6 +74,7 @@ public class DownloadPanel extends JPanel implements ActionListener{
 		border.setTitleFont(new Font("Sans Serif", Font.BOLD, 24));
 		setBorder(border);
 		
+		//add gui components as colour listeners
 		State.getState().addColourListeners(this, urlInstr, urlField, isOpen, openY, openN, submitBtn, pauseBtn);
 		
 		submitBtn.addActionListener(this);
@@ -175,7 +175,7 @@ public class DownloadPanel extends JPanel implements ActionListener{
 	private void download(String cmd) {
 		try {
 			submitBtn.setText("Cancel");
-			loadScreen = new LoadingScreen(ep, submitBtn);
+			loadScreen = new LoadingScreen(vamix, submitBtn);
             loadScreen.prepare();
 			downloadWorker = new DownloadWorker(cmd, loadScreen.getProgBar(), submitBtn, pauseBtn, loadScreen, this);
 			downloadWorker.execute();
@@ -189,6 +189,7 @@ public class DownloadPanel extends JPanel implements ActionListener{
 		
 	}
 	
+	//accessors for the all important url field - primarily used to load/save settings
 	public String getUrl() {
 		return urlField.getText();
 	}
@@ -196,6 +197,10 @@ public class DownloadPanel extends JPanel implements ActionListener{
 		urlField.setText(url);
 	}
 	
+	/**
+	 * this is used to put the button back into the main window once the download finishes
+	 * @param submit the submit button
+	 */
 	public void downloadFinished(JButton submit){
 		add(submit);
 	}

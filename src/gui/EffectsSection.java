@@ -35,9 +35,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * This section is for editing effects. It is incorporated into the main window
+ * @author wesley
+ *
+ */
 @SuppressWarnings("serial")
 public class EffectsSection extends JPanel{
-	private EditorPanel editorPanel;
+	private Vamix vamix;
 	private MainControlPanel controlPanel;
 	private static LoadingScreen loadScreen;
 	private JComboBox<String> speedOption;
@@ -52,8 +57,8 @@ public class EffectsSection extends JPanel{
 	private JCheckBox gifCheckBox;
 	private VideoWorker worker;
 
-	public EffectsSection(EditorPanel ep, MainControlPanel cp){
-		this.editorPanel = ep;
+	public EffectsSection(Vamix v, MainControlPanel cp){
+		this.vamix = v;
 		this.controlPanel = cp;
 		TransparentLabel speedLbl, startLbl, endLbl, flipLbl, fadeLbl, gifLbl;
 		speedOption = new JComboBox<String>(new String[] {"0.25x", "0.5x", "1x", "2x", "3x", "5x"});
@@ -61,14 +66,14 @@ public class EffectsSection extends JPanel{
 		startSpinner = new CustomSpinner(0);
 		endSpinner = new CustomSpinner(20);
 		gifCheckBox = new JCheckBox(getString("createGif"));
-		
+		//create a colourful border
 		TitledBorder border = BorderFactory.createTitledBorder(
 				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
 				new Color(150, 250, 50, 180),new Color(150, 250, 50, 180)), getString("effects"));
 		border.setTitleFont(new Font("Sans Serif", Font.BOLD, 24));
 		border.setTitleColor(new Color(150, 150, 250, 250));
 		setBorder(border);
-		
+		//can't say no to miglayout
 		setLayout(new MigLayout());
 		add(speedLbl = new TransparentLabel(getString("speed")), "grow");
 		add(speedOption, "wrap, grow");
@@ -85,11 +90,12 @@ public class EffectsSection extends JPanel{
 		add(fadeE, "wrap");
 		add(previewBtn, "grow");
 		add(addBtn, "grow");
-		
+		//add all gui components as colour listeners
 		State.getState().addColourListeners(speedLbl, startLbl, endLbl, flipLbl, fadeLbl, speedOption, startSpinner,
 				endSpinner, flipH, flipV, fadeS, fadeE, previewBtn, addBtn, gifCheckBox, this);
 		State.getState().addSpinnerListeners(startSpinner, endSpinner);
 		
+		//previewing
 		previewBtn.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -117,6 +123,8 @@ public class EffectsSection extends JPanel{
         	}
         });
 		
+		//we should automatically suggest to the user that the gif shouldn't be longer than about 
+		//20 seconds. This is done by automatically setting the end time spinner
 		gifCheckBox.addActionListener(new ActionListener(){
 			@Override
         	public void actionPerformed(ActionEvent arg0) {
@@ -132,6 +140,7 @@ public class EffectsSection extends JPanel{
 		});
 	}
 	
+	//cancel preview, we need to cancel the thread as well.
 	public void cancelPreview(){
 		try{
 			worker.cancel();
@@ -147,8 +156,8 @@ public class EffectsSection extends JPanel{
 	 */
 	private void addEffects(String option, String output) {
 		//get the duration and attributes for use in the progress bar
-		int dur = GetAttributes.getDuration(editorPanel.getMediaName());
-    	int frames = GetAttributes.getFrames(editorPanel.getMediaName());
+		int dur = GetAttributes.getDuration(vamix.getMediaName());
+    	int frames = GetAttributes.getFrames(vamix.getMediaName());
     	
     	String cmd = initialiseCmd(option);
     	cmd = addEffectsToCmd(cmd, frames);
@@ -168,7 +177,7 @@ public class EffectsSection extends JPanel{
     	}
         //only carry out the command if the video file is valid
         if (dur > 0 && frames > 0){
-    		loadScreen = new LoadingScreen(editorPanel);
+    		loadScreen = new LoadingScreen(vamix);
 	        worker = new VideoWorker(cmd, loadScreen.getProgBar(), frames, option, "Effects", loadScreen);
 	        if (option.equals("conv")){
 				loadScreen.prepare();
@@ -181,6 +190,12 @@ public class EffectsSection extends JPanel{
         }
 	}
 
+	/**
+	 * gets the difference between two times, and converts it into hh:mm:ss format
+	 * @param startTime start time on spinner
+	 * @param endTime end time on spinner
+	 * @return difference in hh:mm:ss format
+	 */
 	private String getTimeDiff(String startTime, String endTime) {
         java.text.DateFormat df = new java.text.SimpleDateFormat("hh:mm:ss");
         java.util.Date start, end;
@@ -193,6 +208,11 @@ public class EffectsSection extends JPanel{
 		return null;
 	}
 	
+	/**
+	 * converts milliseconds to hh:mm:ss string
+	 * @param millis
+	 * @return string representing the time in hh:mm:ss format
+	 */
 	private String millisToString(long millis){
 		return String.format("%02d:%02d:%02d", 
 			    TimeUnit.MILLISECONDS.toHours(millis),
@@ -202,21 +222,32 @@ public class EffectsSection extends JPanel{
 			    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
 	}
 
+	/**
+	 * Write the initial bits of the avconv/avplay command
+	 * @param option conv/play
+	 * @return String which contains the initial command
+	 */
 	private String initialiseCmd(String option) {
         String startTime = new DateEditor(startSpinner , "yy:mm:ss").getFormat().format(startSpinner.getValue());
         String endTime = new DateEditor(endSpinner , "yy:mm:ss").getFormat().format(endSpinner.getValue());
         String durTime = getTimeDiff(startTime, endTime);
     	String cmd = "";
     	if (option.equals("conv")){
-    		cmd = "avconv -y -i " + editorPanel.getMediaName() + " -ss " + startTime + 
+    		cmd = "avconv -y -i " + vamix.getMediaName() + " -ss " + startTime + 
     				" -t " + durTime + " -vf \"";
     	}else{
-    		cmd = "avplay -i " + editorPanel.getMediaName() + " -ss " + startTime + 
+    		cmd = "avplay -i " + vamix.getMediaName() + " -ss " + startTime + 
     				" -t " + durTime + " -vf \"";
     	}
     	return cmd;
 	}
 	
+	/**
+	 * This adds the other filters to the command
+	 * @param cmd the command so far
+	 * @param frames total number of frames in input
+	 * @return the modified command
+	 */
 	private String addEffectsToCmd(String cmd, int frames) {
     	if (!speedOption.getSelectedItem().toString().equals("1x")){
     		cmd += "setpts=" + 1/Double.parseDouble(speedOption.getSelectedItem().toString().split("x")[0]) + "*PTS,";
@@ -246,8 +277,11 @@ public class EffectsSection extends JPanel{
     	return cmd;
 	}
 
+	/**
+	 * set the default value for endSpinner based on the length of media
+	 */
 	public void setSpinnerDefault() {
-		int dur = GetAttributes.getDuration(editorPanel.getMediaName());
+		int dur = GetAttributes.getDuration(vamix.getMediaName());
 		int hr = dur/3600;
 		int rem = dur%3600;
 		int mn = rem/60;
@@ -263,6 +297,9 @@ public class EffectsSection extends JPanel{
 		} catch (ParseException e) {}
 	}
 
+	/**
+	 * add to project settings
+	 */
 	public ProjectSettings createProjectSettings(ProjectSettings settings) {
 		String newStartTime = new DateEditor(startSpinner , "yy:mm:ss").getFormat().format(startSpinner.getValue());
         String newEndTime = new DateEditor(endSpinner , "yy:mm:ss").getFormat().format(endSpinner.getValue());
@@ -277,7 +314,9 @@ public class EffectsSection extends JPanel{
 
 		return settings;
 	}
-
+	/**
+	 * fill fields from settings
+	 */
 	public void loadProjectSettings(ProjectSettings ps) {
 		speedOption.setSelectedIndex(ps._speed);
 		gifCheckBox.setSelected(ps._createGif);

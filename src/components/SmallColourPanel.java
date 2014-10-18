@@ -1,6 +1,6 @@
 package components;
 
-import gui.EditorPanel;
+import gui.Vamix;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -11,6 +11,11 @@ import javax.swing.JPanel;
 
 import state.State;
 
+/**
+ * This is the colour panel that is used in the bottom toolbar
+ * @author wesley
+ *
+ */
 public class SmallColourPanel extends JPanel implements ActionListener{
 	private JButton redButton = new JButton();
 	private JButton greenButton = new JButton();
@@ -19,9 +24,9 @@ public class SmallColourPanel extends JPanel implements ActionListener{
 	private JButton greyButton = new JButton();
 	private JButton whiteButton = new JButton();
 	private JButton blackButton = new JButton();
-	private EditorPanel ep;
+	private Vamix ep;
 	
-	public SmallColourPanel(EditorPanel ep){
+	public SmallColourPanel(Vamix ep){
 		this.ep = ep;
 		
 		redButton.setBackground(Color.RED);

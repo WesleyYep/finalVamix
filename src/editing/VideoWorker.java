@@ -34,6 +34,7 @@ public class VideoWorker extends SwingWorker<Void, String> {
 	private LoadingScreen ls;
 	private String type;
 	private boolean isCancelled = false;
+	private int numberOfTextFiles = 0;
 	
 	public VideoWorker(String cmd, JProgressBar progressBar, int fps, String option, String type, LoadingScreen ls) {
 		this.cmd = cmd;
@@ -98,18 +99,31 @@ public class VideoWorker extends SwingWorker<Void, String> {
 				}
 			}else if (process.exitValue() > 0)
 				JOptionPane.showMessageDialog(null, getString("errorOccurred"), getString("error"), JOptionPane.WARNING_MESSAGE);
-	    	//remove the temp text file
-			Path currentRelativePath = Paths.get("");
-	    	String currentAbsPath = currentRelativePath.toAbsolutePath().toString();
-			File file = new File(currentAbsPath + "/.text");
-	        file.delete();
+	    	//remove the temp text files
+			for (int i = 0; i < numberOfTextFiles; i++){
+				Path currentRelativePath = Paths.get("");
+		    	String currentAbsPath = currentRelativePath.toAbsolutePath().toString();
+				File file = new File(currentAbsPath + "/.text" + i);
+		        file.delete();
+			}
 		} catch (InterruptedException e) {
 			JOptionPane.showMessageDialog(null, getString("errorOccurred"), getString("error"), JOptionPane.WARNING_MESSAGE);
 		} 
     }	
 	
+	/**
+	 * This method is used by others to cancel the process thread
+	 */
 	public void cancel(){
 		isCancelled = true;
+	}
+	
+	/**
+	 * This method is used by TextSection to tell the videoworker how many temporary text files there are
+	 * @param number the number of temporary hidden text files
+	 */
+	public void setNumberOfTextFiles(int number){
+		numberOfTextFiles = number;
 	}
 	
 	private String getString(String label){

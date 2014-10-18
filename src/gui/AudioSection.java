@@ -42,11 +42,9 @@ public class AudioSection extends JPanel{
 	private JButton replaceBtn = new JButton(getString("replace"));
 	private JButton overlayBtn = new JButton(getString("overlay"));
 	private JButton stripBtn = new JButton(getString("strip"));
-	
 	// Retrieved on construction
-	private EditorPanel editorPanel;
+	private Vamix vamix;
 	private Component mediaPlayer;
-	
 	private static LoadingScreen loadScreen;
 	
 	/**
@@ -55,10 +53,10 @@ public class AudioSection extends JPanel{
 	 * 		of the currently playing media.
 	 * @param mpc The MediaPlayer component used to center the pop up windows
 	 */
-	public AudioSection(EditorPanel ep, 
+	public AudioSection(Vamix v, 
 			EmbeddedMediaPlayerComponent mpc) {
 		
-		editorPanel = ep;
+		vamix = v;
 		mediaPlayer = mpc;
 		
 		setLayout(new MigLayout("","[][][]", "[]"));
@@ -68,7 +66,7 @@ public class AudioSection extends JPanel{
 		border.setTitleColor(new Color(250, 150, 150, 250));
 		border.setTitleFont(new Font("Sans Serif", Font.BOLD, 24));
 		setBorder(border);
-		
+		//add all the gui components as colour listeners
 		State.getState().addColourListeners(audioTextField, openAudioBtn, replaceBtn, overlayBtn, stripBtn);
 		
 		add(audioTextField, "cell 0 0 2 1");
@@ -136,12 +134,12 @@ public class AudioSection extends JPanel{
 	 * @param option String used to distinguish between different audio worker tasks
 	 */
 	public void audioEdit(String option) {
-		if (editorPanel.isFileType(editorPanel.getMediaName(), "Audio")){
+		if (vamix.isFileType(vamix.getMediaName(), "Audio")){
 			JOptionPane.showMessageDialog(mediaPlayer, getString("validVideo"));
 			return;
 		}
     	if (option.startsWith("strip") || correctFileType(audioTextField.getText(), "Audio")){
-    		if (editorPanel.isMediaFile(editorPanel.getMediaName())){
+    		if (vamix.isMediaFile(vamix.getMediaName())){
 				final JFileChooser fc = new JFileChooser();
 		        fc.showSaveDialog(fc);
 		        if (fc.getSelectedFile() != null){
@@ -152,13 +150,13 @@ public class AudioSection extends JPanel{
 							return;
 						}
 		        	}
-		        	int dur = GetAttributes.getDuration(editorPanel.getMediaName());
-		        	int frames = GetAttributes.getFrames(editorPanel.getMediaName());
+		        	int dur = GetAttributes.getDuration(vamix.getMediaName());
+		        	int frames = GetAttributes.getFrames(vamix.getMediaName());
 		            String audioFile = fc.getSelectedFile().getAbsolutePath().toString();
 		            AudioWorker worker = null;
-			    	loadScreen = new LoadingScreen(editorPanel);
+			    	loadScreen = new LoadingScreen(vamix);
 		            loadScreen.prepare();
-			    	worker = new AudioWorker(editorPanel.getMediaName(), audioTextField.getText(),
+			    	worker = new AudioWorker(vamix.getMediaName(), audioTextField.getText(),
 			    							option, audioFile, loadScreen.getProgBar(), dur, frames, loadScreen);
 			    	loadScreen.setWorker(worker);
 			    	worker.execute();
@@ -207,6 +205,9 @@ public class AudioSection extends JPanel{
 		audioTextField.setText(audioString);
 	}
 
+	/**
+	 * Used to enable the replace and overlay button once something is inputted into audio file field
+	 */
 	public void enableButtons() {
 		if (!audioTextField.getText().equals("")){
 			replaceBtn.setEnabled(true);

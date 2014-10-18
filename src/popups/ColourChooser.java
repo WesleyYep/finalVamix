@@ -10,7 +10,11 @@ import javax.swing.JFrame;
 
 import state.LanguageSelector;
 import net.miginfocom.swing.MigLayout;
-
+/**
+ * Simple colour picker that sends the colour to the text section
+ * @author wesley
+ *
+ */
 @SuppressWarnings("serial")
 public class ColourChooser extends JFrame{
 	private JColorChooser cc;

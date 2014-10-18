@@ -345,14 +345,6 @@ public class Vamix implements MouseMotionListener{
 		else
 			overlay.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
-	//used as an intermediate to cancel previewing
-	public void cancelPreviewTextSection() {
-		textSection.cancelPreview();
-	}
-	//used as an intermediate to cancel previewing
-	public void cancelPreviewEffectsSection() {
-		effectsSection.cancelPreview();
-	}
 	
 	/**
 	 *  Used by the Audio/text sections to allow them to get the media file being played
@@ -414,7 +406,6 @@ public class Vamix implements MouseMotionListener{
 	            super(owner, WindowUtils.getAlphaCompatibleGraphicsConfiguration());
 	            //if this line has an error, go >project>properties>Java compiler>Errors/Warnings
 	            AWTUtilities.setWindowOpaque(this, false);
-
 	            setLayout(myLayout);
 	            repaint(500, 0, 0, 1200, 1200);
            
@@ -422,8 +413,8 @@ public class Vamix implements MouseMotionListener{
 	            JPanel projectPanel = new JPanel();
 	            TitledBorder border = BorderFactory.createTitledBorder(
 	    				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
-	    				new Color(50, 150, 50, 250), new Color(50, 150, 50, 250)), getString("project"));
-	            border.setTitleColor(new Color(50, 150, 50, 250));
+	    				new Color(150, 150, 250, 250), new Color(50, 50, 150, 250)), getString("project"));
+	            border.setTitleColor(new Color(150, 150, 250, 250));
 	    		border.setTitleFont(new Font("Sans Serif", Font.BOLD, 24));
 	            projectPanel.setBorder(border);
 	            projectPanel.setLayout(new MigLayout());
@@ -435,11 +426,12 @@ public class Vamix implements MouseMotionListener{
 	            JPanel leftSidePane = new JPanel();
 	            leftSidePane.setLayout(new MigLayout());
 	            audioSection = new AudioSection(ep, mediaPlayerComponent);
-	            leftSidePane.add(audioSection, "wrap");
+	            leftSidePane.add(audioSection, "wrap,grow");
 	            textSection = new TextSection(ep, mainControlPanel);
 	            leftSidePane.add(textSection, "wrap, grow");
-	            leftSidePane.add(projectPanel, "grow");
-	            add(leftSidePane, "cell 0 1 1 3, grow, gaptop 10");
+	        //    leftSidePane.add(projectPanel, "grow");
+	            add(leftSidePane, "dock east, gaptop 30");
+
 	    		this.addMouseListener(textSection);
 
 	    		//now we add the download panel, followed by the right side pane
@@ -448,16 +440,17 @@ public class Vamix implements MouseMotionListener{
 	            rightSidePane.setLayout(new MigLayout());
 	            rightSidePane.add(downloadPanel, "wrap");
 	            effectsSection = new EffectsSection(ep, mainControlPanel);
-	            rightSidePane.add(effectsSection, "growx");
-	            add(rightSidePane, "dock east, gaptop 30");
-	            
+	            rightSidePane.add(effectsSection, "growx, wrap");
+	            rightSidePane.add(projectPanel, "grow");
+	            add(rightSidePane, "cell 0 1 1 3, grow, gaptop 10");
+
 	            //finally, the open panel which goes on the top
 	            JPanel openPanel = new JPanel();
 	            openPanel.add(fileTextField);
 	            openPanel.add(openBtn);
 	            add(openPanel, "cell 1 1 2 1");
 	            setFocusable(true);
-	            add(mainControlPanel, "dock south, gapbefore 30%");
+	            add(mainControlPanel, "dock south, gapbefore 35%");
 	    		state.addColourListeners(leftSidePane, textSection, audioSection, mainControlPanel, projectPanel, rightSidePane,
 	            		saveBtn, loadBtn, openPanel, openBtn, fileTextField);
 	          	state.addStateListeners(leftSidePane, openPanel, projectPanel, mainControlPanel, rightSidePane);

@@ -71,7 +71,7 @@ public class EffectsSection extends JPanel{
 				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
 				new Color(150, 250, 50, 180),new Color(150, 250, 50, 180)), getString("effects"));
 		border.setTitleFont(new Font("Sans Serif", Font.BOLD, 24));
-		border.setTitleColor(new Color(150, 150, 250, 250));
+		border.setTitleColor(new Color(150, 250, 50, 180));
 		setBorder(border);
 		//can't say no to miglayout
 		setLayout(new MigLayout());

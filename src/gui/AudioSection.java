@@ -70,10 +70,10 @@ public class AudioSection extends JPanel{
 		State.getState().addColourListeners(audioTextField, openAudioBtn, replaceBtn, overlayBtn, stripBtn);
 		
 		add(audioTextField, "cell 0 0 2 1");
-		add(openAudioBtn, "cell 2 0 1 1");
+		add(openAudioBtn, "cell 2 0 1 1, grow");
 		add(replaceBtn, "cell 0 1 1 1");
 		add(overlayBtn, "cell 1 1 1 1, grow");
-		add(stripBtn, "cell 2 1 1 1");
+		add(stripBtn, "cell 2 1 1 1, grow");
 		
 		replaceBtn.setEnabled(false);
 		overlayBtn.setEnabled(false);

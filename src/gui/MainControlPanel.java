@@ -34,7 +34,6 @@ import uk.co.caprica.vlcj.player.MediaPlayer;
 public class MainControlPanel extends JPanel{
 	private MediaPlayer mp;
 	private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-	private boolean isPreviewing = false;
 	private boolean isPaused = false;
 	private long duration;
 	private long currentTime;
@@ -244,23 +243,8 @@ public class MainControlPanel extends JPanel{
 		} else if (mp.isPlayable()) {
 			mp.stop();
 		} 
-		if (isPreviewing){
-			setIsPreviewing(false);
-			vamix.cancelPreviewTextSection();
-			vamix.cancelPreviewEffectsSection();
-		}
 		vidPosSlider.setValue(0);
     }
-    
-    //used for previewing through the main videoplayer
-	public void playPreview(){
-		isPreviewing = true;
-		currentTime = 0;
-		vidPosSlider.setValue(0);
-		String mediaUrl = "udp://@:1234";
-		mp.playMedia(mediaUrl);
-		playBtn.changeIcon();
-	}
 	
 	//sets the duration
 	public void setDuration(long dur){
@@ -272,22 +256,6 @@ public class MainControlPanel extends JPanel{
 		return mp.getTime();
 	}
 	
-	//set if mediaplayer is currently previewing
-	public void setIsPreviewing(boolean previewing){
-		this.isPreviewing = previewing;
-		if (previewing){
-			forwardBtn.setEnabled(false);
-			backwardBtn.setEnabled(false);
-			stopBtn.setEnabled(true);
-		}else{
-			forwardBtn.setEnabled(true);
-			backwardBtn.setEnabled(true);
-		}
-	}
-	//get if mediaplayer is currently previewing
-	public boolean getIsPreviewing(){
-		return isPreviewing;
-	}
 	public void updateVolume(int value) {
 		 volumeSlider.setValue(value);
 	}
@@ -310,12 +278,8 @@ public class MainControlPanel extends JPanel{
 	    
 	    @Override
 	    public void run() {
-	      if (isPreviewing && !isPaused)
-	    	  currentTime += 1000;
-	      else if (!isPreviewing){
-		      currentTime = mediaPlayer.getTime();
-	    	  duration = mediaPlayer.getLength();
-	      }
+		  currentTime = mediaPlayer.getTime();
+		  duration = mediaPlayer.getLength();
 	      final int position = duration > 0 ? (int)Math.round(100.0 * (double)currentTime / (double)duration) : 0;
 
 	      // Updates to user interface components must be executed on the Event

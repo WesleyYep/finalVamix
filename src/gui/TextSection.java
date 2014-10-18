@@ -34,11 +34,13 @@ import java.util.Calendar;
 import java.util.Date;
 
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
@@ -53,6 +55,9 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
 import components.CustomSpinner;
 import components.TransparentLabel;
 import popups.ColourChooser;
@@ -75,21 +80,16 @@ public class TextSection extends JPanel implements MouseListener {
 	private JButton previewBtn = new JButton(getString("preview"));
 	private JButton colourBtn = new JButton();
 	private JButton textPosBtn = new JButton(getString("setPosition"));
-//	private JComboBox<String> titleOrCredits;
 	private JComboBox<String> fontOption;
 	private ColourChooser cc = new ColourChooser(this);
 	private CustomSpinner fontSizeSpinner;
-//	private CustomSpinner timeForTextSpinner;
 	private final JScrollPane textScroll = new JScrollPane(textArea);
-//	private String titleText = getString("defaultText");
-//	private String creditsText = "";
-//	private CustomSpinner xSpinner;
-//	private CustomSpinner ySpinner;
-//	private DateEditor de;
 	private JButton startTimeBtn = new JButton(getString("setStart"));
 	private JButton endTimeBtn = new JButton(getString("setEnd"));
-	private JButton addBtn = new JButton(getString("add"));
-//	private JButton removeBtn = new JButton(getString("remove"));
+	private JRadioButton addRadio = new JRadioButton(getString("add"));
+	private JRadioButton removeRadio = new JRadioButton(getString("remove"));
+	private JRadioButton editRadio = new JRadioButton(getString("edit"));
+	private JButton okBtn = new JButton(getString("okay"));
 	private TextTableModel tableModel;
 	private JTable textTable;
 	private JScrollPane tableScroll;
@@ -98,7 +98,6 @@ public class TextSection extends JPanel implements MouseListener {
 	private boolean isSelecting = false;
 	private static LoadingScreen loadScreen;
 	private VideoWorker worker;
-	
 	private int xPos = 0;
 	private int yPos = 0;
 	private long startTime = 0;
@@ -114,44 +113,38 @@ public class TextSection extends JPanel implements MouseListener {
 		
 		vamix = v;
 		this.cp = cp;
-	//	titleOrCredits = new JComboBox<String>(new String[]{getString("title"), getString("credits"), getString("thisPoint")});
-		fontOption = new JComboBox<String>(new String[]{"DejaVuSans", "DroidSans", "FreeSans", "LiberationSerif-Bold", "NanumGothic", "Padauk", 
-														"TakaoPGothic", "TibetanMachineUni", "Ubuntu-C"});
+		fontOption = new JComboBox<String>(new String[]{"DejaVuSans", "DroidSans", "FreeSans", "NanumGothic", "Padauk", 
+														"TakaoPGothic", "Ubuntu-C"});
        
 		fontSizeSpinner = new CustomSpinner(18, new SpinnerNumberModel(0, 0, 72, 1));
-	//	xSpinner = new CustomSpinner(10, new SpinnerNumberModel(0,0,380,1));
-	//	ySpinner = new CustomSpinner(10, new SpinnerNumberModel(0,0,380,1));
-	//	timeForTextSpinner = new CustomSpinner(20);
-	//	State.getState().addSpinnerListeners(fontSizeSpinner, xSpinner, ySpinner, timeForTextSpinner);
 		State.getState().addSpinnerListeners(fontSizeSpinner);
-
         
-		setLayout(new MigLayout());
+		setLayout(new MigLayout("", "[] []"));
 		TitledBorder border = BorderFactory.createTitledBorder(
 				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
-				new Color(150, 150, 250, 250), new Color(50, 50, 150, 250)), getString("text"));
+						new Color(50, 150, 50, 250), new Color(50, 150, 50, 250)), getString("text"));
 		border.setTitleFont(new Font("Sans Serif", Font.BOLD, 24));
-		border.setTitleColor(new Color(150, 150, 250, 250));
+		border.setTitleColor(new Color(50, 150, 50, 250));
 		setBorder(border);
 
 		tableModel = new TextTableModel();
 		textTable = new JTable(tableModel);
 		tableScroll = new JScrollPane(textTable);
 		textTable.setTableHeader(null);
-		tableScroll.setPreferredSize(new Dimension(300,100));
+		tableScroll.setPreferredSize(new Dimension(300,200));
 		textPosBtn.setMargin(new java.awt.Insets(1, 5, 1, 5));
 		endTimeBtn.setMargin(new java.awt.Insets(1, 5, 1, 5));
 		
 		textArea.setBorder(BorderFactory.createEtchedBorder());
 		textArea.setLineWrap(true);
 		textArea.setFont( textArea.getFont().deriveFont(Float.parseFloat(fontSizeSpinner.getValue().toString())) );
-		textArea.setMaximumSize(new Dimension(350,100));
-		textScroll.setMaximumSize(new Dimension(350,100));
+		textArea.setPreferredSize(new Dimension(300,200));
+		textScroll.setPreferredSize(new Dimension(300,200));
 		colourBtn.setBackground(Color.RED);
+		addRadio.setSelected(true);
 		
 		State.getState().addColourListeners(textArea, textScroll, textScroll.getViewport(), fontOption, fontSizeSpinner, tableScroll, textTable,
-		tableScroll.getViewport(), previewBtn,	renderBtn, textPosBtn,
-		startTimeBtn, endTimeBtn, addBtn);
+		tableScroll.getViewport(), previewBtn,	renderBtn, textPosBtn, startTimeBtn, endTimeBtn, okBtn, addRadio, removeRadio, editRadio);
 		
 		add(textScroll, "cell 0 0 2 1, grow");
 		TransparentLabel fontLbl, colourLbl, sizeLbl;
@@ -161,13 +154,20 @@ public class TextSection extends JPanel implements MouseListener {
 		add(colourBtn, "cell 1 3, grow");
 		add(sizeLbl = new TransparentLabel(getString("size")), "cell 0 4");
 		add(fontSizeSpinner, "cell 1 4, grow");
-		add(startTimeBtn, "cell 0 5");
-		add(endTimeBtn, "cell 1 5, split 2, grow");
-		add(textPosBtn, "cell 0 5, grow");
-		add(addBtn, "cell 0 6, span 2, grow");
-		add(tableScroll, "cell 0 7, span 2, grow");
-		add(previewBtn, "cell 0 8, grow");
-		add(renderBtn, "cell 1 8, grow");
+		add(startTimeBtn, "cell 0 5, w 160!");
+		add(endTimeBtn, "cell 1 5, grow");
+		add(textPosBtn, "cell 0 6, span 2, grow");
+		ButtonGroup bgroup = new ButtonGroup();
+		bgroup.add(addRadio);
+		bgroup.add(removeRadio);
+		bgroup.add(editRadio);
+		add(addRadio, "cell 0 7, span 2, split 3, grow");
+		add(removeRadio, "cell 0 7, grow");
+		add(editRadio, "cell 0 7, grow");
+		add(okBtn, "cell 0 8, span 2, grow");
+		add(tableScroll, "cell 0 9, span 2, grow");
+		add(previewBtn, "cell 0 10, grow");
+		add(renderBtn, "cell 1 10, grow");
 		
 		State.getState().addColourListeners(fontLbl, colourLbl, sizeLbl, textScroll);
 		
@@ -226,15 +226,34 @@ public class TextSection extends JPanel implements MouseListener {
         	}
 		});
 		
-		addBtn.addActionListener(new ActionListener(){
+		textTable.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
+	        public void valueChanged(ListSelectionEvent event) {
+	            Object[] data = tableModel.getFullData(textTable.getSelectedRow());
+	            textArea.setText((String) data[0]);
+				fontOption.setSelectedIndex((int) data[8]);
+				colourBtn.setForeground(Color.decode((String) data[6]));
+				fontSizeSpinner.setValue(data[7]);
+				startTimeBtn.setText((String) tableModel.getValueAt(textTable.getSelectedRow(), 1));
+				endTimeBtn.setText((String) tableModel.getValueAt(textTable.getSelectedRow(), 2));
+				startTime = (long) data[1];
+				endTime = (long) data[2];
+				xPos = (int) data[3];
+				yPos = (int) data[4];
+				editRadio.setSelected(true);
+	        }
+	    });
+		
+		okBtn.addActionListener(new ActionListener(){
 			@Override
         	public void actionPerformed(ActionEvent arg0) {
 				if (textArea.getText().split("\\s").length > 20){
 					JOptionPane.showMessageDialog(null, getString("tooMuchText"), "Error", JOptionPane.DEFAULT_OPTION);
 					return;
-				}
-				else if (Integer.parseInt(fontSizeSpinner.getValue().toString()) > 72){
-					JOptionPane.showMessageDialog(null, "tooBigText", "Error", JOptionPane.DEFAULT_OPTION);
+				}else if (Integer.parseInt(fontSizeSpinner.getValue().toString()) > 72){
+					JOptionPane.showMessageDialog(null, getString("tooBigText"), "Error", JOptionPane.DEFAULT_OPTION);
+					return;
+				}else if (endTime-startTime < 0){
+					JOptionPane.showMessageDialog(null, getString("endLessThanStart"), "Error", JOptionPane.DEFAULT_OPTION);
 					return;
 				}
 				String start = "00:00:00";
@@ -248,7 +267,8 @@ public class TextSection extends JPanel implements MouseListener {
 		        String fontPath = getFontPath(fontOption.getSelectedItem().toString());
 				tableModel.add(textArea.getText(), start, end);
 		    	String colour = toHexString(colourBtn.getBackground());
-				tableModel.addFullData(textArea.getText(), startTime, endTime, xPos, yPos, fontPath, colour, Integer.parseInt(fontSizeSpinner.getValue().toString()));
+				tableModel.addFullData(textArea.getText(), startTime, endTime, xPos, yPos, fontPath, 
+						colour, Integer.parseInt(fontSizeSpinner.getValue().toString()), fontOption.getSelectedIndex());
 				tableModel.fireTableDataChanged();
 				
 				//reset stuff
@@ -283,9 +303,7 @@ public class TextSection extends JPanel implements MouseListener {
 		previewBtn.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				cp.stopPlaying();
 				addTextToVideo("preview", "");
-				cp.playPreview();
 			}
 		});
 	}
@@ -304,13 +322,6 @@ public class TextSection extends JPanel implements MouseListener {
 	public void changeColour(Color colour){
 		colourBtn.setBackground(colour);
 		textArea.setForeground(colour);
-	}
-	
-	public void cancelPreview(){
-		try{
-			worker.cancel();
-		}
-		catch (NullPointerException ex){}
 	}
 	
 	/**
@@ -450,10 +461,7 @@ public class TextSection extends JPanel implements MouseListener {
 	}
 	
 	public void loadProjectSettings(ProjectSettings ps) {
-//		titleText = ps._titleText;
-//		creditsText = ps._creditsText;
-//		titleOrCredits.setSelectedIndex(ps._title_credits);
-//		fontOption.setSelectedIndex(ps._fontOption);
+//		fontOption.setSelectedIndex(f);
 //		colourBtn.setBackground(Color.decode(ps._colour));
 //		xSpinner.setValue(ps._x);
 //		ySpinner.setValue(ps._y);

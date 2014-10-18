@@ -43,7 +43,15 @@ public class TextTableModel extends AbstractTableModel {
     	data.add(new String[]{text, start + "", end + ""});
     }
     
+    public void edit(int i, String text, String start, String end){
+    	data.set(i, new String[]{text, start + "", end + ""});
+    }
+    
     public void addFullData(String text, long start, long end, int x, int y, String fontPath, String colour, int size, int fontOption){
     	fullData.add(new Object[]{text, start, end, x, y, fontPath, colour, size, fontOption});
+    }
+    
+    public void editFullData(int i, String text, long start, long end, int x, int y, String fontPath, String colour, int size, int fontOption){
+    	fullData.set(i, new Object[]{text, start, end, x, y, fontPath, colour, size, fontOption});
     }
 }

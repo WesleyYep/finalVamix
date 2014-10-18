@@ -228,34 +228,27 @@ public class TextSection extends JPanel implements MouseListener {
 		
 		textTable.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
 	        public void valueChanged(ListSelectionEvent event) {
-	            Object[] data = tableModel.getFullData(textTable.getSelectedRow());
-	            textArea.setText((String) data[0]);
-				fontOption.setSelectedIndex((int) data[8]);
-				colourBtn.setForeground(Color.decode((String) data[6]));
-				fontSizeSpinner.setValue(data[7]);
-				startTimeBtn.setText((String) tableModel.getValueAt(textTable.getSelectedRow(), 1));
-				endTimeBtn.setText((String) tableModel.getValueAt(textTable.getSelectedRow(), 2));
-				startTime = (long) data[1];
-				endTime = (long) data[2];
-				xPos = (int) data[3];
-				yPos = (int) data[4];
-				editRadio.setSelected(true);
+	        	try {
+		            Object[] data = tableModel.getFullData(textTable.getSelectedRow());
+		            textArea.setText((String) data[0]);
+					fontOption.setSelectedIndex((int) data[8]);
+					colourBtn.setForeground(Color.decode((String) data[6]));
+					fontSizeSpinner.setValue(data[7]);
+					startTimeBtn.setText((String) tableModel.getValueAt(textTable.getSelectedRow(), 1));
+					endTimeBtn.setText((String) tableModel.getValueAt(textTable.getSelectedRow(), 2));
+					startTime = (long) data[1];
+					endTime = (long) data[2];
+					xPos = (int) data[3];
+					yPos = (int) data[4];
+					editRadio.setSelected(true);
+	        	}catch (ArrayIndexOutOfBoundsException e){}
 	        }
 	    });
 		
 		okBtn.addActionListener(new ActionListener(){
 			@Override
         	public void actionPerformed(ActionEvent arg0) {
-				if (textArea.getText().split("\\s").length > 20){
-					JOptionPane.showMessageDialog(null, getString("tooMuchText"), "Error", JOptionPane.DEFAULT_OPTION);
-					return;
-				}else if (Integer.parseInt(fontSizeSpinner.getValue().toString()) > 72){
-					JOptionPane.showMessageDialog(null, getString("tooBigText"), "Error", JOptionPane.DEFAULT_OPTION);
-					return;
-				}else if (endTime-startTime < 0){
-					JOptionPane.showMessageDialog(null, getString("endLessThanStart"), "Error", JOptionPane.DEFAULT_OPTION);
-					return;
-				}
+				checkIfValid();
 				String start = "00:00:00";
 				String end = "00:00:10";
 				if (!startTimeBtn.getText().equals(getString("setStart"))){
@@ -265,10 +258,16 @@ public class TextSection extends JPanel implements MouseListener {
 					end = endTimeBtn.getText();
 				}
 		        String fontPath = getFontPath(fontOption.getSelectedItem().toString());
-				tableModel.add(textArea.getText(), start, end);
 		    	String colour = toHexString(colourBtn.getBackground());
-				tableModel.addFullData(textArea.getText(), startTime, endTime, xPos, yPos, fontPath, 
-						colour, Integer.parseInt(fontSizeSpinner.getValue().toString()), fontOption.getSelectedIndex());
+		        if (addRadio.isSelected()){
+					tableModel.add(textArea.getText(), start, end);
+					tableModel.addFullData(textArea.getText(), startTime, endTime, xPos, yPos, fontPath, 
+							colour, Integer.parseInt(fontSizeSpinner.getValue().toString()), fontOption.getSelectedIndex());
+		        }else if (editRadio.isSelected()){
+		        	tableModel.edit(textTable.getSelectedRow(), textArea.getText(), start, end);
+					tableModel.editFullData(textTable.getSelectedRow(), textArea.getText(), startTime, endTime, xPos, yPos, fontPath, 
+							colour, Integer.parseInt(fontSizeSpinner.getValue().toString()), fontOption.getSelectedIndex());
+		        }
 				tableModel.fireTableDataChanged();
 				
 				//reset stuff
@@ -306,6 +305,19 @@ public class TextSection extends JPanel implements MouseListener {
 				addTextToVideo("preview", "");
 			}
 		});
+	}
+	
+	private void checkIfValid() {
+		if (textArea.getText().split("\\s").length > 20){
+			JOptionPane.showMessageDialog(null, getString("tooMuchText"), "Error", JOptionPane.DEFAULT_OPTION);
+			return;
+		}else if (Integer.parseInt(fontSizeSpinner.getValue().toString()) > 72){
+			JOptionPane.showMessageDialog(null, getString("tooBigText"), "Error", JOptionPane.DEFAULT_OPTION);
+			return;
+		}else if (endTime-startTime < 0){
+			JOptionPane.showMessageDialog(null, getString("endLessThanStart"), "Error", JOptionPane.DEFAULT_OPTION);
+			return;
+		}
 	}
 	
 	public void setFont(){

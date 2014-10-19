@@ -9,6 +9,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JOptionPane;
 
@@ -62,15 +64,17 @@ public class ProjectFile {
 		output.write(fileStarter + "\n");
 		output.write(ps._mediaFile + "\n");
 		output.write(ps._audioFile + "\n");
-		output.write(ps._titleText + "\n***\n"); // ** as it could be multiLine
-		output.write(ps._creditsText + "\n***\n");
-		output.write(ps._title_credits + "\n");
-		output.write(ps._fontOption + "\n");
-		output.write(ps._colour+ "\n");
-		output.write(ps._x + "\n");
-		output.write(ps._y + "\n");
-		output.write(ps._fontSize + "\n");
-		output.write(ps._duration + "\n");
+		for (int i = 0; i < ps._text.size(); i++){
+			output.write("%%%\n");
+			output.write(ps._text.get(i) + "\n***\n"); // ** as it could be multiLine
+			output.write(ps._fontOption.get(i) + "\n");
+			output.write(ps._colour.get(i) + "\n");
+			output.write(ps._x.get(i) + "\n");
+			output.write(ps._y.get(i) + "\n");
+			output.write(ps._fontSize.get(i) + "\n");
+			output.write(ps._startTime.get(i) + "\n");
+			output.write(ps._endTime.get(i) + "\n");
+		}
 		output.write(ps._downloadUrl + "\n");
 		output.write(ps._speed + "\n");
 		output.write(ps._effectsStartTime + "\n");
@@ -118,26 +122,36 @@ public class ProjectFile {
 		}
 		String mediaName = input.readLine();
 		String audioName = input.readLine();
-		String titleText = "";
-		String tempText;
-		while (!(tempText = input.readLine()).equals("***")) {
-			titleText += tempText + "\n";
-		}
-		String creditsText = "";
-		while (!(tempText = input.readLine()).equals("***")) {
-			creditsText += tempText + "\n";
-		}
-		String titleOrCredits = input.readLine();
-		String font = input.readLine();
-		String colour = input.readLine();
-		String x = input.readLine();
-		String y = input.readLine();
-		String fontSize = input.readLine();
 		
-		String duration = input.readLine();
-		
-		String downloadUrl = input.readLine();
+		//text section
+		List<String> text = new ArrayList<String>();
+		List<String> font = new ArrayList<String>();
+		List<String> colour = new ArrayList<String>();
+		List<String> x = new ArrayList<String>();
+		List<String> y = new ArrayList<String>();
+		List<String> fontSize = new ArrayList<String>();
+		List<String> startTime = new ArrayList<String>();
+		List<String> endTime = new ArrayList<String>();
+		String dwURL;
+		while ((dwURL = input.readLine()).equals("%%%")) {
+			String thisText = "";
+			String tempText;
+			while (!(tempText = input.readLine()).equals("***")) {
+				thisText += tempText + "\n";
+			}
+			text.add(thisText);
+			font.add(input.readLine());
+			colour.add(input.readLine());
+			x.add(input.readLine());
+			y.add(input.readLine());
+			fontSize.add(input.readLine());
+			startTime.add(input.readLine());
+			endTime.add(input.readLine());
+		}		
+		//download section
+		String downloadUrl = dwURL;
 		String speed = input.readLine();
+		//effects section
 		String est = input.readLine();
 		String eet = input.readLine();
 		String createGif = input.readLine();
@@ -146,9 +160,8 @@ public class ProjectFile {
 		String fadeS = input.readLine();
 		String fadeE = input.readLine();
 		
-		ProjectSettings settings = new ProjectSettings( mediaName,  audioName,  titleText, 
-				 creditsText,  Integer.parseInt(titleOrCredits),  Integer.parseInt(font),  colour, 
-				 Integer.parseInt(x), Integer.parseInt(y), Integer.parseInt(fontSize),  duration);
+		ProjectSettings settings = new ProjectSettings( mediaName,  audioName,  text, 
+				 font,  colour, x, y, fontSize,  startTime, endTime);
 		settings._speed = Integer.parseInt(speed);
 		settings._effectsStartTime = est;
 		settings._effectsEndTime = eet;
@@ -170,15 +183,14 @@ public class ProjectFile {
 	public class ProjectSettings {
 		public String _mediaFile;
 		public String _audioFile;
-		public String _titleText;
-		public String _creditsText;
-		public int _title_credits;
-		public int _fontOption;
-		public String _colour;
-		public int _x;
-		public int _y;
-		public Integer _fontSize;
-		public String _duration;
+		public List<String> _text;
+		public List<String> _fontOption;
+		public List<String> _colour;
+		public List<String> _x;
+		public List<String> _y;
+		public List<String> _fontSize;
+		public List<String> _startTime;
+		public List<String> _endTime;
 		public String _downloadUrl;
 		public int _speed;
 		public String _effectsStartTime;
@@ -189,20 +201,19 @@ public class ProjectFile {
 		public boolean _fadeS;
 		public boolean _fadeE;
 		
-		public ProjectSettings(String mediaName, String audioName, String titleText, 
-				String creditsText, int titleOrCredits, int fontOption, String string, 
-				int x, int y, Integer fontSize, String duration) {
+		public ProjectSettings(String mediaName, String audioName, List<String> text, List<String> fontOption, 
+				List<String> colour, List<String> x, List<String> y, List<String> fontSize, 
+				 List<String> startTime, List<String> endTime) {
+			_text = text;
 			_mediaFile = mediaName;
 			_audioFile = audioName;
-			_titleText = titleText;
-			_creditsText = creditsText;
-			 _title_credits = titleOrCredits;
 			 _fontOption = fontOption;
-			 _colour  = string;
+			 _colour  = colour;
 			 _x = x;
 			 _y = y;
 			 _fontSize = fontSize;
-			 _duration = duration;
+			 _endTime = endTime;
+			 _startTime = startTime;
 		}			
 	}
 	

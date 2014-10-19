@@ -29,8 +29,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -466,33 +468,42 @@ public class TextSection extends JPanel implements MouseListener {
 		return "";
 	}	
 	
-
 	public ProjectSettings createProjectSettings() {
-//        String duration = new DateEditor(timeForTextSpinner , "yy:mm:ss").getFormat().format(timeForTextSpinner.getValue());
-//		
-//		return ProjectFile.getInstance(vamix).new ProjectSettings(null, null, titleText, 
-//				 creditsText,  titleOrCredits.getSelectedIndex(),  fontOption.getSelectedIndex(), toHexString(colourBtn.getBackground()), 
-//				 (int)xSpinner.getValue(), (int)ySpinner.getValue(), 
-//				 (Integer)fontSizeSpinner.getValue(),  duration);
-		return null;
+		List<String> text = new ArrayList<String>();
+		List<String> font = new ArrayList<String>();
+		List<String> colour = new ArrayList<String>();
+		List<String> x = new ArrayList<String>();
+		List<String> y = new ArrayList<String>();
+		List<String> fontSize = new ArrayList<String>();
+		List<String> startTime = new ArrayList<String>();
+		List<String> endTime = new ArrayList<String>();
+        for (int i = 0; i < textTable.getRowCount(); i++){
+        	Object[] data = tableModel.getFullData(i);
+        	text.add((String) data[0]);
+        	startTime.add(((long)data[1]) + "");
+        	endTime.add(((long)data[2]) + "");
+        	x.add(((int)data[3]) + "");
+        	y.add(((int)data[4]) + "");
+        	colour.add((String) data[6]);
+        	fontSize.add(((int)data[7]) + "");
+        	font.add(((int)data[8]) + "");
+        }
+		return ProjectFile.getInstance(vamix).new ProjectSettings(null, null, text, font, colour, x, y,
+				 fontSize, startTime, endTime);
 	}
 	
 	public void loadProjectSettings(ProjectSettings ps) {
-//		fontOption.setSelectedIndex(f);
-//		colourBtn.setBackground(Color.decode(ps._colour));
-//		xSpinner.setValue(ps._x);
-//		ySpinner.setValue(ps._y);
-//		fontSizeSpinner.setValue(ps._fontSize);
-//		String duration = ps._duration;
-//		SimpleDateFormat format = new SimpleDateFormat("yy:mm:ss");
-//		try {
-//			Date d = (java.util.Date)format.parse(duration);
-//			java.sql.Time time = new java.sql.Time(d.getTime());
-//		    timeForTextSpinner.setValue(time);
-//		} catch (ParseException e) {
-//			JOptionPane.showMessageDialog(null, getString("invalidSettings"));
-//		}
-
+		tableModel.initialiseData();
+		for (int i = 0; i < ps._text.size(); i++){
+			int fontIndex = Integer.parseInt(ps._fontOption.get(i));
+			long startTime = Long.parseLong(ps._startTime.get(i));
+			long endTime = Long.parseLong(ps._endTime.get(i));
+			tableModel.addFullData(ps._text.get(i), startTime, endTime, Integer.parseInt(ps._x.get(i)), 
+					Integer.parseInt(ps._y.get(i)), getFontPath(fontOption.getItemAt(fontIndex)),
+					ps._colour.get(i),Integer.parseInt(ps._fontSize.get(i)), fontIndex);
+			tableModel.add(ps._text.get(i), secsToString(startTime), secsToString(endTime));
+		}
+		tableModel.fireTableDataChanged();
 	}
 	
 	private String getString(String label){

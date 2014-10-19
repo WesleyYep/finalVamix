@@ -13,6 +13,11 @@ public class TextTableModel extends AbstractTableModel {
         return 3;
     }
 
+    public void initialiseData(){
+    	data = new ArrayList<String[]>();
+    	fullData = new ArrayList<Object[]>();
+    }
+    
     public int getRowCount() {
         return data.size();
     }

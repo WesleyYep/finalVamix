@@ -54,4 +54,9 @@ public class TextTableModel extends AbstractTableModel {
     public void editFullData(int i, String text, long start, long end, int x, int y, String fontPath, String colour, int size, int fontOption){
     	fullData.set(i, new Object[]{text, start, end, x, y, fontPath, colour, size, fontOption});
     }
+    
+    public void remove(int i){
+    	data.remove(i);
+    	fullData.remove(i);
+    }
 }

@@ -1,4 +1,4 @@
-package editing;
+package models;
 
 import gui.Vamix;
 

@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -32,11 +33,13 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
+
 import com.sun.jna.platform.WindowUtils;
 import com.sun.awt.AWTUtilities;
+
 import components.SmallColourPanel;
-import editing.ProjectFile;
-import editing.ProjectFile.ProjectSettings;
+import models.ProjectFile;
+import models.ProjectFile.ProjectSettings;
 import net.miginfocom.swing.MigLayout;
 import state.LanguageSelector;
 import state.State;

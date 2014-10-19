@@ -2,9 +2,8 @@ package gui;
 
 import editing.CheckFileExists;
 import editing.GetAttributes;
-import editing.ProjectFile;
 import editing.VideoWorker;
-import editing.ProjectFile.ProjectSettings;
+
 import java.awt.event.MouseAdapter;
 import java.awt.Color;
 import java.awt.Component;
@@ -64,7 +63,9 @@ import popups.ColourChooser;
 import popups.LoadingScreen;
 import state.LanguageSelector;
 import state.State;
+import models.ProjectFile;
 import models.TextTableModel;
+import models.ProjectFile.ProjectSettings;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -232,7 +233,8 @@ public class TextSection extends JPanel implements MouseListener {
 		            Object[] data = tableModel.getFullData(textTable.getSelectedRow());
 		            textArea.setText((String) data[0]);
 					fontOption.setSelectedIndex((int) data[8]);
-					colourBtn.setForeground(Color.decode((String) data[6]));
+					colourBtn.setBackground(Color.decode((String) data[6]));
+					textArea.setForeground(Color.decode((String) data[6]));
 					fontSizeSpinner.setValue(data[7]);
 					startTimeBtn.setText((String) tableModel.getValueAt(textTable.getSelectedRow(), 1));
 					endTimeBtn.setText((String) tableModel.getValueAt(textTable.getSelectedRow(), 2));
@@ -259,17 +261,20 @@ public class TextSection extends JPanel implements MouseListener {
 				}
 		        String fontPath = getFontPath(fontOption.getSelectedItem().toString());
 		    	String colour = toHexString(colourBtn.getBackground());
-		        if (addRadio.isSelected()){
-					tableModel.add(textArea.getText(), start, end);
-					tableModel.addFullData(textArea.getText(), startTime, endTime, xPos, yPos, fontPath, 
-							colour, Integer.parseInt(fontSizeSpinner.getValue().toString()), fontOption.getSelectedIndex());
-		        }else if (editRadio.isSelected()){
-		        	tableModel.edit(textTable.getSelectedRow(), textArea.getText(), start, end);
-					tableModel.editFullData(textTable.getSelectedRow(), textArea.getText(), startTime, endTime, xPos, yPos, fontPath, 
-							colour, Integer.parseInt(fontSizeSpinner.getValue().toString()), fontOption.getSelectedIndex());
-		        }
-				tableModel.fireTableDataChanged();
-				
+		    	try {
+			        if (addRadio.isSelected()){
+						tableModel.add(textArea.getText(), start, end);
+						tableModel.addFullData(textArea.getText(), startTime, endTime, xPos, yPos, fontPath, 
+								colour, Integer.parseInt(fontSizeSpinner.getValue().toString()), fontOption.getSelectedIndex());
+			        }else if (editRadio.isSelected()){
+			        	tableModel.edit(textTable.getSelectedRow(), textArea.getText(), start, end);
+						tableModel.editFullData(textTable.getSelectedRow(), textArea.getText(), startTime, endTime, xPos, yPos, fontPath, 
+								colour, Integer.parseInt(fontSizeSpinner.getValue().toString()), fontOption.getSelectedIndex());
+			        }else if (removeRadio.isSelected()){
+			        	tableModel.remove(textTable.getSelectedRow());
+			        }
+					tableModel.fireTableDataChanged();
+		    	} catch (ArrayIndexOutOfBoundsException e){}
 				//reset stuff
 				startTimeBtn.setText(getString("setStart"));
 				endTimeBtn.setText(getString("setEnd"));

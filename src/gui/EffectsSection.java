@@ -62,7 +62,7 @@ public class EffectsSection extends JPanel{
 	public EffectsSection(Vamix v, MainControlPanel cp){
 		this.vamix = v;
 		this.controlPanel = cp;
-		TransparentLabel speedLbl, startLbl, endLbl, flipLbl, fadeLbl;
+		TransparentLabel speedLbl, flipLbl, fadeLbl;
 		speedOption = new JComboBox<String>(new String[] {"0.25x", "0.5x", "1x", "2x", "3x", "5x"});
 		speedOption.setSelectedIndex(2);
 //		startSpinner = new CustomSpinner(0);
@@ -80,9 +80,9 @@ public class EffectsSection extends JPanel{
 		add(speedLbl = new TransparentLabel(getString("speed")), "grow");
 		add(speedOption, "wrap, grow");
 //		add(startLbl = new TransparentLabel(getString("trimStart")), "grow");
-		add(startTimeBtn, "grow");
+		add(startTimeBtn, "grow, w 160!");
 //		add(endLbl = new TransparentLabel(getString("trimEnd")), "grow");
-		add(endTimeBtn, "grow, wrap");
+		add(endTimeBtn, "grow, wrap, w 160!");
 		add(gifCheckBox, "span 2, align right, wrap");
 		add(flipLbl = new TransparentLabel(getString("flip")), "grow");
 		add(flipH, "split 2");
@@ -181,15 +181,15 @@ public class EffectsSection extends JPanel{
     	if (option.equals("conv")){
     		if (gifCheckBox.isSelected()){
     			if (!output.endsWith(".gif")){
-    				cmd += "-v debug " + output + ".gif";
+    				cmd += " -v debug " + output + ".gif";
     			}else {
-    				cmd += "-v debug " + output;
+    				cmd += " -v debug " + output;
     			}
     		}else{
     			cmd += " -strict experimental -f mp4 -v debug " + output;
     		}
     	}else if (option.equals("preview")){
-    		 cmd += " -strict experimental";
+    		 cmd += " -loop 20 -strict experimental";
     	}
         //only carry out the command if the video file is valid
         if (dur > 0 && frames > 0){
@@ -275,6 +275,8 @@ public class EffectsSection extends JPanel{
     		cmd += "fade=in:0:60,";
     	}if (fadeE.isSelected()){
     		cmd += "fade=out:" + (frames-60) + ":60,";
+    	}if (gifCheckBox.isSelected()){
+    		cmd += "format=rgb24,scale=320:240,";
     	}
 	
     	if (cmd.endsWith(",")){
@@ -284,10 +286,6 @@ public class EffectsSection extends JPanel{
     		cmd = cmd.substring(0, cmd.length()-5);
     	}else {
     		cmd += "\"";
-    	}
-    	
-    	if (gifCheckBox.isSelected()){
-    		cmd += " -pix_fmt rgb24 -s 320x240 ";
     	}
     	
     	return cmd;

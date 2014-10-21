@@ -196,7 +196,6 @@ public class Vamix implements MouseMotionListener{
 			        fileName = fc.getSelectedFile().getAbsolutePath().toString();
 					projFile.readFile(fileName);
 				    audioSection.enableButtons();
-	        		effectsSection.setTimeDefault();
 		        }
 			}
         });

@@ -142,11 +142,16 @@ public class TextSection extends JPanel implements MouseListener {
 		textArea.setLineWrap(true);
 		textArea.setFont( textArea.getFont().deriveFont(Float.parseFloat(fontSizeSpinner.getValue().toString())) );
 		textArea.setPreferredSize(new Dimension(300,200));
+		textArea.setOpaque(false);
+		textArea.setBackground(new Color(100,100, 100,80));
+		textArea.setFont(new Font("Sans", Font.BOLD, 16));
+		textArea.setForeground(new Color(255,0,0));
 		textScroll.setPreferredSize(new Dimension(300,200));
+		
 		colourBtn.setBackground(Color.RED);
 		addRadio.setSelected(true);
 		
-		State.getState().addColourListeners(textArea, textScroll, textScroll.getViewport(), fontOption, fontSizeSpinner, tableScroll, textTable,
+		State.getState().addColourListeners(textScroll, textScroll.getViewport(), fontOption, fontSizeSpinner, tableScroll, textTable,
 		tableScroll.getViewport(), previewBtn,	renderBtn, textPosBtn, startTimeBtn, endTimeBtn, okBtn, addRadio, removeRadio, editRadio);
 		
 		add(textScroll, "cell 0 0 2 1, grow");

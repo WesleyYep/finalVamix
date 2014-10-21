@@ -196,7 +196,7 @@ public class Vamix implements MouseMotionListener{
 			        fileName = fc.getSelectedFile().getAbsolutePath().toString();
 					projFile.readFile(fileName);
 				    audioSection.enableButtons();
-	        		effectsSection.setSpinnerDefault();
+	        		effectsSection.setTimeDefault();
 		        }
 			}
         });
@@ -290,7 +290,7 @@ public class Vamix implements MouseMotionListener{
         if (fc.getSelectedFile() != null){
         	if (isMediaFile(fc.getSelectedFile().getAbsolutePath().toString())){
         		fileTextField.setText(fc.getSelectedFile().getAbsolutePath().toString());
-        		effectsSection.setSpinnerDefault();
+        		effectsSection.setTimeDefault();
         	}
         	else
         		JOptionPane.showMessageDialog(mediaPlayerComponent, 

@@ -252,7 +252,7 @@ public class TextSection extends JPanel implements MouseListener {
 		okBtn.addActionListener(new ActionListener(){
 			@Override
         	public void actionPerformed(ActionEvent arg0) {
-				checkIfValid();
+				if (!checkIfValid()){return;};
 				String start = "00:00:00";
 				String end = "00:00:10";
 				if (!startTimeBtn.getText().equals(getString("setStart"))){
@@ -314,17 +314,18 @@ public class TextSection extends JPanel implements MouseListener {
 		});
 	}
 	
-	private void checkIfValid() {
+	private boolean checkIfValid() {
 		if (textArea.getText().split("\\s").length > 20){
 			JOptionPane.showMessageDialog(null, getString("tooMuchText"), "Error", JOptionPane.DEFAULT_OPTION);
-			return;
+			return false;
 		}else if (Integer.parseInt(fontSizeSpinner.getValue().toString()) > 72){
 			JOptionPane.showMessageDialog(null, getString("tooBigText"), "Error", JOptionPane.DEFAULT_OPTION);
-			return;
+			return false;
 		}else if (endTime-startTime < 0){
 			JOptionPane.showMessageDialog(null, getString("endLessThanStart"), "Error", JOptionPane.DEFAULT_OPTION);
-			return;
+			return false;
 		}
+		return true;
 	}
 	
 	public void setFont(){

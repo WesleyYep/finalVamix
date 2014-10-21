@@ -50,21 +50,23 @@ public class EffectsSection extends JPanel{
 	private JRadioButton flipV = new JRadioButton(getString("vertical"));
 	private JRadioButton fadeS = new JRadioButton(getString("start"));
 	private JRadioButton fadeE = new JRadioButton(getString("end"));
-	private CustomSpinner startSpinner;
-	private CustomSpinner endSpinner;
+	private JButton startTimeBtn = new JButton(getString("setStart"));
+	private JButton endTimeBtn = new JButton(getString("setEnd"));
 	private JButton previewBtn = new JButton(getString("preview"));
 	private JButton addBtn = new JButton(getString("add"));
 	private JCheckBox gifCheckBox;
 	private VideoWorker worker;
+	private long startTime = 0;
+	private long endTime = 0;
 
 	public EffectsSection(Vamix v, MainControlPanel cp){
 		this.vamix = v;
 		this.controlPanel = cp;
-		TransparentLabel speedLbl, startLbl, endLbl, flipLbl, fadeLbl, gifLbl;
+		TransparentLabel speedLbl, startLbl, endLbl, flipLbl, fadeLbl;
 		speedOption = new JComboBox<String>(new String[] {"0.25x", "0.5x", "1x", "2x", "3x", "5x"});
 		speedOption.setSelectedIndex(2);
-		startSpinner = new CustomSpinner(0);
-		endSpinner = new CustomSpinner(20);
+//		startSpinner = new CustomSpinner(0);
+//		endSpinner = new CustomSpinner(20);
 		gifCheckBox = new JCheckBox(getString("createGif"));
 		//create a colourful border
 		TitledBorder border = BorderFactory.createTitledBorder(
@@ -77,10 +79,10 @@ public class EffectsSection extends JPanel{
 		setLayout(new MigLayout());
 		add(speedLbl = new TransparentLabel(getString("speed")), "grow");
 		add(speedOption, "wrap, grow");
-		add(startLbl = new TransparentLabel(getString("trimStart")), "grow");
-		add(startSpinner, "grow, wrap");
-		add(endLbl = new TransparentLabel(getString("trimEnd")), "grow");
-		add(endSpinner, "grow, wrap");
+//		add(startLbl = new TransparentLabel(getString("trimStart")), "grow");
+		add(startTimeBtn, "grow");
+//		add(endLbl = new TransparentLabel(getString("trimEnd")), "grow");
+		add(endTimeBtn, "grow, wrap");
 		add(gifCheckBox, "span 2, align right, wrap");
 		add(flipLbl = new TransparentLabel(getString("flip")), "grow");
 		add(flipH, "split 2");
@@ -91,9 +93,9 @@ public class EffectsSection extends JPanel{
 		add(previewBtn, "grow");
 		add(addBtn, "grow");
 		//add all gui components as colour listeners
-		State.getState().addColourListeners(speedLbl, startLbl, endLbl, flipLbl, fadeLbl, speedOption, startSpinner,
-				endSpinner, flipH, flipV, fadeS, fadeE, previewBtn, addBtn, gifCheckBox, this);
-		State.getState().addSpinnerListeners(startSpinner, endSpinner);
+		State.getState().addColourListeners(speedLbl, flipLbl, fadeLbl, speedOption, startTimeBtn,
+				endTimeBtn, flipH, flipV, fadeS, fadeE, previewBtn, addBtn, gifCheckBox, this);
+//		State.getState().addSpinnerListeners(startSpinner, endSpinner);
 		
 		//previewing
 		previewBtn.addActionListener(new ActionListener(){
@@ -123,29 +125,39 @@ public class EffectsSection extends JPanel{
         	}
         });
 		
+		startTimeBtn.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (vamix.isMediaFile(vamix.getMediaName())){
+					startTime = controlPanel.getTime()/1000;
+					startTimeBtn.setText(secsToString(startTime));
+				}
+			}
+		});
+		
+		endTimeBtn.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (vamix.isMediaFile(vamix.getMediaName())){
+					endTime = controlPanel.getTime()/1000;
+					endTimeBtn.setText(secsToString(endTime));
+				}
+			}
+		});
+		
 		//we should automatically suggest to the user that the gif shouldn't be longer than about 
 		//20 seconds. This is done by automatically setting the end time spinner
 		gifCheckBox.addActionListener(new ActionListener(){
 			@Override
         	public void actionPerformed(ActionEvent arg0) {
 				if (gifCheckBox.isSelected()){
-					endSpinner.setValue(startSpinner.getNextValue());
-					for (int i = 1; i < 20; i++)
-						endSpinner.setValue(endSpinner.getNextValue());
-					previewBtn.setEnabled(false);
-				}else{
-					previewBtn.setEnabled(true);
+					int dur = GetAttributes.getDuration(vamix.getMediaName());
+					if (endTime == dur){
+						JOptionPane.showMessageDialog(null, getString("longGif"), getString("error"), JOptionPane.DEFAULT_OPTION);
+					}
 				}
         	}
 		});
-	}
-	
-	//cancel preview, we need to cancel the thread as well.
-	public void cancelPreview(){
-		try{
-			worker.cancel();
-		}
-		catch (NullPointerException ex){}
 	}
 	
 	/**
@@ -155,6 +167,10 @@ public class EffectsSection extends JPanel{
 	 * @param output - the user specified output file name
 	 */
 	private void addEffects(String option, String output) {
+		if (endTime < startTime){
+			JOptionPane.showMessageDialog(null, getString("endLessThanStart"), "Error", JOptionPane.DEFAULT_OPTION);
+			return;
+		}
 		//get the duration and attributes for use in the progress bar
 		int dur = GetAttributes.getDuration(vamix.getMediaName());
     	int frames = GetAttributes.getFrames(vamix.getMediaName());
@@ -183,6 +199,7 @@ public class EffectsSection extends JPanel{
 				loadScreen.prepare();
 		        loadScreen.setWorker(worker);
 	        }
+	        System.out.println(cmd);
 	        worker.execute();
 		}
         else{
@@ -190,37 +207,37 @@ public class EffectsSection extends JPanel{
         }
 	}
 
-	/**
-	 * gets the difference between two times, and converts it into hh:mm:ss format
-	 * @param startTime start time on spinner
-	 * @param endTime end time on spinner
-	 * @return difference in hh:mm:ss format
-	 */
-	private String getTimeDiff(String startTime, String endTime) {
-        java.text.DateFormat df = new java.text.SimpleDateFormat("hh:mm:ss");
-        java.util.Date start, end;
-		try {
-	        start = df.parse(startTime);
-			end = df.parse(endTime);
-	        long diff = end.getTime() - start.getTime();
-	        return millisToString(diff);
-		} catch (ParseException e) {}
-		return null;
-	}
+//	/**
+//	 * gets the difference between two times, and converts it into hh:mm:ss format
+//	 * @param startTime start time on spinner
+//	 * @param endTime end time on spinner
+//	 * @return difference in hh:mm:ss format
+//	 */
+//	private String getTimeDiff(String startTime, String endTime) {
+//        java.text.DateFormat df = new java.text.SimpleDateFormat("hh:mm:ss");
+//        java.util.Date start, end;
+//		try {
+//	        start = df.parse(startTime);
+//			end = df.parse(endTime);
+//	        long diff = end.getTime() - start.getTime();
+//	        return millisToString(diff);
+//		} catch (ParseException e) {}
+//		return null;
+//	}
 	
-	/**
-	 * converts milliseconds to hh:mm:ss string
-	 * @param millis
-	 * @return string representing the time in hh:mm:ss format
-	 */
-	private String millisToString(long millis){
-		return String.format("%02d:%02d:%02d", 
-			    TimeUnit.MILLISECONDS.toHours(millis),
-			    TimeUnit.MILLISECONDS.toMinutes(millis) - 
-			    TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)),
-			    TimeUnit.MILLISECONDS.toSeconds(millis) - 
-			    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
-	}
+//	/**
+//	 * converts milliseconds to hh:mm:ss string
+//	 * @param millis
+//	 * @return string representing the time in hh:mm:ss format
+//	 */
+//	private String millisToString(long millis){
+//		return String.format("%02d:%02d:%02d", 
+//			    TimeUnit.MILLISECONDS.toHours(millis),
+//			    TimeUnit.MILLISECONDS.toMinutes(millis) - 
+//			    TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)),
+//			    TimeUnit.MILLISECONDS.toSeconds(millis) - 
+//			    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
+//	}
 
 	/**
 	 * Write the initial bits of the avconv/avplay command
@@ -228,15 +245,14 @@ public class EffectsSection extends JPanel{
 	 * @return String which contains the initial command
 	 */
 	private String initialiseCmd(String option) {
-        String startTime = new DateEditor(startSpinner , "yy:mm:ss").getFormat().format(startSpinner.getValue());
-        String endTime = new DateEditor(endSpinner , "yy:mm:ss").getFormat().format(endSpinner.getValue());
-        String durTime = getTimeDiff(startTime, endTime);
+        String start = startTime + "";
+        String durTime = (endTime - startTime) + "";
     	String cmd = "";
     	if (option.equals("conv")){
-    		cmd = "avconv -y -i " + vamix.getMediaName() + " -ss " + startTime + 
+    		cmd = "avconv -y -i " + vamix.getMediaName() + " -ss " + start + 
     				" -t " + durTime + " -vf \"";
     	}else{
-    		cmd = "avplay -i " + vamix.getMediaName() + " -ss " + startTime + 
+    		cmd = "avplay -i " + vamix.getMediaName() + " -ss " + start + 
     				" -t " + durTime + " -vf \"";
     	}
     	return cmd;
@@ -278,31 +294,36 @@ public class EffectsSection extends JPanel{
 	}
 
 	/**
-	 * set the default value for endSpinner based on the length of media
+	 * Method to convert seconds to hhmmss string.
+	 * Taken from http://stackoverflow.com/questions/19205920/how-to-convert-seconds-of-timer-to-hhmmss
+	 * @param seconds
+	 * @return hhmmss string
 	 */
-	public void setSpinnerDefault() {
-		int dur = GetAttributes.getDuration(vamix.getMediaName());
-		int hr = dur/3600;
-		int rem = dur%3600;
-		int mn = rem/60;
-		int sec = rem%60;
+	private String secsToString(long seconds){
+		long hr = seconds/3600;
+		long rem = seconds%3600;
+		long mn = rem/60;
+		long sec = rem%60;
 		String hrStr = (hr<10 ? "0" : "")+hr;
 		String mnStr = (mn<10 ? "0" : "")+mn;
 		String secStr = (sec<10 ? "0" : "")+sec; 
-		SimpleDateFormat format = new SimpleDateFormat("yy:mm:ss");
-		try {
-			Date d = (java.util.Date)format.parse(hrStr + ":" + mnStr + ":" + secStr);
-		    java.sql.Time time = new java.sql.Time(d.getTime());
-		    endSpinner.setValue(time);
-		} catch (ParseException e) {}
+		return hrStr+ ":"+mnStr+ ":"+secStr;
+	}
+	
+	/**
+	 * set the default value for endSpinner based on the length of media
+	 */
+	public void setTimeDefault() {
+		int dur = GetAttributes.getDuration(vamix.getMediaName());
+		endTime = dur;
 	}
 
 	/**
 	 * add to project settings
 	 */
 	public ProjectSettings createProjectSettings(ProjectSettings settings) {
-		String newStartTime = new DateEditor(startSpinner , "yy:mm:ss").getFormat().format(startSpinner.getValue());
-        String newEndTime = new DateEditor(endSpinner , "yy:mm:ss").getFormat().format(endSpinner.getValue());
+		String newStartTime = startTime + "";
+        String newEndTime = endTime + "";
 		settings._speed = speedOption.getSelectedIndex();
 		settings._effectsStartTime = newStartTime;
 		settings._effectsEndTime = newEndTime;
@@ -314,6 +335,7 @@ public class EffectsSection extends JPanel{
 
 		return settings;
 	}
+	
 	/**
 	 * fill fields from settings
 	 */
@@ -324,19 +346,10 @@ public class EffectsSection extends JPanel{
 		flipV.setSelected(ps._flipV);
 		fadeS.setSelected(ps._fadeS);
 		fadeE.setSelected(ps._fadeE);
-		String startTime = ps._effectsStartTime;
-		String endTime = ps._effectsEndTime;
-		SimpleDateFormat format = new SimpleDateFormat("yy:mm:ss");
-		try {
-			Date d = (java.util.Date)format.parse(startTime);
-			Date d1 = (java.util.Date)format.parse(endTime);
-			java.sql.Time time = new java.sql.Time(d.getTime());
-			java.sql.Time time1 = new java.sql.Time(d1.getTime());
-		    startSpinner.setValue(time);
-		    endSpinner.setValue(time1);
-		} catch (ParseException e) {
-			JOptionPane.showMessageDialog(null, getString("invalidSettings"));
-		}
+		startTime = Long.parseLong(ps._effectsStartTime);
+		endTime = Long.parseLong(ps._effectsEndTime);
+		startTimeBtn.setText(secsToString(startTime));
+		endTimeBtn.setText(secsToString(endTime));
 	}
 	
 	private String getString(String label){

@@ -14,26 +14,18 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.JSpinner.DateEditor;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
-import components.CustomSpinner;
 import components.TransparentLabel;
 import editing.CheckFileExists;
 import editing.GetAttributes;
 import editing.VideoWorker;
-import models.ProjectFile;
 import models.ProjectFile.ProjectSettings;
 import net.miginfocom.swing.MigLayout;
 import popups.LoadingScreen;
 import state.LanguageSelector;
 import state.State;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This section is for editing effects. It is incorporated into the main window
@@ -53,7 +45,7 @@ public class EffectsSection extends JPanel{
 	private JButton startTimeBtn = new JButton(getString("setStart"));
 	private JButton endTimeBtn = new JButton(getString("setEnd"));
 	private JButton previewBtn = new JButton(getString("preview"));
-	private JButton addBtn = new JButton(getString("add"));
+	private JButton addBtn = new JButton(getString("create"));
 	private JCheckBox gifCheckBox;
 	private VideoWorker worker;
 	private long startTime = 0;
@@ -65,8 +57,6 @@ public class EffectsSection extends JPanel{
 		TransparentLabel speedLbl, flipLbl, fadeLbl;
 		speedOption = new JComboBox<String>(new String[] {"0.25x", "0.5x", "1x", "2x", "3x", "5x"});
 		speedOption.setSelectedIndex(2);
-//		startSpinner = new CustomSpinner(0);
-//		endSpinner = new CustomSpinner(20);
 		gifCheckBox = new JCheckBox(getString("createGif"));
 		//create a colourful border
 		TitledBorder border = BorderFactory.createTitledBorder(
@@ -75,13 +65,11 @@ public class EffectsSection extends JPanel{
 		border.setTitleFont(new Font("Sans Serif", Font.BOLD, 24));
 		border.setTitleColor(new Color(150, 250, 50, 180));
 		setBorder(border);
-		//can't say no to miglayout
+
 		setLayout(new MigLayout());
 		add(speedLbl = new TransparentLabel(getString("speed")), "grow");
 		add(speedOption, "wrap, grow");
-//		add(startLbl = new TransparentLabel(getString("trimStart")), "grow");
 		add(startTimeBtn, "grow, w 160!");
-//		add(endLbl = new TransparentLabel(getString("trimEnd")), "grow");
 		add(endTimeBtn, "grow, wrap, w 160!");
 		add(gifCheckBox, "span 2, align right, wrap");
 		add(flipLbl = new TransparentLabel(getString("flip")), "grow");
@@ -95,7 +83,6 @@ public class EffectsSection extends JPanel{
 		//add all gui components as colour listeners
 		State.getState().addColourListeners(speedLbl, flipLbl, fadeLbl, speedOption, startTimeBtn,
 				endTimeBtn, flipH, flipV, fadeS, fadeE, previewBtn, addBtn, gifCheckBox, this);
-//		State.getState().addSpinnerListeners(startSpinner, endSpinner);
 		
 		//previewing
 		previewBtn.addActionListener(new ActionListener(){
@@ -145,8 +132,7 @@ public class EffectsSection extends JPanel{
 			}
 		});
 		
-		//we should automatically suggest to the user that the gif shouldn't be longer than about 
-		//20 seconds. This is done by automatically setting the end time spinner
+		//give the user a warning if the gif is going to be large
 		gifCheckBox.addActionListener(new ActionListener(){
 			@Override
         	public void actionPerformed(ActionEvent arg0) {
@@ -188,7 +174,7 @@ public class EffectsSection extends JPanel{
     		}else{
     			cmd += " -strict experimental -f mp4 -v debug " + output;
     		}
-    	}else if (option.equals("preview")){
+    	}else if (gifCheckBox.isSelected() && option.equals("preview")){
     		 cmd += " -loop 20 -strict experimental";
     	}
         //only carry out the command if the video file is valid
@@ -207,44 +193,16 @@ public class EffectsSection extends JPanel{
         }
 	}
 
-//	/**
-//	 * gets the difference between two times, and converts it into hh:mm:ss format
-//	 * @param startTime start time on spinner
-//	 * @param endTime end time on spinner
-//	 * @return difference in hh:mm:ss format
-//	 */
-//	private String getTimeDiff(String startTime, String endTime) {
-//        java.text.DateFormat df = new java.text.SimpleDateFormat("hh:mm:ss");
-//        java.util.Date start, end;
-//		try {
-//	        start = df.parse(startTime);
-//			end = df.parse(endTime);
-//	        long diff = end.getTime() - start.getTime();
-//	        return millisToString(diff);
-//		} catch (ParseException e) {}
-//		return null;
-//	}
-	
-//	/**
-//	 * converts milliseconds to hh:mm:ss string
-//	 * @param millis
-//	 * @return string representing the time in hh:mm:ss format
-//	 */
-//	private String millisToString(long millis){
-//		return String.format("%02d:%02d:%02d", 
-//			    TimeUnit.MILLISECONDS.toHours(millis),
-//			    TimeUnit.MILLISECONDS.toMinutes(millis) - 
-//			    TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)),
-//			    TimeUnit.MILLISECONDS.toSeconds(millis) - 
-//			    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
-//	}
-
 	/**
 	 * Write the initial bits of the avconv/avplay command
 	 * @param option conv/play
 	 * @return String which contains the initial command
 	 */
 	private String initialiseCmd(String option) {
+		String speedString = (String) speedOption.getSelectedItem();
+		int speed = Integer.parseInt(speedString.replace("x", ""));
+		System.out.println(speed);
+		
         String start = startTime + "";
         String durTime = (endTime - startTime) + "";
     	String cmd = "";
@@ -272,9 +230,9 @@ public class EffectsSection extends JPanel{
     	}if (flipV.isSelected()){
     		cmd += "vflip,";
     	}if (fadeS.isSelected()){
-    		cmd += "fade=in:0:60,";
+    		cmd += "fade=in:0:120,";
     	}if (fadeE.isSelected()){
-    		cmd += "fade=out:" + (frames-60) + ":60,";
+    		cmd += "fade=out:" + (frames-120) + ":120,";
     	}if (gifCheckBox.isSelected()){
     		cmd += "format=rgb24,scale=320:240,";
     	}

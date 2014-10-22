@@ -2,11 +2,13 @@ package gui;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -48,13 +50,15 @@ public class EffectsSection extends JPanel{
 	private JComboBox<String> speedOption;
 	private JRadioButton flipH = new JRadioButton(getString("horizontal"));
 	private JRadioButton flipV = new JRadioButton(getString("vertical"));
-	private JRadioButton fadeS = new JRadioButton(getString("start"));
-	private JRadioButton fadeE = new JRadioButton(getString("end"));
+	private JRadioButton inverseRadio = new JRadioButton(getString("inverse"));
+	private JRadioButton grayscaleRadio = new JRadioButton(getString("grayscale"));
 	private JButton startTimeBtn = new JButton(getString("setStart"));
 	private JButton endTimeBtn = new JButton(getString("setEnd"));
+	private JCheckBox resizeCheckBox = new JCheckBox(getString("resize"));
+	private JButton screenshotBtn = new JButton(getString("screenshot"));
 	private JButton previewBtn = new JButton(getString("preview"));
 	private JButton addBtn = new JButton(getString("add"));
-	private JCheckBox gifCheckBox;
+	private JCheckBox gifCheckBox = new JCheckBox(getString("createGif"));
 	private VideoWorker worker;
 	private long startTime = 0;
 	private long endTime = 0;
@@ -62,12 +66,8 @@ public class EffectsSection extends JPanel{
 	public EffectsSection(Vamix v, MainControlPanel cp){
 		this.vamix = v;
 		this.controlPanel = cp;
-		TransparentLabel speedLbl, flipLbl, fadeLbl;
 		speedOption = new JComboBox<String>(new String[] {"0.25x", "0.5x", "1x", "2x", "3x", "5x"});
 		speedOption.setSelectedIndex(2);
-//		startSpinner = new CustomSpinner(0);
-//		endSpinner = new CustomSpinner(20);
-		gifCheckBox = new JCheckBox(getString("createGif"));
 		//create a colourful border
 		TitledBorder border = BorderFactory.createTitledBorder(
 				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
@@ -75,33 +75,39 @@ public class EffectsSection extends JPanel{
 		border.setTitleFont(new Font("Sans Serif", Font.BOLD, 24));
 		border.setTitleColor(new Color(150, 250, 50, 180));
 		setBorder(border);
+		
+		ButtonGroup group = new ButtonGroup();
+		group.add(resizeCheckBox);
+		group.add(gifCheckBox);
+
 		//can't say no to miglayout
 		setLayout(new MigLayout());
-		add(speedLbl = new TransparentLabel(getString("speed")), "grow");
-		add(speedOption, "wrap, grow");
-//		add(startLbl = new TransparentLabel(getString("trimStart")), "grow");
+		TransparentLabel flipLbl, fadeLbl, trimLbl, colourLbl;
+		add(trimLbl = new TransparentLabel(getString("trim")), "grow, wrap");
 		add(startTimeBtn, "grow, w 160!");
-//		add(endLbl = new TransparentLabel(getString("trimEnd")), "grow");
 		add(endTimeBtn, "grow, wrap, w 160!");
-		add(gifCheckBox, "span 2, align right, wrap");
+		add(resizeCheckBox, "grow");
+		add(gifCheckBox, "wrap");
 		add(flipLbl = new TransparentLabel(getString("flip")), "grow");
 		add(flipH, "split 2");
-		add(flipV, "wrap");		
-		add(fadeLbl = new TransparentLabel(getString("fade")), "grow");
-		add(fadeS, "split 2");
-		add(fadeE, "wrap");
+		add(flipV, "wrap");
+		add(colourLbl = new TransparentLabel(getString("colour")), "grow");
+		add(inverseRadio, "split 2");
+		add(grayscaleRadio, "wrap");
+//		add(fadeLbl = new TransparentLabel(getString("fade")), "grow");
+//		add(fadeS, "split 2");
+//		add(fadeE, "wrap");
 		add(previewBtn, "grow");
 		add(addBtn, "grow");
 		//add all gui components as colour listeners
-		State.getState().addColourListeners(speedLbl, flipLbl, fadeLbl, speedOption, startTimeBtn,
-				endTimeBtn, flipH, flipV, fadeS, fadeE, previewBtn, addBtn, gifCheckBox, this);
-//		State.getState().addSpinnerListeners(startSpinner, endSpinner);
+		State.getState().addColourListeners(trimLbl, colourLbl, flipLbl,speedOption, startTimeBtn,
+				endTimeBtn, flipH, flipV, screenshotBtn,inverseRadio, grayscaleRadio, resizeCheckBox, previewBtn, addBtn, gifCheckBox, this);
 		
 		//previewing
 		previewBtn.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				addEffects("preview", "udp://localhost:1234");
+				addEffects("preview", null);
 			}
 		});
 		
@@ -207,38 +213,6 @@ public class EffectsSection extends JPanel{
         }
 	}
 
-//	/**
-//	 * gets the difference between two times, and converts it into hh:mm:ss format
-//	 * @param startTime start time on spinner
-//	 * @param endTime end time on spinner
-//	 * @return difference in hh:mm:ss format
-//	 */
-//	private String getTimeDiff(String startTime, String endTime) {
-//        java.text.DateFormat df = new java.text.SimpleDateFormat("hh:mm:ss");
-//        java.util.Date start, end;
-//		try {
-//	        start = df.parse(startTime);
-//			end = df.parse(endTime);
-//	        long diff = end.getTime() - start.getTime();
-//	        return millisToString(diff);
-//		} catch (ParseException e) {}
-//		return null;
-//	}
-	
-//	/**
-//	 * converts milliseconds to hh:mm:ss string
-//	 * @param millis
-//	 * @return string representing the time in hh:mm:ss format
-//	 */
-//	private String millisToString(long millis){
-//		return String.format("%02d:%02d:%02d", 
-//			    TimeUnit.MILLISECONDS.toHours(millis),
-//			    TimeUnit.MILLISECONDS.toMinutes(millis) - 
-//			    TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)),
-//			    TimeUnit.MILLISECONDS.toSeconds(millis) - 
-//			    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
-//	}
-
 	/**
 	 * Write the initial bits of the avconv/avplay command
 	 * @param option conv/play
@@ -271,12 +245,17 @@ public class EffectsSection extends JPanel{
     		cmd += "hflip,";
     	}if (flipV.isSelected()){
     		cmd += "vflip,";
-    	}if (fadeS.isSelected()){
-    		cmd += "fade=in:0:60,";
-    	}if (fadeE.isSelected()){
-    		cmd += "fade=out:" + (frames-60) + ":60,";
+ //   	}if (fadeS.isSelected()){
+ //   		cmd += "fade=in:0:60,";
+//    	}if (fadeE.isSelected()){
+//    		cmd += "fade=out:" + (frames-60) + ":60,";
     	}if (gifCheckBox.isSelected()){
     		cmd += "format=rgb24,scale=320:240,";
+    	}if (resizeCheckBox.isSelected()){
+    		Dimension d = vamix.getFrameDimensions();
+    		cmd += "scale=" + d.width + ":" + d.height + ",";
+    	}if (grayscaleRadio.isSelected()){
+    		cmd += "format=gray,";
     	}
 	
     	if (cmd.endsWith(",")){
@@ -328,8 +307,8 @@ public class EffectsSection extends JPanel{
 		settings._createGif = gifCheckBox.isSelected();
 		settings._flipH = flipH.isSelected();
 		settings._flipV = flipV.isSelected();
-		settings._fadeS = fadeS.isSelected();
-		settings._fadeE = fadeE.isSelected();
+//		settings._fadeS = fadeS.isSelected();
+//		settings._fadeE = fadeE.isSelected();
 
 		return settings;
 	}
@@ -342,8 +321,8 @@ public class EffectsSection extends JPanel{
 		gifCheckBox.setSelected(ps._createGif);
 		flipH.setSelected(ps._flipH);
 		flipV.setSelected(ps._flipV);
-		fadeS.setSelected(ps._fadeS);
-		fadeE.setSelected(ps._fadeE);
+//		fadeS.setSelected(ps._fadeS);
+//		fadeE.setSelected(ps._fadeE);
 		startTime = Long.parseLong(ps._effectsStartTime);
 		endTime = Long.parseLong(ps._effectsEndTime);
 		startTimeBtn.setText(secsToString(startTime));

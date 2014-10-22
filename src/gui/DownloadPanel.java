@@ -64,7 +64,7 @@ public class DownloadPanel extends JPanel implements ActionListener{
 	    group.add(openN);
 		add(openY, "split 2");
 		add(openN, "wrap");
-		add(submitBtn);
+		add(submitBtn, "span 2, grow");
 		
 		//create a colourful border
 		TitledBorder border = BorderFactory.createTitledBorder(

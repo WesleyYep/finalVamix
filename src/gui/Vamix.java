@@ -3,6 +3,7 @@ package gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Window;
@@ -354,6 +355,10 @@ public class Vamix implements MouseMotionListener{
 	 */
 	public String getMediaName() {
 		return fileTextField.getText();
+	}
+	
+	public Dimension getFrameDimensions(){
+		return f.getBounds().getSize();
 	}
 	
 	/** 

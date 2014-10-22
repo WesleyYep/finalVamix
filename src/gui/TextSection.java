@@ -129,6 +129,15 @@ public class TextSection extends JPanel implements MouseListener {
 		border.setTitleFont(new Font("Sans Serif", Font.BOLD, 24));
 		border.setTitleColor(new Color(50, 150, 50, 250));
 		setBorder(border);
+		
+		//tooltips
+		startTimeBtn.setToolTipText(getString("startTimeToolTip"));
+		endTimeBtn.setToolTipText(getString("endTimeToolTip"));
+		textPosBtn.setToolTipText(getString("textPositionToolTip"));
+		addRadio.setToolTipText(getString("addRadioToolTip"));
+		editRadio.setToolTipText(getString("editRadioToolTip"));
+		removeRadio.setToolTipText(getString("removeRadioToolTip"));
+		renderBtn.setToolTipText(getString("renderToolTip"));
 
 		tableModel = new TextTableModel();
 		textTable = new JTable(tableModel);

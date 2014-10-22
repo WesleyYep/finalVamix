@@ -76,14 +76,14 @@ public class ProjectFile {
 			output.write(ps._endTime.get(i) + "\n");
 		}
 		output.write(ps._downloadUrl + "\n");
-		output.write(ps._speed + "\n");
 		output.write(ps._effectsStartTime + "\n");
 		output.write(ps._effectsEndTime + "\n");
 		output.write(ps._createGif + "\n");
+		output.write(ps._resize + "\n");
 		output.write(ps._flipH + "\n");
 		output.write(ps._flipV + "\n");
-		output.write(ps._fadeS + "\n");
-		output.write(ps._fadeE + "\n");
+		output.write(ps._inverse + "\n");
+		output.write(ps._grayscale + "\n");
 	}
 	
 	/**
@@ -150,26 +150,26 @@ public class ProjectFile {
 		}		
 		//download section
 		String downloadUrl = dwURL;
-		String speed = input.readLine();
 		//effects section
 		String est = input.readLine();
 		String eet = input.readLine();
 		String createGif = input.readLine();
+		String resize = input.readLine();
 		String flipH = input.readLine();
 		String flipV = input.readLine();
-		String fadeS = input.readLine();
-		String fadeE = input.readLine();
+		String inverse = input.readLine();
+		String grayscale = input.readLine();
 		
 		ProjectSettings settings = new ProjectSettings( mediaName,  audioName,  text, 
 				 font,  colour, x, y, fontSize,  startTime, endTime);
-		settings._speed = Integer.parseInt(speed);
 		settings._effectsStartTime = est;
 		settings._effectsEndTime = eet;
 		settings._createGif = Boolean.parseBoolean(createGif);
 		settings._flipH = Boolean.parseBoolean(flipH);
 		settings._flipV = Boolean.parseBoolean(flipV);
-		settings._fadeS = Boolean.parseBoolean(fadeS);
-		settings._fadeE = Boolean.parseBoolean(fadeE);
+		settings._resize = Boolean.parseBoolean(resize);
+		settings._inverse = Boolean.parseBoolean(inverse);
+		settings._grayscale = Boolean.parseBoolean(grayscale);
 		settings._downloadUrl = downloadUrl;
 
 		vamix.loadSettings(settings);
@@ -192,14 +192,14 @@ public class ProjectFile {
 		public List<String> _startTime;
 		public List<String> _endTime;
 		public String _downloadUrl;
-		public int _speed;
 		public String _effectsStartTime;
 		public String _effectsEndTime;
 		public boolean _createGif;
+		public boolean _resize;
+		public boolean _inverse;
+		public boolean _grayscale;
 		public boolean _flipH;
 		public boolean _flipV;
-		public boolean _fadeS;
-		public boolean _fadeE;
 		
 		public ProjectSettings(String mediaName, String audioName, List<String> text, List<String> fontOption, 
 				List<String> colour, List<String> x, List<String> y, List<String> fontSize, 

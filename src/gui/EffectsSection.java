@@ -65,6 +65,17 @@ public class EffectsSection extends JPanel{
 		border.setTitleColor(new Color(150, 250, 50, 180));
 		setBorder(border);
 
+		//tooltips
+		startTimeBtn.setToolTipText(getString("startTimeToolTip"));
+		endTimeBtn.setToolTipText(getString("endTimeToolTip"));
+		resizeCheckBox.setToolTipText(getString("resizeToolTip"));
+		gifCheckBox.setToolTipText(getString("createGifToolTip"));
+		flipH.setToolTipText(getString("flipHToolTip"));
+		flipV.setToolTipText(getString("flipVToolTip"));
+		inverseRadio.setToolTipText(getString("inverseToolTip"));
+		grayscaleRadio.setToolTipText(getString("grayscaleToolTip"));
+		screenshotBtn.setToolTipText(getString("screenshotToolTip"));
+		
 		setLayout(new MigLayout());
 		
 		ButtonGroup group = new ButtonGroup();
@@ -283,15 +294,14 @@ public class EffectsSection extends JPanel{
 	public ProjectSettings createProjectSettings(ProjectSettings settings) {
 		String newStartTime = startTime + "";
         String newEndTime = endTime + "";
-//		settings._speed = speedOption.getSelectedIndex();
 		settings._effectsStartTime = newStartTime;
 		settings._effectsEndTime = newEndTime;
 		settings._createGif = gifCheckBox.isSelected();
 		settings._flipH = flipH.isSelected();
 		settings._flipV = flipV.isSelected();
-//		settings._fadeS = fadeS.isSelected();
-//		settings._fadeE = fadeE.isSelected();
-
+		settings._resize = resizeCheckBox.isSelected();
+		settings._inverse = inverseRadio.isSelected();
+		settings._grayscale = grayscaleRadio.isSelected();
 		return settings;
 	}
 	
@@ -299,12 +309,12 @@ public class EffectsSection extends JPanel{
 	 * fill fields from settings
 	 */
 	public void loadProjectSettings(ProjectSettings ps) {
-//		speedOption.setSelectedIndex(ps._speed);
 		gifCheckBox.setSelected(ps._createGif);
+		resizeCheckBox.setSelected(ps._resize);
 		flipH.setSelected(ps._flipH);
 		flipV.setSelected(ps._flipV);
-//		fadeS.setSelected(ps._fadeS);
-//		fadeE.setSelected(ps._fadeE);
+		inverseRadio.setSelected(ps._inverse);
+		grayscaleRadio.setSelected(ps._grayscale);
 		startTime = Long.parseLong(ps._effectsStartTime);
 		endTime = Long.parseLong(ps._effectsEndTime);
 		startTimeBtn.setText(secsToString(startTime));

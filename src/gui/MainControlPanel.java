@@ -22,7 +22,9 @@ import javax.swing.event.ChangeListener;
 import net.miginfocom.swing.MigLayout;
 import state.LanguageSelector;
 import state.State;
+import uk.co.caprica.vlcj.binding.internal.libvlc_media_t;
 import uk.co.caprica.vlcj.player.MediaPlayer;
+import uk.co.caprica.vlcj.player.MediaPlayerEventListener;
 
 /**
  * represents the main control panel that is found on the main window
@@ -34,9 +36,10 @@ import uk.co.caprica.vlcj.player.MediaPlayer;
 public class MainControlPanel extends JPanel{
 	private MediaPlayer mp;
 	private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-	private boolean isPaused = false;
+	private boolean isPaused = true;
 	private long duration;
 	private long currentTime;
+	private long actualDuration = 0;
 	//the use of setPositionValue is so that the position slider only fires change requests
 	//when the user actually is changing its position
 	private boolean setPositionValue;
@@ -110,10 +113,11 @@ public class MainControlPanel extends JPanel{
         			mp.pause();
         			isPaused = true;
         		}else if (mp.isPlayable()){
-        				mp.play();
-        				isPaused = false;
+        			mp.play();
+        			isPaused = false;
         		}else{
         			if (vamix.isMediaFile(vamix.getMediaName())){
+            			if (!isPaused){playBtn.changeIcon();}
         				mp.playMedia(vamix.getMediaName());
             			isPaused = false;
         			}else{
@@ -256,9 +260,9 @@ public class MainControlPanel extends JPanel{
 		return mp.getTime();
 	}
 	
-	public void updateVolume(int value) {
-		 volumeSlider.setValue(value);
-	}
+//	public void updateVolume(int value) {
+//		 volumeSlider.setValue(value);
+//	}
 	
 	/**
 	 * This class was taken from 
@@ -287,8 +291,8 @@ public class MainControlPanel extends JPanel{
 	      SwingUtilities.invokeLater(new Runnable() {
 	        @Override
 	        public void run() {
-	          updateTime(currentTime);
-	          updatePosition(position);
+	            updateTime(currentTime);
+	            updatePosition(position);
 	        }
 	      });
 	    }

@@ -156,14 +156,12 @@ public class Vamix implements MouseMotionListener{
 
 	private void registerListeners() {
 		
-		mediaPlayer.addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
-		      @Override
-		      public void playing(MediaPlayer mediaPlayer) {
-		    	  mainControlPanel.updateVolume(mediaPlayer.getVolume());
-		      }
-		    });		
-		
-        
+//		mediaPlayer.addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
+//		      @Override
+//		      public void playing(MediaPlayer mediaPlayer) {
+//		    	  mainControlPanel.updateVolume(mediaPlayer.getVolume());
+//		      }
+//		    });		
         
     	//When the open button is clicked the file chooser appears
         openBtn.addActionListener(new ActionListener(){

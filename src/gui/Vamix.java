@@ -38,6 +38,7 @@ import javax.swing.border.TitledBorder;
 import com.sun.jna.platform.WindowUtils;
 import com.sun.awt.AWTUtilities;
 
+import components.CustomButton;
 import components.SmallColourPanel;
 import models.ProjectFile;
 import models.ProjectFile.ProjectSettings;

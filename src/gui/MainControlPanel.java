@@ -19,6 +19,8 @@ import javax.swing.Timer;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import components.CustomButton;
+
 import net.miginfocom.swing.MigLayout;
 import state.LanguageSelector;
 import state.State;
@@ -285,7 +287,10 @@ public class MainControlPanel extends JPanel{
 		  currentTime = mediaPlayer.getTime();
 		  duration = mediaPlayer.getLength();
 	      final int position = duration > 0 ? (int)Math.round(100.0 * (double)currentTime / (double)duration) : 0;
-
+	      if (mp.isPlaying() && playBtn.mainInUse()){
+	    	  playBtn.forceSecondIcon();
+	      }
+	      
 	      // Updates to user interface components must be executed on the Event
 	      // Dispatch Thread
 	      SwingUtilities.invokeLater(new Runnable() {

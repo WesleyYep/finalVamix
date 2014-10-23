@@ -306,15 +306,18 @@ public class TextSection extends JPanel implements MouseListener {
 				final JFileChooser fc = new JFileChooser();
 		        fc.showSaveDialog(fc);
 		        if (fc.getSelectedFile() != null){
-		        	if (CheckFileExists.check(fc.getSelectedFile().getAbsolutePath().toString())){
+		        	String fileName = fc.getSelectedFile().getAbsolutePath().toString();
+		        	if (!fileName.endsWith(".mp4")){
+		        		fileName = fileName + ".mp4";
+		        	}
+		        	if (CheckFileExists.check(fileName)){
 						if (JOptionPane.showConfirmDialog((Component) null, getString("fileExists"),
 						        "alert", JOptionPane.OK_CANCEL_OPTION) != 0){
 							JOptionPane.showMessageDialog(null, getString("notOverwritten"));
 							return;
 						}
 		        	}
-		            String outputFile = fc.getSelectedFile().getAbsolutePath().toString();
-					addTextToVideo("conv", outputFile);
+					addTextToVideo("conv", fileName);
 		        }
         	}
         });

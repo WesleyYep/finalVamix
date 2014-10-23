@@ -6,6 +6,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -18,6 +20,8 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import components.TransparentLabel;
 import editing.CheckFileExists;
@@ -45,11 +49,11 @@ public class EffectsSection extends JPanel{
 	private JRadioButton grayscaleRadio = new JRadioButton(getString("grayscale"));
 	private JButton startTimeBtn = new JButton(getString("setStart"));
 	private JButton endTimeBtn = new JButton(getString("setEnd"));
-	private JCheckBox resizeCheckBox = new JCheckBox(getString("resize"));
+	private JRadioButton resizeRadio = new JRadioButton(getString("resize"));
 	private JButton screenshotBtn = new JButton(getString("screenshot"));
 	private JButton previewBtn = new JButton(getString("preview"));
 	private JButton addBtn = new JButton(getString("create"));
-	private JCheckBox gifCheckBox = new JCheckBox(getString("createGif"));
+	private JRadioButton gifRadio = new JRadioButton(getString("createGif"));
 	private VideoWorker worker;
 	private long startTime = 0;
 	private long endTime = 0;
@@ -68,8 +72,8 @@ public class EffectsSection extends JPanel{
 		//tooltips
 		startTimeBtn.setToolTipText(getString("startTimeToolTip"));
 		endTimeBtn.setToolTipText(getString("endTimeToolTip"));
-		resizeCheckBox.setToolTipText(getString("resizeToolTip"));
-		gifCheckBox.setToolTipText(getString("createGifToolTip"));
+		resizeRadio.setToolTipText(getString("resizeToolTip"));
+		gifRadio.setToolTipText(getString("createGifToolTip"));
 		flipH.setToolTipText(getString("flipHToolTip"));
 		flipV.setToolTipText(getString("flipVToolTip"));
 		inverseRadio.setToolTipText(getString("inverseToolTip"));
@@ -78,30 +82,27 @@ public class EffectsSection extends JPanel{
 		
 		setLayout(new MigLayout());
 		
-		ButtonGroup group = new ButtonGroup();
-		group.add(resizeCheckBox);
-		group.add(gifCheckBox);
-
 		//can't say no to miglayout
 		setLayout(new MigLayout());
 		TransparentLabel flipLbl, fadeLbl, trimLbl, colourLbl;
 		add(trimLbl = new TransparentLabel(getString("trim")), "grow, wrap");
 		add(startTimeBtn, "grow, w 160!");
 		add(endTimeBtn, "grow, wrap, w 160!");
-		add(resizeCheckBox, "grow");
-		add(gifCheckBox, "wrap");
+		add(resizeRadio, "grow");
+		add(gifRadio, "wrap");
 		add(flipLbl = new TransparentLabel(getString("flip")), "grow");
 		add(flipH, "split 2");
 		add(flipV, "wrap");
 		add(colourLbl = new TransparentLabel(getString("colour")), "grow");
 		add(inverseRadio, "split 2");
 		add(grayscaleRadio, "wrap");
+		add(screenshotBtn, "span 2, grow, wrap");
 		add(previewBtn, "grow");
 		add(addBtn, "grow");
 		//add all gui components as colour listeners
 
 		State.getState().addColourListeners(trimLbl, colourLbl, flipLbl, startTimeBtn,
-				endTimeBtn, flipH, flipV, screenshotBtn,inverseRadio, grayscaleRadio, resizeCheckBox, previewBtn, addBtn, gifCheckBox, this);
+				endTimeBtn, flipH, flipV, screenshotBtn,inverseRadio, grayscaleRadio, resizeRadio, previewBtn, addBtn, gifRadio, this);
 		
 		//previewing
 		previewBtn.addActionListener(new ActionListener(){
@@ -118,15 +119,18 @@ public class EffectsSection extends JPanel{
 				final JFileChooser fc = new JFileChooser();
 		        fc.showSaveDialog(fc);
 		        if (fc.getSelectedFile() != null){
-		        	if (CheckFileExists.check(fc.getSelectedFile().getAbsolutePath().toString())){
+		        	String fileName = fc.getSelectedFile().getAbsolutePath().toString();
+		        	if (!fileName.endsWith(".mp4") && !gifRadio.isSelected()){
+		        		fileName = fileName + ".mp4";
+		        	}
+		        	if (CheckFileExists.check(fileName)){
 						if (JOptionPane.showConfirmDialog((Component) null, getString("fileExists"),
 						        "alert", JOptionPane.OK_CANCEL_OPTION) != 0){
 							JOptionPane.showMessageDialog(null, getString("notOverwritten"));
 							return;
 						}
 		        	}
-		            String outputFile = fc.getSelectedFile().getAbsolutePath().toString();
-					addEffects("conv", outputFile);
+					addEffects("conv", fileName);
 		        }
         	}
         });
@@ -152,10 +156,10 @@ public class EffectsSection extends JPanel{
 		});
 		
 		//give the user a warning if the gif is going to be large
-		gifCheckBox.addActionListener(new ActionListener(){
+		gifRadio.addItemListener(new ItemListener(){
 			@Override
-        	public void actionPerformed(ActionEvent arg0) {
-				if (gifCheckBox.isSelected()){
+        	public void itemStateChanged(ItemEvent arg0) {
+				if (gifRadio.isSelected()){
 					int dur = GetAttributes.getDuration(vamix.getMediaName());
 					if (endTime == dur){
 						JOptionPane.showMessageDialog(null, getString("longGif"), getString("error"), JOptionPane.DEFAULT_OPTION);
@@ -184,7 +188,7 @@ public class EffectsSection extends JPanel{
     	cmd = addEffectsToCmd(cmd, frames);
     	
     	if (option.equals("conv")){
-    		if (gifCheckBox.isSelected()){
+    		if (gifRadio.isSelected()){
     			if (!output.endsWith(".gif")){
     				cmd += " -v debug " + output + ".gif";
     			}else {
@@ -193,7 +197,7 @@ public class EffectsSection extends JPanel{
     		}else{
     			cmd += " -strict experimental -f mp4 -v debug " + output;
     		}
-    	}else if (gifCheckBox.isSelected() && option.equals("preview")){
+    	}else if (gifRadio.isSelected() && option.equals("preview")){
     		 cmd += " -loop 20 -strict experimental";
     	}
         //only carry out the command if the video file is valid
@@ -242,9 +246,9 @@ public class EffectsSection extends JPanel{
     		cmd += "hflip,";
     	}if (flipV.isSelected()){
     		cmd += "vflip,";
-    	}if (gifCheckBox.isSelected()){
+    	}if (gifRadio.isSelected()){
     		cmd += "format=rgb24,scale=320:240,";
-    	}if (resizeCheckBox.isSelected()){
+    	}if (resizeRadio.isSelected() && !gifRadio.isSelected()){
     		Dimension d = vamix.getFrameDimensions();
     		cmd += "scale=" + d.width + ":" + d.height + ",";
     	}if (grayscaleRadio.isSelected()){
@@ -296,10 +300,10 @@ public class EffectsSection extends JPanel{
         String newEndTime = endTime + "";
 		settings._effectsStartTime = newStartTime;
 		settings._effectsEndTime = newEndTime;
-		settings._createGif = gifCheckBox.isSelected();
+		settings._createGif = gifRadio.isSelected();
 		settings._flipH = flipH.isSelected();
 		settings._flipV = flipV.isSelected();
-		settings._resize = resizeCheckBox.isSelected();
+		settings._resize = resizeRadio.isSelected();
 		settings._inverse = inverseRadio.isSelected();
 		settings._grayscale = grayscaleRadio.isSelected();
 		return settings;
@@ -309,8 +313,8 @@ public class EffectsSection extends JPanel{
 	 * fill fields from settings
 	 */
 	public void loadProjectSettings(ProjectSettings ps) {
-		gifCheckBox.setSelected(ps._createGif);
-		resizeCheckBox.setSelected(ps._resize);
+		gifRadio.setSelected(ps._createGif);
+		resizeRadio.setSelected(ps._resize);
 		flipH.setSelected(ps._flipH);
 		flipV.setSelected(ps._flipV);
 		inverseRadio.setSelected(ps._inverse);

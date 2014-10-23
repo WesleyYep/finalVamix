@@ -134,6 +134,13 @@ public class AudioSection extends JPanel{
 	 * @param option String used to distinguish between different audio worker tasks
 	 */
 	public void audioEdit(String option) {
+		String extension;
+		
+		if (option.equals("stripVideo")){
+			extension = ".mp3";
+		}else{
+			extension = ".mp4";
+		}
 		if (vamix.isFileType(vamix.getMediaName(), "Audio")){
 			JOptionPane.showMessageDialog(mediaPlayer, getString("validVideo"));
 			return;
@@ -143,7 +150,11 @@ public class AudioSection extends JPanel{
 				final JFileChooser fc = new JFileChooser();
 		        fc.showSaveDialog(fc);
 		        if (fc.getSelectedFile() != null){
-		        	if (CheckFileExists.check(fc.getSelectedFile().getAbsolutePath().toString())){
+		        	String fileName = fc.getSelectedFile().getAbsolutePath().toString();
+		        	if (!fileName.endsWith(extension)){
+		        		fileName = fileName + extension;
+		        	}
+		        	if (CheckFileExists.check(fileName)){
 						if (JOptionPane.showConfirmDialog((Component) null, getString("fileExists"),
 						        "alert", JOptionPane.OK_CANCEL_OPTION) != 0){
 							JOptionPane.showMessageDialog(null, getString("notOverwritten"));
@@ -152,12 +163,11 @@ public class AudioSection extends JPanel{
 		        	}
 		        	int dur = GetAttributes.getDuration(vamix.getMediaName());
 		        	int frames = GetAttributes.getFrames(vamix.getMediaName());
-		            String audioFile = fc.getSelectedFile().getAbsolutePath().toString();
 		            AudioWorker worker = null;
 			    	loadScreen = new LoadingScreen(vamix);
 		            loadScreen.prepare();
 			    	worker = new AudioWorker(vamix.getMediaName(), audioTextField.getText(),
-			    							option, audioFile, loadScreen.getProgBar(), dur, frames, loadScreen);
+			    							option, fileName, loadScreen.getProgBar(), dur, frames, loadScreen);
 			    	loadScreen.setWorker(worker);
 			    	worker.execute();
 		        }

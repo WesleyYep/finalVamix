@@ -38,6 +38,7 @@ import javax.swing.border.TitledBorder;
 import com.sun.jna.platform.WindowUtils;
 import com.sun.awt.AWTUtilities;
 
+import components.CustomButton;
 import components.SmallColourPanel;
 import models.ProjectFile;
 import models.ProjectFile.ProjectSettings;
@@ -156,14 +157,12 @@ public class Vamix implements MouseMotionListener{
 
 	private void registerListeners() {
 		
-		mediaPlayer.addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
-		      @Override
-		      public void playing(MediaPlayer mediaPlayer) {
-		    	  mainControlPanel.updateVolume(mediaPlayer.getVolume());
-		      }
-		    });		
-		
-        
+//		mediaPlayer.addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
+//		      @Override
+//		      public void playing(MediaPlayer mediaPlayer) {
+//		    	  mainControlPanel.updateVolume(mediaPlayer.getVolume());
+//		      }
+//		    });		
         
     	//When the open button is clicked the file chooser appears
         openBtn.addActionListener(new ActionListener(){

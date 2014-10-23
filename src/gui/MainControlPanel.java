@@ -19,10 +19,14 @@ import javax.swing.Timer;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import components.CustomButton;
+
 import net.miginfocom.swing.MigLayout;
 import state.LanguageSelector;
 import state.State;
+import uk.co.caprica.vlcj.binding.internal.libvlc_media_t;
 import uk.co.caprica.vlcj.player.MediaPlayer;
+import uk.co.caprica.vlcj.player.MediaPlayerEventListener;
 
 /**
  * represents the main control panel that is found on the main window
@@ -34,9 +38,10 @@ import uk.co.caprica.vlcj.player.MediaPlayer;
 public class MainControlPanel extends JPanel{
 	private MediaPlayer mp;
 	private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-	private boolean isPaused = false;
+	private boolean isPaused = true;
 	private long duration;
 	private long currentTime;
+	private long actualDuration = 0;
 	//the use of setPositionValue is so that the position slider only fires change requests
 	//when the user actually is changing its position
 	private boolean setPositionValue;
@@ -110,10 +115,11 @@ public class MainControlPanel extends JPanel{
         			mp.pause();
         			isPaused = true;
         		}else if (mp.isPlayable()){
-        				mp.play();
-        				isPaused = false;
+        			mp.play();
+        			isPaused = false;
         		}else{
         			if (vamix.isMediaFile(vamix.getMediaName())){
+            			if (!isPaused){playBtn.changeIcon();}
         				mp.playMedia(vamix.getMediaName());
             			isPaused = false;
         			}else{
@@ -256,9 +262,9 @@ public class MainControlPanel extends JPanel{
 		return mp.getTime();
 	}
 	
-	public void updateVolume(int value) {
-		 volumeSlider.setValue(value);
-	}
+//	public void updateVolume(int value) {
+//		 volumeSlider.setValue(value);
+//	}
 	
 	/**
 	 * This class was taken from 
@@ -281,14 +287,17 @@ public class MainControlPanel extends JPanel{
 		  currentTime = mediaPlayer.getTime();
 		  duration = mediaPlayer.getLength();
 	      final int position = duration > 0 ? (int)Math.round(100.0 * (double)currentTime / (double)duration) : 0;
-
+	      if (mp.isPlaying() && playBtn.mainInUse()){
+	    	  playBtn.forceSecondIcon();
+	      }
+	      
 	      // Updates to user interface components must be executed on the Event
 	      // Dispatch Thread
 	      SwingUtilities.invokeLater(new Runnable() {
 	        @Override
 	        public void run() {
-	          updateTime(currentTime);
-	          updatePosition(position);
+	            updateTime(currentTime);
+	            updatePosition(position);
 	        }
 	      });
 	    }

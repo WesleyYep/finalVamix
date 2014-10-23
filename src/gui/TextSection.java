@@ -129,6 +129,15 @@ public class TextSection extends JPanel implements MouseListener {
 		border.setTitleFont(new Font("Sans Serif", Font.BOLD, 24));
 		border.setTitleColor(new Color(50, 150, 50, 250));
 		setBorder(border);
+		
+		//tooltips
+		startTimeBtn.setToolTipText(getString("startTimeToolTip"));
+		endTimeBtn.setToolTipText(getString("endTimeToolTip"));
+		textPosBtn.setToolTipText(getString("textPositionToolTip"));
+		addRadio.setToolTipText(getString("addRadioToolTip"));
+		editRadio.setToolTipText(getString("editRadioToolTip"));
+		removeRadio.setToolTipText(getString("removeRadioToolTip"));
+		renderBtn.setToolTipText(getString("renderToolTip"));
 
 		tableModel = new TextTableModel();
 		textTable = new JTable(tableModel);
@@ -297,15 +306,18 @@ public class TextSection extends JPanel implements MouseListener {
 				final JFileChooser fc = new JFileChooser();
 		        fc.showSaveDialog(fc);
 		        if (fc.getSelectedFile() != null){
-		        	if (CheckFileExists.check(fc.getSelectedFile().getAbsolutePath().toString())){
+		        	String fileName = fc.getSelectedFile().getAbsolutePath().toString();
+		        	if (!fileName.endsWith(".mp4")){
+		        		fileName = fileName + ".mp4";
+		        	}
+		        	if (CheckFileExists.check(fileName)){
 						if (JOptionPane.showConfirmDialog((Component) null, getString("fileExists"),
 						        "alert", JOptionPane.OK_CANCEL_OPTION) != 0){
 							JOptionPane.showMessageDialog(null, getString("notOverwritten"));
 							return;
 						}
 		        	}
-		            String outputFile = fc.getSelectedFile().getAbsolutePath().toString();
-					addTextToVideo("conv", outputFile);
+					addTextToVideo("conv", fileName);
 		        }
         	}
         });

@@ -6,6 +6,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -16,26 +18,20 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.JSpinner.DateEditor;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
-import components.CustomSpinner;
 import components.TransparentLabel;
 import editing.CheckFileExists;
 import editing.GetAttributes;
 import editing.VideoWorker;
-import models.ProjectFile;
 import models.ProjectFile.ProjectSettings;
 import net.miginfocom.swing.MigLayout;
 import popups.LoadingScreen;
 import state.LanguageSelector;
 import state.State;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This section is for editing effects. It is incorporated into the main window
@@ -47,18 +43,17 @@ public class EffectsSection extends JPanel{
 	private Vamix vamix;
 	private MainControlPanel controlPanel;
 	private static LoadingScreen loadScreen;
-	private JComboBox<String> speedOption;
 	private JRadioButton flipH = new JRadioButton(getString("horizontal"));
 	private JRadioButton flipV = new JRadioButton(getString("vertical"));
 	private JRadioButton inverseRadio = new JRadioButton(getString("inverse"));
 	private JRadioButton grayscaleRadio = new JRadioButton(getString("grayscale"));
 	private JButton startTimeBtn = new JButton(getString("setStart"));
 	private JButton endTimeBtn = new JButton(getString("setEnd"));
-	private JCheckBox resizeCheckBox = new JCheckBox(getString("resize"));
+	private JRadioButton resizeRadio = new JRadioButton(getString("resize"));
 	private JButton screenshotBtn = new JButton(getString("screenshot"));
 	private JButton previewBtn = new JButton(getString("preview"));
-	private JButton addBtn = new JButton(getString("add"));
-	private JCheckBox gifCheckBox = new JCheckBox(getString("createGif"));
+	private JButton addBtn = new JButton(getString("create"));
+	private JRadioButton gifRadio = new JRadioButton(getString("createGif"));
 	private VideoWorker worker;
 	private long startTime = 0;
 	private long endTime = 0;
@@ -66,8 +61,6 @@ public class EffectsSection extends JPanel{
 	public EffectsSection(Vamix v, MainControlPanel cp){
 		this.vamix = v;
 		this.controlPanel = cp;
-		speedOption = new JComboBox<String>(new String[] {"0.25x", "0.5x", "1x", "2x", "3x", "5x"});
-		speedOption.setSelectedIndex(2);
 		//create a colourful border
 		TitledBorder border = BorderFactory.createTitledBorder(
 				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
@@ -75,33 +68,41 @@ public class EffectsSection extends JPanel{
 		border.setTitleFont(new Font("Sans Serif", Font.BOLD, 24));
 		border.setTitleColor(new Color(150, 250, 50, 180));
 		setBorder(border);
-		
-		ButtonGroup group = new ButtonGroup();
-		group.add(resizeCheckBox);
-		group.add(gifCheckBox);
 
+		//tooltips
+		startTimeBtn.setToolTipText(getString("startTimeToolTip"));
+		endTimeBtn.setToolTipText(getString("endTimeToolTip"));
+		resizeRadio.setToolTipText(getString("resizeToolTip"));
+		gifRadio.setToolTipText(getString("createGifToolTip"));
+		flipH.setToolTipText(getString("flipHToolTip"));
+		flipV.setToolTipText(getString("flipVToolTip"));
+		inverseRadio.setToolTipText(getString("inverseToolTip"));
+		grayscaleRadio.setToolTipText(getString("grayscaleToolTip"));
+		screenshotBtn.setToolTipText(getString("screenshotToolTip"));
+		
+		setLayout(new MigLayout());
+		
 		//can't say no to miglayout
 		setLayout(new MigLayout());
 		TransparentLabel flipLbl, fadeLbl, trimLbl, colourLbl;
 		add(trimLbl = new TransparentLabel(getString("trim")), "grow, wrap");
 		add(startTimeBtn, "grow, w 160!");
 		add(endTimeBtn, "grow, wrap, w 160!");
-		add(resizeCheckBox, "grow");
-		add(gifCheckBox, "wrap");
+		add(resizeRadio, "grow");
+		add(gifRadio, "wrap");
 		add(flipLbl = new TransparentLabel(getString("flip")), "grow");
 		add(flipH, "split 2");
 		add(flipV, "wrap");
 		add(colourLbl = new TransparentLabel(getString("colour")), "grow");
 		add(inverseRadio, "split 2");
 		add(grayscaleRadio, "wrap");
-//		add(fadeLbl = new TransparentLabel(getString("fade")), "grow");
-//		add(fadeS, "split 2");
-//		add(fadeE, "wrap");
+		add(screenshotBtn, "span 2, grow, wrap");
 		add(previewBtn, "grow");
 		add(addBtn, "grow");
 		//add all gui components as colour listeners
-		State.getState().addColourListeners(trimLbl, colourLbl, flipLbl,speedOption, startTimeBtn,
-				endTimeBtn, flipH, flipV, screenshotBtn,inverseRadio, grayscaleRadio, resizeCheckBox, previewBtn, addBtn, gifCheckBox, this);
+
+		State.getState().addColourListeners(trimLbl, colourLbl, flipLbl, startTimeBtn,
+				endTimeBtn, flipH, flipV, screenshotBtn,inverseRadio, grayscaleRadio, resizeRadio, previewBtn, addBtn, gifRadio, this);
 		
 		//previewing
 		previewBtn.addActionListener(new ActionListener(){
@@ -118,15 +119,18 @@ public class EffectsSection extends JPanel{
 				final JFileChooser fc = new JFileChooser();
 		        fc.showSaveDialog(fc);
 		        if (fc.getSelectedFile() != null){
-		        	if (CheckFileExists.check(fc.getSelectedFile().getAbsolutePath().toString())){
+		        	String fileName = fc.getSelectedFile().getAbsolutePath().toString();
+		        	if (!fileName.endsWith(".mp4") && !gifRadio.isSelected()){
+		        		fileName = fileName + ".mp4";
+		        	}
+		        	if (CheckFileExists.check(fileName)){
 						if (JOptionPane.showConfirmDialog((Component) null, getString("fileExists"),
 						        "alert", JOptionPane.OK_CANCEL_OPTION) != 0){
 							JOptionPane.showMessageDialog(null, getString("notOverwritten"));
 							return;
 						}
 		        	}
-		            String outputFile = fc.getSelectedFile().getAbsolutePath().toString();
-					addEffects("conv", outputFile);
+					addEffects("conv", fileName);
 		        }
         	}
         });
@@ -151,12 +155,11 @@ public class EffectsSection extends JPanel{
 			}
 		});
 		
-		//we should automatically suggest to the user that the gif shouldn't be longer than about 
-		//20 seconds. This is done by automatically setting the end time spinner
-		gifCheckBox.addActionListener(new ActionListener(){
+		//give the user a warning if the gif is going to be large
+		gifRadio.addItemListener(new ItemListener(){
 			@Override
-        	public void actionPerformed(ActionEvent arg0) {
-				if (gifCheckBox.isSelected()){
+        	public void itemStateChanged(ItemEvent arg0) {
+				if (gifRadio.isSelected()){
 					int dur = GetAttributes.getDuration(vamix.getMediaName());
 					if (endTime == dur){
 						JOptionPane.showMessageDialog(null, getString("longGif"), getString("error"), JOptionPane.DEFAULT_OPTION);
@@ -185,7 +188,7 @@ public class EffectsSection extends JPanel{
     	cmd = addEffectsToCmd(cmd, frames);
     	
     	if (option.equals("conv")){
-    		if (gifCheckBox.isSelected()){
+    		if (gifRadio.isSelected()){
     			if (!output.endsWith(".gif")){
     				cmd += " -v debug " + output + ".gif";
     			}else {
@@ -194,7 +197,7 @@ public class EffectsSection extends JPanel{
     		}else{
     			cmd += " -strict experimental -f mp4 -v debug " + output;
     		}
-    	}else if (option.equals("preview")){
+    	}else if (gifRadio.isSelected() && option.equals("preview")){
     		 cmd += " -loop 20 -strict experimental";
     	}
         //only carry out the command if the video file is valid
@@ -239,19 +242,13 @@ public class EffectsSection extends JPanel{
 	 * @return the modified command
 	 */
 	private String addEffectsToCmd(String cmd, int frames) {
-    	if (!speedOption.getSelectedItem().toString().equals("1x")){
-    		cmd += "setpts=" + 1/Double.parseDouble(speedOption.getSelectedItem().toString().split("x")[0]) + "*PTS,";
-    	}if (flipH.isSelected()){
+    	if (flipH.isSelected()){
     		cmd += "hflip,";
     	}if (flipV.isSelected()){
     		cmd += "vflip,";
- //   	}if (fadeS.isSelected()){
- //   		cmd += "fade=in:0:60,";
-//    	}if (fadeE.isSelected()){
-//    		cmd += "fade=out:" + (frames-60) + ":60,";
-    	}if (gifCheckBox.isSelected()){
+    	}if (gifRadio.isSelected()){
     		cmd += "format=rgb24,scale=320:240,";
-    	}if (resizeCheckBox.isSelected()){
+    	}if (resizeRadio.isSelected() && !gifRadio.isSelected()){
     		Dimension d = vamix.getFrameDimensions();
     		cmd += "scale=" + d.width + ":" + d.height + ",";
     	}if (grayscaleRadio.isSelected()){
@@ -301,15 +298,14 @@ public class EffectsSection extends JPanel{
 	public ProjectSettings createProjectSettings(ProjectSettings settings) {
 		String newStartTime = startTime + "";
         String newEndTime = endTime + "";
-		settings._speed = speedOption.getSelectedIndex();
 		settings._effectsStartTime = newStartTime;
 		settings._effectsEndTime = newEndTime;
-		settings._createGif = gifCheckBox.isSelected();
+		settings._createGif = gifRadio.isSelected();
 		settings._flipH = flipH.isSelected();
 		settings._flipV = flipV.isSelected();
-//		settings._fadeS = fadeS.isSelected();
-//		settings._fadeE = fadeE.isSelected();
-
+		settings._resize = resizeRadio.isSelected();
+		settings._inverse = inverseRadio.isSelected();
+		settings._grayscale = grayscaleRadio.isSelected();
 		return settings;
 	}
 	
@@ -317,12 +313,12 @@ public class EffectsSection extends JPanel{
 	 * fill fields from settings
 	 */
 	public void loadProjectSettings(ProjectSettings ps) {
-		speedOption.setSelectedIndex(ps._speed);
-		gifCheckBox.setSelected(ps._createGif);
+		gifRadio.setSelected(ps._createGif);
+		resizeRadio.setSelected(ps._resize);
 		flipH.setSelected(ps._flipH);
 		flipV.setSelected(ps._flipV);
-//		fadeS.setSelected(ps._fadeS);
-//		fadeE.setSelected(ps._fadeE);
+		inverseRadio.setSelected(ps._inverse);
+		grayscaleRadio.setSelected(ps._grayscale);
 		startTime = Long.parseLong(ps._effectsStartTime);
 		endTime = Long.parseLong(ps._effectsEndTime);
 		startTimeBtn.setText(secsToString(startTime));

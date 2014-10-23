@@ -1,4 +1,4 @@
-package gui;
+package components;
 
 import java.awt.Image;
 import java.awt.Insets;
@@ -71,6 +71,15 @@ public class CustomButton extends JButton {
 				_mainInUse = true;
 			}
 		}
+	}
+	
+	public void forceSecondIcon() {
+		setIcon(_secondImage);
+		_mainInUse = false;
+	}
+	
+	public boolean mainInUse(){
+		return _mainInUse;
 	}
 	
 	void initialiser() {

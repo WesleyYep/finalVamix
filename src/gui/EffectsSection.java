@@ -96,15 +96,15 @@ public class EffectsSection extends JPanel{
 		add(colourLbl = new TransparentLabel(getString("colour")), "grow");
 		add(inverseRadio, "split 2");
 		add(grayscaleRadio, "wrap");
-		add(screenshotBtn, "span 2, grow, wrap");
 		add(previewBtn, "grow");
 		add(addBtn, "grow, wrap");
 		add(adjustLbl = new TransparentLabel(getString("adjust")), "grow");
 		add(resetAdjustCheckBox, "grow, wrap");
-		add(adjustPanel, "span 2, grow");
-		
+		add(adjustPanel, "span 2, grow, wrap");
+		add(screenshotBtn, "span 2, grow, wrap");
+
 		//add all gui components as colour listeners
-		State.getState().addColourListeners(trimLbl, colourLbl, flipLbl, startTimeBtn, adjustLbl,
+		State.getState().addColourListeners(trimLbl, colourLbl, flipLbl, startTimeBtn, adjustLbl, resetAdjustCheckBox,
 				endTimeBtn, flipH, flipV, screenshotBtn,inverseRadio, grayscaleRadio, resizeRadio, previewBtn, addBtn, gifRadio, this);
 		
 		//previewing
@@ -259,7 +259,7 @@ public class EffectsSection extends JPanel{
     	}if (inverseRadio.isSelected()){
     		cmd += "lutrgb='r=negval:g=negval:b=negval',";
     	}
-	
+    	
     	if (cmd.endsWith(",")){
     		cmd = cmd.substring(0, cmd.length()-1);
     	}

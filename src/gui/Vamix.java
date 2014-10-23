@@ -132,7 +132,6 @@ public class Vamix implements MouseMotionListener{
         }
 		
         f.add(mediaPlayerComponent, BorderLayout.CENTER);
-        
         bottomPanel = new JPanel();
         showHideBtn.setBackground(Color.BLACK);
         showHideBtn.setForeground(Color.LIGHT_GRAY);
@@ -356,6 +355,14 @@ public class Vamix implements MouseMotionListener{
 		return fileTextField.getText();
 	}
 	
+	/**
+	 * Used for the media adjust panel in the effects section
+	 * @return
+	 */
+	public MediaPlayer getMediaPlayer(){
+		return mediaPlayer;
+	}
+	
 	public Dimension getFrameDimensions(){
 		return f.getBounds().getSize();
 	}
@@ -406,7 +413,7 @@ public class Vamix implements MouseMotionListener{
 
 	        private static final long serialVersionUID = 1L;
 	    	//private MigLayout myLayout = new MigLayout();
-	    	private MigLayout myLayout = new MigLayout("", "10 [] [] [grow] 10", "20 [] [] [] [grow] 5");
+	    	private MigLayout myLayout = new MigLayout("", "10 [] [] [grow] 10", "5 [] [grow]push[]5");
 
 	        public Overlay(Window owner, Vamix ep) {
 	            super(owner, WindowUtils.getAlphaCompatibleGraphicsConfiguration());
@@ -429,37 +436,37 @@ public class Vamix implements MouseMotionListener{
 	            projectPanel.add(saveBtn, "right");
 	            
 	            //now we add the entire left side pane
-	            JPanel leftSidePane = new JPanel();
-	            leftSidePane.setLayout(new MigLayout());
+	            JPanel rightSidePane = new JPanel();
+	            rightSidePane.setLayout(new MigLayout());
 	            audioSection = new AudioSection(ep, mediaPlayerComponent);
-	            leftSidePane.add(audioSection, "wrap,grow");
+	            rightSidePane.add(audioSection, "wrap,grow");
 	            textSection = new TextSection(ep, mainControlPanel);
-	            leftSidePane.add(textSection, "wrap, grow");
+	            rightSidePane.add(textSection, "wrap, grow");
 	        //    leftSidePane.add(projectPanel, "grow");
-	            add(leftSidePane, "dock east, gaptop 30");
+	            add(rightSidePane, "dock east");
 
 	    		this.addMouseListener(textSection);
 
 	    		//now we add the download panel, followed by the right side pane
 	    		downloadPanel = new DownloadPanel(ep);
-	            JPanel rightSidePane = new JPanel();
-	            rightSidePane.setLayout(new MigLayout());
-	            rightSidePane.add(downloadPanel, "wrap");
+	            JPanel leftSidePane = new JPanel();
+	            leftSidePane.setLayout(new MigLayout());
+	            leftSidePane.add(downloadPanel, "wrap");
 	            effectsSection = new EffectsSection(ep, mainControlPanel);
-	            rightSidePane.add(effectsSection, "growx, wrap");
-	            rightSidePane.add(projectPanel, "grow");
-	            add(rightSidePane, "cell 0 1 1 3, grow, gaptop 10");
+	            leftSidePane.add(effectsSection, "growx, wrap");
+	            leftSidePane.add(projectPanel, "grow");
+	            add(leftSidePane, "cell 0 0 1 3, grow");
 
 	            //finally, the open panel which goes on the top
 	            JPanel openPanel = new JPanel();
 	            openPanel.add(fileTextField);
 	            openPanel.add(openBtn);
-	            add(openPanel, "cell 1 1 2 1");
+	            add(openPanel, "cell 1 0 2 1");
 	            setFocusable(true);
-	            add(mainControlPanel, "dock south, gapbefore 35%");
-	    		state.addColourListeners(leftSidePane, textSection, audioSection, mainControlPanel, projectPanel, rightSidePane,
+	            add(mainControlPanel, "cell 1 2 1 1, gap before 8%, grow");
+	    		state.addColourListeners(rightSidePane, textSection, audioSection, mainControlPanel, projectPanel, leftSidePane,
 	            		saveBtn, loadBtn, openPanel, openBtn, fileTextField);
-	          	state.addStateListeners(leftSidePane, openPanel, projectPanel, mainControlPanel, rightSidePane);
+	          	state.addStateListeners(rightSidePane, openPanel, projectPanel, mainControlPanel, leftSidePane);
 	    		state.addMouseListeners(mainControlPanel);
 	            
 	    		//now set everything transparent

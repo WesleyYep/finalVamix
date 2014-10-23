@@ -8,21 +8,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-
 import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
+import components.PlayerVideoAdjustPanel;
 import components.TransparentLabel;
 import editing.CheckFileExists;
 import editing.GetAttributes;
@@ -54,6 +50,8 @@ public class EffectsSection extends JPanel{
 	private JButton previewBtn = new JButton(getString("preview"));
 	private JButton addBtn = new JButton(getString("create"));
 	private JRadioButton gifRadio = new JRadioButton(getString("createGif"));
+	private PlayerVideoAdjustPanel adjustPanel;
+	private JCheckBox resetAdjustCheckBox = new JCheckBox(getString("resetAdjust"));
 	private VideoWorker worker;
 	private long startTime = 0;
 	private long endTime = 0;
@@ -61,6 +59,8 @@ public class EffectsSection extends JPanel{
 	public EffectsSection(Vamix v, MainControlPanel cp){
 		this.vamix = v;
 		this.controlPanel = cp;
+		adjustPanel = new PlayerVideoAdjustPanel(vamix.getMediaPlayer(), resetAdjustCheckBox);
+		
 		//create a colourful border
 		TitledBorder border = BorderFactory.createTitledBorder(
 				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
@@ -84,7 +84,7 @@ public class EffectsSection extends JPanel{
 		
 		//can't say no to miglayout
 		setLayout(new MigLayout());
-		TransparentLabel flipLbl, fadeLbl, trimLbl, colourLbl;
+		TransparentLabel flipLbl, adjustLbl, trimLbl, colourLbl;
 		add(trimLbl = new TransparentLabel(getString("trim")), "grow, wrap");
 		add(startTimeBtn, "grow, w 160!");
 		add(endTimeBtn, "grow, wrap, w 160!");
@@ -98,10 +98,13 @@ public class EffectsSection extends JPanel{
 		add(grayscaleRadio, "wrap");
 		add(screenshotBtn, "span 2, grow, wrap");
 		add(previewBtn, "grow");
-		add(addBtn, "grow");
+		add(addBtn, "grow, wrap");
+		add(adjustLbl = new TransparentLabel(getString("adjust")), "grow");
+		add(resetAdjustCheckBox, "grow, wrap");
+		add(adjustPanel, "span 2, grow");
+		
 		//add all gui components as colour listeners
-
-		State.getState().addColourListeners(trimLbl, colourLbl, flipLbl, startTimeBtn,
+		State.getState().addColourListeners(trimLbl, colourLbl, flipLbl, startTimeBtn, adjustLbl,
 				endTimeBtn, flipH, flipV, screenshotBtn,inverseRadio, grayscaleRadio, resizeRadio, previewBtn, addBtn, gifRadio, this);
 		
 		//previewing
@@ -253,6 +256,8 @@ public class EffectsSection extends JPanel{
     		cmd += "scale=" + d.width + ":" + d.height + ",";
     	}if (grayscaleRadio.isSelected()){
     		cmd += "format=gray,";
+    	}if (inverseRadio.isSelected()){
+    		cmd += "lutrgb='r=negval:g=negval:b=negval',";
     	}
 	
     	if (cmd.endsWith(",")){

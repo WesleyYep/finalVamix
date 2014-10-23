@@ -170,6 +170,13 @@ public class EffectsSection extends JPanel{
 				}
         	}
 		});
+		
+		screenshotBtn.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+			}
+		});
 	}
 	
 	/**

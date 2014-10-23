@@ -313,6 +313,10 @@ public class Vamix implements MouseMotionListener{
 	        	|| isFileType(input, "video");
 	}
 	
+	public boolean isAudioFile(){
+		return isFileType(getMediaName(), "Audio");
+	}
+	
 	/**
 	 * This method is used to check that the file is a valid file type
 	 * @return true if the user input matches expected file type, false if not

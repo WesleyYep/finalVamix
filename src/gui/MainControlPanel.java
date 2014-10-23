@@ -1,15 +1,18 @@
 package gui;
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.io.File;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -20,6 +23,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import components.CustomButton;
+import editing.CheckFileExists;
 
 import net.miginfocom.swing.MigLayout;
 import state.LanguageSelector;
@@ -262,9 +266,40 @@ public class MainControlPanel extends JPanel{
 		return mp.getTime();
 	}
 	
-//	public void updateVolume(int value) {
-//		 volumeSlider.setValue(value);
-//	}
+	public void captureScreenShot() {
+		boolean wasPlaying = false;
+		//if there is no media file, or a audio file, then warn the user
+		if ((!mp.isPlayable() && !mp.isPlaying()) || vamix.isAudioFile()){
+			JOptionPane.showMessageDialog(null, getString("noMediaToScreenshot"));
+			return;
+		}
+		//pause video if it is playing
+		else if (mp.isPlaying()){
+			playBtn.doClick();
+			wasPlaying = true;
+		}
+		final JFileChooser fc = new JFileChooser();
+        fc.showSaveDialog(fc);
+        if (fc.getSelectedFile() != null){
+        	String fileName = fc.getSelectedFile().getAbsolutePath().toString();
+        	if (!fileName.endsWith(".png")){
+        		fileName = fileName + ".png";
+        	}
+        	if (CheckFileExists.check(fileName)){
+				if (JOptionPane.showConfirmDialog((Component) null, getString("fileExists"),
+				        "alert", JOptionPane.OK_CANCEL_OPTION) != 0){
+					JOptionPane.showMessageDialog(null, getString("notOverwritten"));
+					return;
+				}
+        	}
+	        File file = new File(fileName);
+			vamix.getMediaPlayer().saveSnapshot(file);
+			//play the video again, if it was previously playing
+			if (wasPlaying){
+				playBtn.doClick();
+			}
+        }
+	}
 	
 	/**
 	 * This class was taken from 
@@ -315,4 +350,5 @@ public class MainControlPanel extends JPanel{
 	private String getString(String label){
 		return LanguageSelector.getString(label);
 	}
+
 }

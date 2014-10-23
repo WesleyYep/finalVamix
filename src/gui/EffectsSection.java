@@ -20,7 +20,6 @@ import javax.swing.JRadioButton;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
-import components.PlayerVideoAdjustPanel;
 import components.TransparentLabel;
 import editing.CheckFileExists;
 import editing.GetAttributes;

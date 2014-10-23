@@ -1,4 +1,4 @@
-package components;
+package gui;
 /**
 * The code for this panel was originally taken from:
 * https://github.com/caprica/vlcj/blob/master/src/test/java/uk/co/caprica/vlcj/test/basic/PlayerVideoAdjustPanel.java

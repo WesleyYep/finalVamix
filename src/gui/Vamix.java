@@ -3,6 +3,7 @@ package gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Frame;
@@ -15,10 +16,14 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
@@ -64,6 +69,7 @@ public class Vamix implements MouseMotionListener{
 	private MediaPlayer mediaPlayer;
 	private JButton openBtn = new JButton(getString("open"));
 	private JTextField fileTextField = new JTextField(20);
+    private JButton helpBtn = new JButton(getString("help"));
     private JButton showHideBtn = new JButton(getString("hide"));
     private JButton languageBtn = new JButton();
 	private CustomButton loadBtn = new CustomButton(getString("load"), new ImageIcon(
@@ -133,11 +139,15 @@ public class Vamix implements MouseMotionListener{
 		
         f.add(mediaPlayerComponent, BorderLayout.CENTER);
         bottomPanel = new JPanel();
+        helpBtn.setBackground(Color.BLACK);
+        helpBtn.setForeground(Color.LIGHT_GRAY);
         showHideBtn.setBackground(Color.BLACK);
         showHideBtn.setForeground(Color.LIGHT_GRAY);
         languageBtn.setBackground(Color.BLACK);
         languageBtn.setForeground(Color.LIGHT_GRAY);
-        bottomPanel.add(languageBtn, BorderLayout.EAST);
+        
+        bottomPanel.add(helpBtn);
+        bottomPanel.add(languageBtn);
         bottomPanel.add(showHideBtn);
         bottomPanel.add(new SmallColourPanel(this));
         bottomPanel.setBackground(Color.BLACK);
@@ -152,17 +162,8 @@ public class Vamix implements MouseMotionListener{
       	mediaPlayerComponent.getMediaPlayer().setOverlay(overlay);
       	mediaPlayerComponent.getMediaPlayer().enableOverlay(true);
 	}
-	
 
 	private void registerListeners() {
-		
-//		mediaPlayer.addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
-//		      @Override
-//		      public void playing(MediaPlayer mediaPlayer) {
-//		    	  mainControlPanel.updateVolume(mediaPlayer.getVolume());
-//		      }
-//		    });		
-        
     	//When the open button is clicked the file chooser appears
         openBtn.addActionListener(new ActionListener(){
         	@Override
@@ -220,10 +221,37 @@ public class Vamix implements MouseMotionListener{
 				}else if (languageBtn.getText().equalsIgnoreCase(getString("maori"))){
 					restartApplication("en", "MA");
 				}
-				
 			}
         });
-                
+
+        helpBtn.addActionListener(new ActionListener(){
+        	@Override
+			public void actionPerformed(ActionEvent e) {
+        		//use the file command in linux
+        		ProcessBuilder processBuilder = new ProcessBuilder("xdg-open", "userManual.pdf");
+        		try {
+        			Process process = processBuilder.start();
+        			process.waitFor();
+        			System.out.println(process.exitValue());
+        		} catch (IOException | InterruptedException ex) {
+        			JOptionPane.showMessageDialog(mediaPlayerComponent, getString("validMediaFile"));
+        		}
+//        		try {
+//        			File file = new File("temp");
+//					InputStream in = Vamix.class.getResource("/userManual.pdf").openStream();
+//					OutputStream outputStream = new FileOutputStream(file);
+//					int read = 0;
+//					byte[] bytes = new byte[1024];
+//					while ((read = in.read(bytes)) != -1) {
+//						outputStream.write(bytes, 0, read);
+//					}
+//					System.out.println("done");
+//					outputStream.close();
+//					Desktop.getDesktop().open(file);
+//				} catch (IOException e1) {}
+			}
+        });
+        
 	}
 	
 	/**The code for this method comes mostly from http://stackoverflow.com/questions/4159802/how-can-i-restart-a-java-application

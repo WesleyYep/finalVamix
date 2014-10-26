@@ -4,13 +4,10 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
 import java.io.File;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -21,16 +18,12 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
 import components.CustomButton;
 import editing.CheckFileExists;
-
 import net.miginfocom.swing.MigLayout;
 import state.LanguageSelector;
 import state.State;
-import uk.co.caprica.vlcj.binding.internal.libvlc_media_t;
 import uk.co.caprica.vlcj.player.MediaPlayer;
-import uk.co.caprica.vlcj.player.MediaPlayerEventListener;
 
 /**
  * represents the main control panel that is found on the main window
@@ -45,7 +38,6 @@ public class MainControlPanel extends JPanel{
 	private boolean isPaused = true;
 	private long duration;
 	private long currentTime;
-	private long actualDuration = 0;
 	//the use of setPositionValue is so that the position slider only fires change requests
 	//when the user actually is changing its position
 	private boolean setPositionValue;
@@ -74,8 +66,12 @@ public class MainControlPanel extends JPanel{
 	public MainControlPanel(MediaPlayer mp, Vamix v){
 		this.mp = mp;
 		this.vamix = v;
+		
+		//call this method to register all listeners
 		registerListeners();
-      	executorService.scheduleAtFixedRate(new UpdateRunnable(mp), 0L, 1L, TimeUnit.SECONDS);
+      	
+		//set up all the sliders and timers
+		executorService.scheduleAtFixedRate(new UpdateRunnable(mp), 0L, 1L, TimeUnit.SECONDS);
         vidPosSlider.setMajorTickSpacing(10);
 		vidPosSlider.setMinorTickSpacing(1);
 		vidPosSlider.setPaintTicks(true);
@@ -85,6 +81,7 @@ public class MainControlPanel extends JPanel{
 		videoMovementTimer.start();
 		
 		setLayout(new MigLayout());
+		//add all components to the control panel
         add(vidPosSlider, "cell 0 0, grow");
         add(timeLabel, "wrap");
         add(fullScreenBtn);
@@ -98,7 +95,6 @@ public class MainControlPanel extends JPanel{
         State.getState().addColourListeners(volumeSlider, vidPosSlider, timeLabel);
         
 	}
-
 
 	private void registerListeners() {
 		//set slider to change position of video if it gets changed
@@ -188,7 +184,7 @@ public class MainControlPanel extends JPanel{
         	@Override
         	public void actionPerformed(ActionEvent arg0) {
         		if(!isFullScreen){
-        			vamix.setFullScreen(currentTime, vamix, isPaused);
+        			vamix.setFullScreen();
         			isFullScreen = true;
         		}else{
         			vamix.exitFullScreen();
@@ -209,6 +205,7 @@ public class MainControlPanel extends JPanel{
         
 	}
 	
+	//this is used to set that the video is fast forwarding, rewinding, or just playing normally
 	enum videoMovement {
 		Forward, Back, Nothing
 	}
@@ -256,16 +253,23 @@ public class MainControlPanel extends JPanel{
 		vidPosSlider.setValue(0);
     }
 	
-	//sets the duration
+	/**
+	 * This main Vamix class will call this method to set the duration after the file is loaded
+	 */
 	public void setDuration(long dur){
 		duration = dur;
 	}
 	
-	//used by others to get the current time in the media
+	/**
+	 * used by other objects to get the current time in the media
+	 * @return current time position of the media
+	 */
 	public long getTime(){
 		return mp.getTime();
 	}
-	
+	/**
+	 * This is called by the effects section to take a screen shot when the screenshot button is clicked
+	 */
 	public void captureScreenShot() {
 		boolean wasPlaying = false;
 		//if there is no media file, or a audio file, then warn the user
@@ -278,13 +282,16 @@ public class MainControlPanel extends JPanel{
 			playBtn.doClick();
 			wasPlaying = true;
 		}
+
 		final JFileChooser fc = new JFileChooser();
         fc.showSaveDialog(fc);
         if (fc.getSelectedFile() != null){
+        	//add png extension if needed
         	String fileName = fc.getSelectedFile().getAbsolutePath().toString();
         	if (!fileName.endsWith(".png")){
         		fileName = fileName + ".png";
         	}
+        	//give the user an option to overwrite if the file already exists
         	if (CheckFileExists.check(fileName)){
 				if (JOptionPane.showConfirmDialog((Component) null, getString("fileExists"),
 				        "alert", JOptionPane.OK_CANCEL_OPTION) != 0){
@@ -338,15 +345,26 @@ public class MainControlPanel extends JPanel{
 	    }
 	  }
 
+	/**
+	 * used to disable stop button on initialisation 
+	 */
 	public void enableStopButton() {
-        stopBtn.setEnabled(false); //disable stop button on initialisation       
+        stopBtn.setEnabled(false);      
 	}
 
-
-	public void isFullScreen(boolean b) {
-		isFullScreen = b;
+	/**
+	 * Used by other objects to set if the frame is fullscreen
+	 * @param fullscreen true if fullscreen, false otherwise
+	 */
+	public void isFullScreen(boolean fullscreen) {
+		isFullScreen = fullscreen;
 	}
 	
+	/**
+	 * This method gets the string that is associated with each label, in the correct language
+	 * @param label
+	 * @return the string for this label
+	 */
 	private String getString(String label){
 		return LanguageSelector.getString(label);
 	}

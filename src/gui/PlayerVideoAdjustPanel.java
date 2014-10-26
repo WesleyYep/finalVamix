@@ -1,10 +1,4 @@
 package gui;
-/**
-* The code for this panel was originally taken from:
-* https://github.com/caprica/vlcj/blob/master/src/test/java/uk/co/caprica/vlcj/test/basic/PlayerVideoAdjustPanel.java
-* and modified to meet the needs of this project.
-* It contains some sliders that can be used to adjust the brightness, contrast, hue, and saturation of the current media.
-*/
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -17,12 +11,19 @@ import javax.swing.JSlider;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
 import state.LanguageSelector;
 import state.State;
 import uk.co.caprica.vlcj.binding.LibVlcConst;
 import uk.co.caprica.vlcj.player.MediaPlayer;
 
+/**
+* The code for this panel was originally taken from:
+* https://github.com/caprica/vlcj/blob/master/src/test/java/uk/co/caprica/vlcj/test/basic/PlayerVideoAdjustPanel.java
+* and modified to meet the needs of this project.
+* It contains some sliders that can be used to adjust the brightness, contrast, hue, and saturation of the current media.
+* 
+* @author Caprica vlcj
+*/
 public class PlayerVideoAdjustPanel extends JPanel {
     private static final long serialVersionUID = 1L;
     private final MediaPlayer mediaPlayer;

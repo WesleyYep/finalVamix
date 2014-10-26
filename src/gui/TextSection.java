@@ -3,11 +3,8 @@ package gui;
 import editing.CheckFileExists;
 import editing.GetAttributes;
 import editing.VideoWorker;
-
-import java.awt.event.MouseAdapter;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
@@ -27,13 +24,8 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -43,22 +35,15 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
-import javax.swing.JViewport;
-import javax.swing.SpinnerDateModel;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.JSpinner.DateEditor;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-
 import components.CustomSpinner;
 import components.TransparentLabel;
 import popups.ColourChooser;
@@ -116,13 +101,15 @@ public class TextSection extends JPanel implements MouseListener {
 		
 		vamix = v;
 		this.cp = cp;
+		//set up some of the options
 		fontOption = new JComboBox<String>(new String[]{"DejaVuSans", "DroidSans", "FreeSans", "NanumGothic", "Padauk", 
 														"TakaoPGothic", "Ubuntu-C"});
-       
 		fontSizeSpinner = new CustomSpinner(18, new SpinnerNumberModel(0, 0, 72, 1));
 		State.getState().addSpinnerListeners(fontSizeSpinner);
         
 		setLayout(new MigLayout("", "[] []"));
+		
+		//create a colourful border
 		TitledBorder border = BorderFactory.createTitledBorder(
 				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
 						new Color(50, 150, 50, 250), new Color(50, 150, 50, 250)), getString("text"));
@@ -130,7 +117,7 @@ public class TextSection extends JPanel implements MouseListener {
 		border.setTitleColor(new Color(50, 150, 50, 250));
 		setBorder(border);
 		
-		//tooltips
+		//set the tooltips
 		startTimeBtn.setToolTipText(getString("startTimeToolTip"));
 		endTimeBtn.setToolTipText(getString("endTimeToolTip"));
 		textPosBtn.setToolTipText(getString("textPositionToolTip"));
@@ -138,7 +125,8 @@ public class TextSection extends JPanel implements MouseListener {
 		editRadio.setToolTipText(getString("editRadioToolTip"));
 		removeRadio.setToolTipText(getString("removeRadioToolTip"));
 		renderBtn.setToolTipText(getString("renderToolTip"));
-
+		
+		//set up the scroll and table components
 		tableModel = new TextTableModel();
 		textTable = new JTable(tableModel);
 		tableScroll = new JScrollPane(textTable);
@@ -147,6 +135,7 @@ public class TextSection extends JPanel implements MouseListener {
 		textPosBtn.setMargin(new java.awt.Insets(1, 5, 1, 5));
 		endTimeBtn.setMargin(new java.awt.Insets(1, 5, 1, 5));
 		
+		//give the text area a border and make it transparent
 		textArea.setBorder(BorderFactory.createEtchedBorder());
 		textArea.setLineWrap(true);
 		textArea.setFont( textArea.getFont().deriveFont(Float.parseFloat(fontSizeSpinner.getValue().toString())) );
@@ -160,9 +149,11 @@ public class TextSection extends JPanel implements MouseListener {
 		colourBtn.setBackground(Color.RED);
 		addRadio.setSelected(true);
 		
+		//add all components as colour listeners
 		State.getState().addColourListeners(textScroll, textScroll.getViewport(), fontOption, fontSizeSpinner, tableScroll, textTable,
 		tableScroll.getViewport(), previewBtn,	renderBtn, textPosBtn, startTimeBtn, endTimeBtn, okBtn, addRadio, removeRadio, editRadio);
 		
+		//add all components to the panel
 		add(textScroll, "cell 0 0 2 1, grow");
 		TransparentLabel fontLbl, colourLbl, sizeLbl;
 		add(fontLbl = new TransparentLabel(getString("font")), "cell 0 2");
@@ -186,6 +177,7 @@ public class TextSection extends JPanel implements MouseListener {
 		add(previewBtn, "cell 0 10, grow");
 		add(renderBtn, "cell 1 10, grow");
 		
+		//add the labels as colour listeners as well
 		State.getState().addColourListeners(fontLbl, colourLbl, sizeLbl, textScroll);
 		
 		registerListeners();
@@ -193,6 +185,7 @@ public class TextSection extends JPanel implements MouseListener {
 	}
 	
 	private void registerListeners() {
+		//set the start time to the current media time
 		startTimeBtn.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -202,7 +195,8 @@ public class TextSection extends JPanel implements MouseListener {
 				}
 			}
 		});
-		
+	
+		//set the end time to the current media time
 		endTimeBtn.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -221,13 +215,15 @@ public class TextSection extends JPanel implements MouseListener {
 			}
 		});
 		
+		//set the font of the text area if the font is changed
 		fontOption.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				setFont();
 			}
 		});
-		
+
+		//set the font size of the text area if the font is changed
 		fontSizeSpinner.addChangeListener(new ChangeListener(){
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
@@ -235,6 +231,7 @@ public class TextSection extends JPanel implements MouseListener {
 			}
 		});
 		
+		//set the text position to the point that the user clicks next
 		textPosBtn.addActionListener(new ActionListener(){
 			@Override
         	public void actionPerformed(ActionEvent arg0) {
@@ -243,6 +240,7 @@ public class TextSection extends JPanel implements MouseListener {
         	}
 		});
 		
+		//change all the options if a different text is selected from the table
 		textTable.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
 	        public void valueChanged(ListSelectionEvent event) {
 	        	try {
@@ -263,20 +261,26 @@ public class TextSection extends JPanel implements MouseListener {
 	        }
 	    });
 		
+		//this button will add/edit/remove the text from the text table
 		okBtn.addActionListener(new ActionListener(){
 			@Override
         	public void actionPerformed(ActionEvent arg0) {
+				//check if the text options are valid
 				if (!checkIfValid()){return;};
+				//set defaults for start and end time
 				String start = "00:00:00";
 				String end = "00:00:10";
+				
 				if (!startTimeBtn.getText().equals(getString("setStart"))){
 					start = startTimeBtn.getText();
 				}
 				if (!endTimeBtn.getText().equals(getString("setEnd"))){
 					end = endTimeBtn.getText();
 				}
+				//get the font path and hex colour
 		        String fontPath = getFontPath(fontOption.getSelectedItem().toString());
 		    	String colour = toHexString(colourBtn.getBackground());
+		    	//add everything to the table model
 		    	try {
 			        if (addRadio.isSelected()){
 						tableModel.add(textArea.getText(), start, end);
@@ -289,6 +293,7 @@ public class TextSection extends JPanel implements MouseListener {
 			        }else if (removeRadio.isSelected()){
 			        	tableModel.remove(textTable.getSelectedRow());
 			        }
+			        //let the table know that its model has changed
 					tableModel.fireTableDataChanged();
 		    	} catch (ArrayIndexOutOfBoundsException e){}
 				//reset stuff
@@ -322,7 +327,7 @@ public class TextSection extends JPanel implements MouseListener {
         	}
         });
 		
-		//preview the text using a stream
+		//preview the text, so the file name stuff is not necessary
 		previewBtn.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -331,6 +336,11 @@ public class TextSection extends JPanel implements MouseListener {
 		});
 	}
 	
+	/**
+	 * This method checks if the text is valid
+	 * The text must have less than 20 words, and no larger than 72pt. The end time should also be more than the start time
+	 * @return true if valid, false if invalid
+	 */
 	private boolean checkIfValid() {
 		if (textArea.getText().split("\\s").length > 20){
 			JOptionPane.showMessageDialog(null, getString("tooMuchText"), "Error", JOptionPane.DEFAULT_OPTION);
@@ -345,6 +355,9 @@ public class TextSection extends JPanel implements MouseListener {
 		return true;
 	}
 	
+	/**
+	 * Sets the font to the current font that was selected from the combo box
+	 */
 	public void setFont(){
 		Font font;
 		try {
@@ -355,7 +368,10 @@ public class TextSection extends JPanel implements MouseListener {
 			JOptionPane.showMessageDialog(null, getString("fontUnavailable"));
 		}
 	}
-
+	
+	/**
+	 * Change colour of text depending on the colour selected from the colour chooser popup
+	 */
 	public void changeColour(Color colour){
 		colourBtn.setBackground(colour);
 		textArea.setForeground(colour);
@@ -368,10 +384,11 @@ public class TextSection extends JPanel implements MouseListener {
 	 * @param output - the user specified output file name
 	 */
 	public void addTextToVideo(String option, String output){
-//		//get the duration and attributes for use in the progress bar
+		//get the duration and frames for use in the progress bar
 		int dur = GetAttributes.getDuration(vamix.getMediaName());
     	int frames = GetAttributes.getFrames(vamix.getMediaName());
     	
+    	//initialise command depending on whether it's a preview or convert
     	String cmd = "";
     	if (option.equals("conv")){
     		cmd = "avconv -y -i \"" + vamix.getMediaName() + "\" -vf \"";
@@ -379,7 +396,9 @@ public class TextSection extends JPanel implements MouseListener {
     		cmd = "avplay -i \"" + vamix.getMediaName() + "\" -vf \"";
     	}
 
+    	//add to the cmd string for every entry of text that is in the text table
     	for (int i = 0; i < tableModel.getRowCount(); i++){
+    		//get data from the table model
     		Object[] data = tableModel.getFullData(i);
     		String text = (String) data[0];
     		long startTime = (long) data[1];
@@ -402,7 +421,7 @@ public class TextSection extends JPanel implements MouseListener {
 			}
 	        Path currentRelativePath = Paths.get("");
 	        String currentAbsPath = currentRelativePath.toAbsolutePath().toString();
-	        //write the command
+	        //write the actual command
 	        cmd += "drawtext=fontfile='" + fontPath + "':textfile='" + currentAbsPath + "/.text" + i +
 	        			"':x=" + x + ":y=" + y + ":fontsize=" + size + ":fontcolor=" + colour + 
 	        			":draw='" + timeFunction + "'";
@@ -410,6 +429,7 @@ public class TextSection extends JPanel implements MouseListener {
 	        	cmd += ",";
 	        }
     	}
+    	//add the output file name if needed
     	if (option.equals("conv")){
         	cmd += "\" -strict experimental -f mp4 -v debug \"" + output + "\"";
     	} else {
@@ -486,7 +506,13 @@ public class TextSection extends JPanel implements MouseListener {
 		return "";
 	}	
 	
+	/**
+	 * This method writes to the project settings
+	 * All the different text entries in the text table are written to the settings
+	 * @return the object representing the project settings, containing all the text settings
+	 */
 	public ProjectSettings createProjectSettings() {
+		//we need lists for all the settings since there can be more than one text entry in the table
 		List<String> text = new ArrayList<String>();
 		List<String> font = new ArrayList<String>();
 		List<String> colour = new ArrayList<String>();
@@ -496,6 +522,7 @@ public class TextSection extends JPanel implements MouseListener {
 		List<String> startTime = new ArrayList<String>();
 		List<String> endTime = new ArrayList<String>();
         for (int i = 0; i < textTable.getRowCount(); i++){
+        	//get all data from the table model
         	Object[] data = tableModel.getFullData(i);
         	text.add((String) data[0]);
         	startTime.add(((long)data[1]) + "");
@@ -510,8 +537,13 @@ public class TextSection extends JPanel implements MouseListener {
 				 fontSize, startTime, endTime);
 	}
 	
+	/**
+	 * Update the table model based on the loaded project settings file
+	 * @param ps
+	 */
 	public void loadProjectSettings(ProjectSettings ps) {
-		tableModel.initialiseData();
+		tableModel.initialiseData(); //reset the data
+		//then go through the project settings and add to the table model
 		for (int i = 0; i < ps._text.size(); i++){
 			int fontIndex = Integer.parseInt(ps._fontOption.get(i));
 			long startTime = Long.parseLong(ps._startTime.get(i));
@@ -521,13 +553,22 @@ public class TextSection extends JPanel implements MouseListener {
 					ps._colour.get(i),Integer.parseInt(ps._fontSize.get(i)), fontIndex);
 			tableModel.add(ps._text.get(i), secsToString(startTime), secsToString(endTime));
 		}
+		//tell the table that its model had been changed
 		tableModel.fireTableDataChanged();
 	}
 	
+	/**
+	 * This method gets the string that is associated with each label, in the correct language
+	 * @param label
+	 * @return the string for this label
+	 */
 	private String getString(String label){
 		return LanguageSelector.getString(label);
 	}
 
+	/**
+	 *  This is used to set the position of the text based on the point that the mouse was clicked on
+	 */
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		if (isSelecting){

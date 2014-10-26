@@ -3,7 +3,6 @@ package gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
-import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Frame;
@@ -16,17 +15,11 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.util.ArrayList;
-
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -40,10 +33,8 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
-
 import com.sun.jna.platform.WindowUtils;
 import com.sun.awt.AWTUtilities;
-
 import components.CustomButton;
 import components.SmallColourPanel;
 import models.ProjectFile;
@@ -53,7 +44,6 @@ import state.LanguageSelector;
 import state.State;
 import uk.co.caprica.vlcj.component.EmbeddedMediaPlayerComponent;
 import uk.co.caprica.vlcj.player.MediaPlayer;
-import uk.co.caprica.vlcj.player.MediaPlayerEventAdapter;
 
 /**
  * This is the main frame of the Vamix program. It consists of all the other editing panels and sections.
@@ -62,7 +52,7 @@ import uk.co.caprica.vlcj.player.MediaPlayerEventAdapter;
  * 
  * @author Wesley
  */
-@SuppressWarnings("serial")
+@SuppressWarnings("restriction")
 public class Vamix implements MouseMotionListener{
 
 	public static final int WIDTH = 1280;
@@ -96,7 +86,8 @@ public class Vamix implements MouseMotionListener{
     		LanguageSelector.setLanguage(args[0], args[1]);
     		language = args[0] + " " + args[1];
     	}else{
-    		LanguageSelector.setLanguage("en", "NZ"); //default to english
+    		//default to English
+    		LanguageSelector.setLanguage("en", "NZ");
     	}
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -107,6 +98,7 @@ public class Vamix implements MouseMotionListener{
     }
 
 	Vamix () {
+		//set up the frame
         f = new Frame("Vamix");
 		f.setIconImage(new ImageIcon(getClass().getClassLoader().getResource("icon.png")).getImage());
         f.setSize(WIDTH, HEIGHT);
@@ -119,27 +111,31 @@ public class Vamix implements MouseMotionListener{
         });
 		f.setLayout(new BorderLayout());
 		
+		//the media player probably needs to be the first thing that gets created
 		mediaPlayerComponent = new EmbeddedMediaPlayerComponent();
       	mediaPlayer = mediaPlayerComponent.getMediaPlayer();
-      	
+		mediaPlayerComponent.setFont(new Font("Arial", 24, Font.BOLD));
+
       	registerListeners();
 
-        //set up some stuff		
+        //set up some the control panel	
         mainControlPanel = new MainControlPanel(mediaPlayerComponent.getMediaPlayer(), this);
 		mainControlPanel.enableStopButton();
-
-		mediaPlayerComponent.setFont(new Font("Arial", 24, Font.BOLD));
+		
+		//position the load and save buttons
         loadBtn.setVerticalTextPosition(SwingConstants.CENTER);
         loadBtn.setHorizontalTextPosition(SwingConstants.RIGHT);
         saveBtn.setVerticalTextPosition(SwingConstants.CENTER);
         saveBtn.setHorizontalTextPosition(SwingConstants.RIGHT);
         
+        //set the text of the language button based on the language that is currently chosen
         if(language.equals("en NZ")){
         	languageBtn.setText(getString("maori"));
         }else{
         	languageBtn.setText(getString("english"));
         }
 		
+        //set all the buttons on the bottom panel
         f.add(mediaPlayerComponent, BorderLayout.CENTER);
         bottomPanel = new JPanel();
         helpBtn.setBackground(Color.BLACK);
@@ -183,7 +179,8 @@ public class Vamix implements MouseMotionListener{
         		chooseFile();
         	}
         });
-
+        
+        //this will write to the project file
         saveBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -197,6 +194,7 @@ public class Vamix implements MouseMotionListener{
 			}
         });
         
+        //load all settings from the project file
         loadBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -211,6 +209,7 @@ public class Vamix implements MouseMotionListener{
 			}
         });
         
+        //this will toggle the visibility of all the editing components
         showHideBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -224,6 +223,7 @@ public class Vamix implements MouseMotionListener{
 			}
         });
         
+        //this will restart the application in a different language, but the setting will be saved
         languageBtn.addActionListener(new ActionListener(){
         	@Override
 			public void actionPerformed(ActionEvent e) {
@@ -234,7 +234,8 @@ public class Vamix implements MouseMotionListener{
 				}
 			}
         });
-
+        
+        //bring up the user manual if the help button is clicked
         helpBtn.addActionListener(new ActionListener(){
         	@Override
 			public void actionPerformed(ActionEvent e) {
@@ -286,21 +287,26 @@ public class Vamix implements MouseMotionListener{
 		} catch (IOException e) {e.printStackTrace();}
 	}
 
-	//show the mouse controls in case the overlay window is hidden
+	//show the mouse controls in case the overlay window is hidden, if the mouse is moved or dragged
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		state.showMouseControls();
 	}
-
 	@Override
 	public void mouseMoved(MouseEvent e) {
 		state.showMouseControls();
 	}
 
-	public void setFullScreen(long currentTime, Vamix ep, boolean isPaused){
+	/**
+	 * Make it fullscreen just by maximising the size of the frame
+	 */
+	public void setFullScreen(){
 	    f.setExtendedState(JFrame.MAXIMIZED_BOTH);
 	}
 	
+	/**
+	 * Exit fullscreen just by making the size of the frame back to the initial size
+	 */
 	public void exitFullScreen() {
 		f.setExtendedState(JFrame.NORMAL);
         f.setSize(WIDTH, HEIGHT);
@@ -341,6 +347,10 @@ public class Vamix implements MouseMotionListener{
 	        	|| isFileType(input, "video");
 	}
 	
+	/**
+	 * This method is used to check if the current loaded media file is an audio file
+	 * @return true if it is an audio file, false otherwise
+	 */
 	public boolean isAudioFile(){
 		return isFileType(getMediaName(), "Audio");
 	}
@@ -366,17 +376,26 @@ public class Vamix implements MouseMotionListener{
 		return false;
 	}	
 	
-	//this is used by LoadingScreen to move the progress bar onto the bottom panel
+	/**
+	 * this is used by LoadingScreen to move the progress bar onto the bottom panel
+	 * @param comp any component, but usually will be the progress bar
+	 */
 	public void addToBottomPanel(JComponent comp){
 		bottomPanel.add(comp);
 	}
 	
-	//this is used by LoadingScreen to move the progress bar onto the bottom panel
+	/**
+	 * this is used by LoadingScreen to remove the progress bar off the bottom panel
+	 * @param comp, the progress bar to be removed from the bottom panel
+	 */
 	public void removeFromBottomPanel(JComponent comp){
 		bottomPanel.remove(comp);
 	}
 	
-	//changes the cursor to a crosshair if the textsection needs to get a certain position
+	/**
+	 * changes the cursor to a crosshair if the textsection needs to get a certain position
+	 * @param bool true if the cursor should be the crosshair, false if it should be normal
+	 */
 	public void setCursorOnOverlay(boolean bool){
 		if (bool)
 			overlay.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
@@ -400,6 +419,10 @@ public class Vamix implements MouseMotionListener{
 		return mediaPlayer;
 	}
 	
+	/**
+	 * Used by other editing section to get the current dimension of the frame
+	 * @return the current dimension of the frame
+	 */
 	public Dimension getFrameDimensions(){
 		return f.getBounds().getSize();
 	}
@@ -440,19 +463,27 @@ public class Vamix implements MouseMotionListener{
 	}
 	  
 	/**
+	 * This method gets the string that is associated with each label, in the correct language
+	 * @param label
+	 * @return the string for this label
+	 */
+	private String getString(String label){
+		return LanguageSelector.getString(label);
+	}
+	
+	/**
 	 * This class represents the overlay window.
 	 * It incorporates all the other sections for editing
 	 * It is also transparent, and can be hidden or made to change foreground colour.
-	 * @author wesley
+	 * @author Wesley
 	 *
 	 */
 	  private class Overlay extends Window{
 
 	        private static final long serialVersionUID = 1L;
-	    	//private MigLayout myLayout = new MigLayout();
 	    	private MigLayout myLayout = new MigLayout("", "10 [] [] [grow] 10", "5 [] [grow]push[]5");
 
-	        public Overlay(Window owner, Vamix ep) {
+			public Overlay(Window owner, Vamix ep) {
 	            super(owner, WindowUtils.getAlphaCompatibleGraphicsConfiguration());
 	            //if this line has an error, go >project>properties>Java compiler>Errors/Warnings
 	            AWTUtilities.setWindowOpaque(this, false);
@@ -479,7 +510,7 @@ public class Vamix implements MouseMotionListener{
 	            rightSidePane.add(audioSection, "wrap,grow");
 	            textSection = new TextSection(ep, mainControlPanel);
 	            rightSidePane.add(textSection, "wrap, grow");
-	        //    leftSidePane.add(projectPanel, "grow");
+	            //leftSidePane.add(projectPanel, "grow");
 	            add(rightSidePane, "dock east");
 
 	    		this.addMouseListener(textSection);
@@ -511,8 +542,4 @@ public class Vamix implements MouseMotionListener{
 	            
 	        }
 	    }
-	  
-	private String getString(String label){
-		return LanguageSelector.getString(label);
-	}
 }

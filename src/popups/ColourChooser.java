@@ -12,7 +12,7 @@ import state.LanguageSelector;
 import net.miginfocom.swing.MigLayout;
 /**
  * Simple colour picker that sends the colour to the text section
- * @author wesley
+ * @author Wesley
  *
  */
 @SuppressWarnings("serial")
@@ -26,8 +26,10 @@ public class ColourChooser extends JFrame{
 		parent = textSection;
 		setLocation(500, 250);
 		setLayout(new MigLayout());
+		//default colour is black
 		cc = new JColorChooser(Color.black);
 		
+		//tell the text section to change colour of the text area
 		selectBtn.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -36,6 +38,7 @@ public class ColourChooser extends JFrame{
 			}
 		});
 		
+		//add the colour chooser as well as the select button to the frame
 		add(cc, "wrap");
 		add(selectBtn, "center");
 		
@@ -43,6 +46,11 @@ public class ColourChooser extends JFrame{
 		this.pack();
 	}
 	
+	/**
+	 * This method gets the string that is associated with each label, in the correct language
+	 * @param label
+	 * @return the string for this label
+	 */
 	private static String getString(String label){
 		return LanguageSelector.getString(label);
 	}

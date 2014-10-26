@@ -8,8 +8,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.io.File;
-
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -19,7 +17,6 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
-
 import components.TransparentLabel;
 import editing.CheckFileExists;
 import editing.GetAttributes;
@@ -31,8 +28,9 @@ import state.LanguageSelector;
 import state.State;
 
 /**
- * This section is for editing effects. It is incorporated into the main window
- * @author wesley
+ * This section is for editing effects. It is incorporated into the main window.
+ * It also includes the viewing filters for brightness, contrast, and hue.
+ * @author Wesley
  *
  */
 @SuppressWarnings("serial")
@@ -70,7 +68,7 @@ public class EffectsSection extends JPanel{
 		border.setTitleColor(new Color(150, 250, 50, 180));
 		setBorder(border);
 
-		//tooltips
+		//set up the tooltips
 		startTimeBtn.setToolTipText(getString("startTimeToolTip"));
 		endTimeBtn.setToolTipText(getString("endTimeToolTip"));
 		resizeRadio.setToolTipText(getString("resizeToolTip"));
@@ -83,8 +81,7 @@ public class EffectsSection extends JPanel{
 		
 		setLayout(new MigLayout());
 		
-		//can't say no to miglayout
-		setLayout(new MigLayout());
+		//add all the components to the panel
 		TransparentLabel flipLbl, adjustLbl, trimLbl, colourLbl;
 		add(trimLbl = new TransparentLabel(getString("trim")), "grow, wrap");
 		add(startTimeBtn, "grow, w 160!");
@@ -123,10 +120,12 @@ public class EffectsSection extends JPanel{
 				final JFileChooser fc = new JFileChooser();
 		        fc.showSaveDialog(fc);
 		        if (fc.getSelectedFile() != null){
+		        	//add an extension if necessary 
 		        	String fileName = fc.getSelectedFile().getAbsolutePath().toString();
 		        	if (!fileName.endsWith(".mp4") && !gifRadio.isSelected()){
 		        		fileName = fileName + ".mp4";
 		        	}
+		        	//ask user if they would like to overwrite if the file already exists
 		        	if (CheckFileExists.check(fileName)){
 						if (JOptionPane.showConfirmDialog((Component) null, getString("fileExists"),
 						        "alert", JOptionPane.OK_CANCEL_OPTION) != 0){
@@ -139,6 +138,9 @@ public class EffectsSection extends JPanel{
         	}
         });
 		
+		/**
+		 * This sets the start time to the current time of the video that is being played
+		 */
 		startTimeBtn.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -149,6 +151,9 @@ public class EffectsSection extends JPanel{
 			}
 		});
 		
+		/**
+		 * This sets the end time to the current time of the video that is being played
+		 */
 		endTimeBtn.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -159,7 +164,9 @@ public class EffectsSection extends JPanel{
 			}
 		});
 		
-		//give the user a warning if the gif is going to be large
+		/**
+		 * give the user a warning if the gif is going to be large
+		 */
 		gifRadio.addItemListener(new ItemListener(){
 			@Override
         	public void itemStateChanged(ItemEvent arg0) {
@@ -172,6 +179,9 @@ public class EffectsSection extends JPanel{
         	}
 		});
 		
+		/**
+		 * Take a screen shot of the current position of the media
+		 */
 		screenshotBtn.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -195,9 +205,11 @@ public class EffectsSection extends JPanel{
 		int dur = GetAttributes.getDuration(vamix.getMediaName());
     	int frames = GetAttributes.getFrames(vamix.getMediaName());
     	
+    	//call other methods to write the command string
     	String cmd = initialiseCmd(option);
     	cmd = addEffectsToCmd(cmd, frames);
     	
+    	//the command has to be different depending on whether its a preview or a convert
     	if (option.equals("conv")){
     		if (gifRadio.isSelected()){
     			if (!output.endsWith(".gif")){
@@ -236,6 +248,7 @@ public class EffectsSection extends JPanel{
         String start = startTime + "";
         String durTime = (endTime - startTime) + "";
     	String cmd = "";
+    	//use avplay or avconv depending on the option
     	if (option.equals("conv")){
     		cmd = "avconv -y -i \"" + vamix.getMediaName() + "\" -ss " + start + 
     				" -t " + durTime + " -vf \"";
@@ -253,6 +266,7 @@ public class EffectsSection extends JPanel{
 	 * @return the modified command
 	 */
 	private String addEffectsToCmd(String cmd, int frames) {
+		//go through all the buttons and add to the command if needed
     	if (flipH.isSelected()){
     		cmd += "hflip,";
     	}if (flipV.isSelected()){
@@ -268,6 +282,7 @@ public class EffectsSection extends JPanel{
     		cmd += "lutrgb='r=negval:g=negval:b=negval',";
     	}
     	
+    	//remove the last comma of the command
     	if (cmd.endsWith(",")){
     		cmd = cmd.substring(0, cmd.length()-1);
     	}
@@ -338,6 +353,11 @@ public class EffectsSection extends JPanel{
 		endTimeBtn.setText(secsToString(endTime));
 	}
 	
+	/**
+	 * This method gets the string that is associated with each label, in the correct language
+	 * @param label
+	 * @return the string for this label
+	 */
 	private String getString(String label){
 		return LanguageSelector.getString(label);
 	}

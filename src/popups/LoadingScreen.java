@@ -4,24 +4,19 @@ import download.DownloadWorker;
 import editing.AudioWorker;
 import editing.VideoWorker;
 import gui.Vamix;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
 import state.LanguageSelector;
 import net.miginfocom.swing.MigLayout;
 
 /**
- * Loading screen for all the time consuming tasks. Includes a progress bar, and can be hidden
- * @author wesley and matt
+ * Loading screen for all the time consuming tasks. Includes a progress bar, which can be hidden
+ * @author Wesley and Matt
  *
  */
 @SuppressWarnings("serial")
@@ -39,6 +34,8 @@ public class LoadingScreen extends JFrame{
 	public LoadingScreen(final Vamix v) {
 		super(getString("saving"));
 		this.vamix = v;
+		
+		//set up the frame
 		setSize(300,150);
 		setLocation(500, 250);
 		setLayout(new MigLayout());
@@ -47,6 +44,7 @@ public class LoadingScreen extends JFrame{
 		add(hideBtn, "align center");
 		add(cancelBtn, "align center");
 		
+		//hide the loading screen and put the progress bar on the main screen
 		hideBtn.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -56,6 +54,7 @@ public class LoadingScreen extends JFrame{
 			}
 		});
 		
+		//cancel the work
 		cancelBtn.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -73,6 +72,10 @@ public class LoadingScreen extends JFrame{
 		
 	}
 	
+	/**
+	 * This method is used to cancel the current work
+	 * It will call the cancel method of the respective worker object
+	 */
 	public void cancel(){
 		isClosed = true;
 		vamix.removeFromBottomPanel(progBar);
@@ -84,31 +87,55 @@ public class LoadingScreen extends JFrame{
 			((DownloadWorker)worker).cancel();
 		}
 	}
-
+	
+	/**
+	 * Gets the progress bar of the loading screen
+	 */
 	public JProgressBar getProgBar() {
 		return progBar;
 	}
 	
-	//for download panel only
+	/**
+	 * Checks if the loading screen is hidden.
+	 * For download panel only
+	 * @return true if hidden, false if not hidden
+	 */
 	public boolean isHidden(){
 		return hidden;
 	}
 	
+	/**
+	 * This is called when the worker is finished
+	 * It will remove the progress bar and make the loading screen invisible
+	 */
 	public void finishedQuite() {
 		vamix.removeFromBottomPanel(progBar);
 		setVisible(false);
 	}
 	
+	/**
+	 * This is called before work begins
+	 * It sets the value of the progress bar, and makes the progress bar appear
+	 */
 	public void prepare() {
 		progBar.setValue(0);
 		setAlwaysOnTop(true);
 		setVisible(true);
 	}
 	
+	/**
+	 * This method gets the string that is associated with each label, in the correct language
+	 * @param label
+	 * @return the string for this label
+	 */
 	private static  String getString(String label){
 		return LanguageSelector.getString(label);
 	}
 
+	/**
+	 * This method sets the worker that is being used for this loading screen
+	 * @param worker either a download worker, audio worker, or video worker
+	 */
 	public void setWorker(SwingWorker<Void,String> worker) {
 		this.worker = worker;
 	}

@@ -5,7 +5,6 @@ import gui.Vamix;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -18,8 +17,8 @@ import state.LanguageSelector;
 
 /**
  * This class is used to store and load project settings in a text file.
- * Created initially by matt for a3. Developed further by wesley
- * @author matt and wesley
+ * Created initially by Matt for a3. Developed further by Wesley
+ * @author Matt and Wesley
  *
  */
 public class ProjectFile {
@@ -29,7 +28,7 @@ public class ProjectFile {
 	private Vamix vamix;
 	
 	/**
-	 * use singleton design patter
+	 * use singleton design pattern
 	 * @param v the reference to the Vamix object
 	 * @return the corresponding project file
 	 */
@@ -58,12 +57,18 @@ public class ProjectFile {
 	           e.printStackTrace();
 	        }
 	}
-	//this actually writes to the file through the stream
+	/**
+	 * This is what actually writes to the file through the stream
+	 * @param ps the project settings to write
+	 * @param output the output writer
+	 * @throws IOException
+	 */
 	private void writeToFile(ProjectSettings ps, BufferedWriter output) 
 			throws IOException {
 		output.write(fileStarter + "\n");
 		output.write(ps._mediaFile + "\n");
 		output.write(ps._audioFile + "\n");
+		//need to add all of the text from the list
 		for (int i = 0; i < ps._text.size(); i++){
 			output.write("%%%\n");
 			output.write(ps._text.get(i) + "\n***\n"); // ** as it could be multiLine
@@ -92,9 +97,7 @@ public class ProjectFile {
 	 */
 	public void readFile(String file) {
 		if (!vamix.isText(file)) {
-			JOptionPane.showMessageDialog(null,
-    				getString("notValidProj"), getString("error")
-    				,JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, getString("notValidProj"), getString("error"), JOptionPane.ERROR_MESSAGE);
 			return;
 		}
         try {
@@ -103,20 +106,22 @@ public class ProjectFile {
 			readTheFile(input);
 			input.close();
 		} catch (IOException e) {
-			JOptionPane.showMessageDialog(null,
-					getString("notValidProj"), getString("error")
-    				,JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null,	getString("notValidProj"), getString("error") ,JOptionPane.ERROR_MESSAGE);
 		}
 	}
-	//converts the input to settings
+	/**
+	 * Converts the input to project settings
+	 * @param input
+	 * @throws IOException
+	 */
 	private void readTheFile(BufferedReader input) throws IOException {
-		String temp;
-		if (!(temp = input.readLine()).equals(fileStarter)) {
-			JOptionPane.showMessageDialog(null,
-					getString("notValidProj"), getString("error")
-    				,JOptionPane.ERROR_MESSAGE);
+		//firstly check if the file is a valid Vamix project settings file
+		if (!(input.readLine()).equals(fileStarter)) {
+			JOptionPane.showMessageDialog(null,	getString("notValidProj"), getString("error") ,JOptionPane.ERROR_MESSAGE);
 			return;
 		}
+		
+		//general textfields
 		String mediaName = input.readLine();
 		String audioName = input.readLine();
 		
@@ -130,6 +135,7 @@ public class ProjectFile {
 		List<String> startTime = new ArrayList<String>();
 		List<String> endTime = new ArrayList<String>();
 		String dwURL;
+		//go through all the text
 		while ((dwURL = input.readLine()).equals("%%%")) {
 			String thisText = "";
 			String tempText;
@@ -147,6 +153,7 @@ public class ProjectFile {
 		}		
 		//download section
 		String downloadUrl = dwURL;
+		
 		//effects section
 		String est = input.readLine();
 		String eet = input.readLine();
@@ -173,7 +180,7 @@ public class ProjectFile {
 	}
 	
 	/**
-	 * This class is used to house all the project settings
+	 * This class is the model for all the project settings
 	 * @author Matt Smith, Wesley Yep
 	 *
 	 */
@@ -214,6 +221,11 @@ public class ProjectFile {
 		}			
 	}
 	
+	/**
+	 * This method gets the string that is associated with each label, in the correct language
+	 * @param label
+	 * @return the string for this label
+	 */
 	private String getString(String label){
 		return LanguageSelector.getString(label);
 	}

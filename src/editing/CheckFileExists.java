@@ -18,10 +18,12 @@ public class CheckFileExists {
 	 */
 	public static boolean check(String filename){
 		String cmd = "file \"" + filename + "\"";
+		//create a processbuilder to deal with the process
 		ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", cmd);
 		try {
 			Process process = processBuilder.start();
 			process.waitFor();
+			//now return a boolean based on the outcome of the process
 			return (process.exitValue()==0);
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(null, getString("validMediaFile"));
@@ -31,6 +33,11 @@ public class CheckFileExists {
 		return false;
 	}
 	
+	/**
+	 * This method gets the string that is associated with each label, in the correct language
+	 * @param label
+	 * @return the string for this label
+	 */
 	private static String getString(String label){
 		return LanguageSelector.getString(label);
 	}

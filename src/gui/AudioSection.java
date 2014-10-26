@@ -53,28 +53,29 @@ public class AudioSection extends JPanel{
 	 * 		of the currently playing media.
 	 * @param mpc The MediaPlayer component used to center the pop up windows
 	 */
-	public AudioSection(Vamix v, 
-			EmbeddedMediaPlayerComponent mpc) {
-		
+	public AudioSection(Vamix v, EmbeddedMediaPlayerComponent mpc) {
 		vamix = v;
 		mediaPlayer = mpc;
-		
 		setLayout(new MigLayout("","[][][]", "[]"));
+		//this creates a coloured border around the panel
 		TitledBorder border = BorderFactory.createTitledBorder(
 				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, 
 				new Color(250, 150, 150, 250), new Color(250, 150, 50, 250)), getString("audio"));
 		border.setTitleColor(new Color(250, 150, 150, 250));
 		border.setTitleFont(new Font("Sans Serif", Font.BOLD, 24));
 		setBorder(border);
+		
 		//add all the gui components as colour listeners
 		State.getState().addColourListeners(audioTextField, openAudioBtn, replaceBtn, overlayBtn, stripBtn);
 		
+		//add all the components to the panel
 		add(audioTextField, "cell 0 0 2 1");
 		add(openAudioBtn, "cell 2 0 1 1, grow");
 		add(replaceBtn, "cell 0 1 1 1");
 		add(overlayBtn, "cell 1 1 1 1, grow");
 		add(stripBtn, "cell 2 1 1 1, grow");
 		
+		//disable some buttons
 		replaceBtn.setEnabled(false);
 		overlayBtn.setEnabled(false);
 		
@@ -136,24 +137,32 @@ public class AudioSection extends JPanel{
 	public void audioEdit(String option) {
 		String extension;
 		
+		//change the extension based on whether the output will be a video or audio file
 		if (option.equals("stripVideo")){
 			extension = ".mp3";
 		}else{
 			extension = ".mp4";
 		}
+		
+		//for this to work, the input media file should contain both video and audio
 		if (vamix.isFileType(vamix.getMediaName(), "Audio")){
 			JOptionPane.showMessageDialog(mediaPlayer, getString("validVideo"));
 			return;
 		}
+		
+		//the audio file should be a valid audio file as well, unless the user just wants to strip from the media file
+		// which would not require the audio file
     	if (option.startsWith("strip") || correctFileType(audioTextField.getText(), "Audio")){
     		if (vamix.isMediaFile(vamix.getMediaName())){
 				final JFileChooser fc = new JFileChooser();
 		        fc.showSaveDialog(fc);
 		        if (fc.getSelectedFile() != null){
+		        	//add the extension if necessary
 		        	String fileName = fc.getSelectedFile().getAbsolutePath().toString();
 		        	if (!fileName.endsWith(extension)){
 		        		fileName = fileName + extension;
 		        	}
+		        	//check if the file already exists, and if so, prompt user if they would like to overwrite
 		        	if (CheckFileExists.check(fileName)){
 						if (JOptionPane.showConfirmDialog((Component) null, getString("fileExists"),
 						        "alert", JOptionPane.OK_CANCEL_OPTION) != 0){
@@ -161,6 +170,7 @@ public class AudioSection extends JPanel{
 							return;
 						}
 		        	}
+		        	//now we need to prepare the worker and the loading screen
 		        	int dur = GetAttributes.getDuration(vamix.getMediaName());
 		        	int frames = GetAttributes.getFrames(vamix.getMediaName());
 		            AudioWorker worker = null;
@@ -216,7 +226,7 @@ public class AudioSection extends JPanel{
 	}
 
 	/**
-	 * Used to enable the replace and overlay button once something is inputted into audio file field
+	 * Used to enable the replace and overlay button once something is input into audio file field
 	 */
 	public void enableButtons() {
 		if (!audioTextField.getText().equals("")){
@@ -225,6 +235,11 @@ public class AudioSection extends JPanel{
 		}
 	}
 	
+	/**
+	 * This method gets the string that is associated with each label, in the correct language
+	 * @param label
+	 * @return the string for this label
+	 */
 	private String getString(String label){
 		return LanguageSelector.getString(label);
 	}

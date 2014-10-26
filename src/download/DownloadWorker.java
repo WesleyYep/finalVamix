@@ -8,12 +8,9 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
-
 import popups.LoadingScreen;
 import state.LanguageSelector;
 
@@ -76,7 +73,7 @@ public class DownloadWorker extends SwingWorker<Void, String>{
 	
 	/**
 	 * As the download is going in the background this will update the 
-	 * progress bar so the user can see what's happening
+	 * progress bar on the ED thread, so the user can see what's happening
 	 */
 	@Override
 	protected void process(List<String> list) {
@@ -94,34 +91,35 @@ public class DownloadWorker extends SwingWorker<Void, String>{
 	 */
 	@Override
 	public void done() {
-		
 		try {
 			p.waitFor();
 		} catch (InterruptedException e1) { }
-		
+		//get the error code of the process
 		int errorCode = p.exitValue();
 		if (DownloadPanel.isPaused){
-			return;
+			return; //no need to display anything if it's just paused
 		}
 		try {
-			ls.finishedQuite();
-			if (errorCode == 0) {
+			ls.finishedQuite(); //remove the loading screen
+			if (errorCode == 0) { //error code of 0 means that the download was successful
 				prog.setValue(100);
 				JOptionPane.showMessageDialog(null,
 					    getString("downloadSuccess"), getString("done"), JOptionPane.DEFAULT_OPTION);
-			
 			} else {
-				wgetError(errorCode);
+				wgetError(errorCode); //check what error it was
 			}
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, getString("downloadCancel"),getString("cancel"), JOptionPane.WARNING_MESSAGE);
 		}
-		
+		//remove the progress bar
 		prog.setVisible(false);
 		prog.setValue(0);
 		panel.done();
 	}
 	
+	/**
+	 * This can be called to cancel the current process
+	 */
 	public void cancel(){
 		p.destroy();
 		panel.done();
@@ -151,12 +149,14 @@ public class DownloadWorker extends SwingWorker<Void, String>{
 		} else if (exitCode == 8) {
 			msg4Error = getString("downloadErr8");
 		} 
-		JOptionPane.showMessageDialog(null,
-					    msg4Error,
-					    getString("error"),
-					    JOptionPane.ERROR_MESSAGE);
+		JOptionPane.showMessageDialog(null, msg4Error, getString("error"), JOptionPane.ERROR_MESSAGE);
 	}
 	
+	/**
+	 * This method gets the string that is associated with each label, in the correct language
+	 * @param label
+	 * @return the string for this label
+	 */
 	private String getString(String label){
 		return LanguageSelector.getString(label);
 	}	

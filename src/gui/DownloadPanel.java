@@ -1,26 +1,19 @@
 package gui;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
-import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
-import javax.swing.LayoutStyle;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
-
 import popups.LoadingScreen;
 import state.LanguageSelector;
 import state.State;
@@ -29,7 +22,7 @@ import download.DownloadWorker;
 
 /**
  * 
- * This section is used to download either video or audio.
+ * This section is used to download either video or audio. The download can be paused at any time.
  * It is incorporated into the main window
  * 
  * @author matt and wesley
@@ -56,9 +49,12 @@ public class DownloadPanel extends JPanel implements ActionListener{
 	public DownloadPanel(Vamix v) {
 		this.vamix = v;
 		setLayout(new MigLayout());
+		
+		//add all the components to the panel
 		add(urlInstr, "wrap, span 2");
 		add(urlField, "grow, wrap, span 2");
 		add(isOpen);
+		//can't have both yes and no selected at the same time
 	    ButtonGroup group = new ButtonGroup();
 	    group.add(openY);
 	    group.add(openN);
@@ -133,9 +129,11 @@ public class DownloadPanel extends JPanel implements ActionListener{
 			Process process = builder.start();
 			String cmd;
 			if (process.waitFor() == 0) {
+				//if it does exist, the user is asked if they would like to overwrite
 				if(JOptionPane.showOptionDialog(submitBtn, getString("fileExists"),
 						getString("error"), 0, 0, null, new String[]{getString("overwrite"), getString("cancel")}, null) == 1){
 					JOptionPane.showMessageDialog(submitBtn, getString("notOverwritten"), getString("error"),JOptionPane.ERROR_MESSAGE);
+					//if not, then just return
 					pauseBtn.setEnabled(false);
 					return;
 				}
@@ -170,12 +168,18 @@ public class DownloadPanel extends JPanel implements ActionListener{
 		
 	}
 	
+	/**
+	 * This will re-enable the download button and disable the pause button once the download is finished
+	 */
 	public void done(){
 		submitBtn.setEnabled(true);
 		pauseBtn.setEnabled(false);
 	}
 	
-	//accessors for the all important url field - primarily used to load/save settings
+	/**
+	 * accessors for the all important url field - primarily used to load/save settings
+	 * @return
+	 */
 	public String getUrl() {
 		return urlField.getText();
 	}
@@ -183,6 +187,11 @@ public class DownloadPanel extends JPanel implements ActionListener{
 		urlField.setText(url);
 	}
 	
+	/**
+	 * This method gets the string that is associated with each label, in the correct language
+	 * @param label
+	 * @return the string for this label
+	 */
 	private String getString(String label){
 		return LanguageSelector.getString(label);
 	}

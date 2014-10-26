@@ -8,14 +8,10 @@ import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.JOptionPane;
-
-import state.LanguageSelector;
-
 /**
- * This class is used to get certain important media file attributes.
+ * This class is used to get certain important media file attributes such as the duration and the number of frames
  * It uses linux process commands
- * @author wesley
+ * @author Wesley
  *
  */
 public class GetAttributes{ 
@@ -106,9 +102,7 @@ public class GetAttributes{
 						}
 						else if (option.equals("fps"))
 							return Integer.parseInt(m.group(1));//fps
-					}catch (NumberFormatException e){
-						//
-					}
+					}catch (NumberFormatException e){}
 				}
 			}
 		} catch (IOException e) {}

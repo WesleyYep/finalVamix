@@ -1,7 +1,5 @@
 package editing;
 
-import gui.TextSection;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -12,17 +10,17 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
-import javax.swing.JSlider;
 import javax.swing.SwingWorker;
-
 import popups.LoadingScreen;
 import state.LanguageSelector;
 
 /** 
- * The swing worker used to perform the text manipulation in the background
+ * The swing worker used to perform both the text manipulation and the addition of video effects in the background.
+ * It can add multiple text at once, it just depends on the command that it receives.
+ * It is also used to add effects such as trim, resize, gif creation, flips, and colour inverse/grayscale
+ * The worker will then send progress details to the loading screen
  * @author Mathew and Wesley
  *
  */
@@ -54,8 +52,9 @@ public class VideoWorker extends SwingWorker<Void, String> {
 				InputStream stderr = process.getErrorStream();
 				BufferedReader br = new BufferedReader(new InputStreamReader(stderr));
 				String line;
+				//keep reading the inputstream until there is nothing more to read
 				while ((line = br.readLine()) != null){
-					if (!isCancelled){
+					if (!isCancelled){ //don't change the progress bar if the job gets cancelled
 						publish(line);
 					}
 					else{
@@ -90,7 +89,7 @@ public class VideoWorker extends SwingWorker<Void, String> {
 			process.waitFor();
 			progBar.setValue(progBar.getMaximum());
 			ls.finishedQuite();
-
+			//if successful, check the type so we know which message to display
 			if (process.exitValue()==0){
 				if (type.equals("Effects")){
 					JOptionPane.showMessageDialog(null, getString("effectSuccess"), getString("done"), JOptionPane.DEFAULT_OPTION);
@@ -99,7 +98,7 @@ public class VideoWorker extends SwingWorker<Void, String> {
 				}
 			}else if (process.exitValue() > 0)
 				JOptionPane.showMessageDialog(null, getString("errorOccurred"), getString("error"), JOptionPane.WARNING_MESSAGE);
-	    	//remove the temp text files
+	    	//remove the temp text files that were used to add text
 			for (int i = 0; i < numberOfTextFiles; i++){
 				Path currentRelativePath = Paths.get("");
 		    	String currentAbsPath = currentRelativePath.toAbsolutePath().toString();
@@ -126,6 +125,11 @@ public class VideoWorker extends SwingWorker<Void, String> {
 		numberOfTextFiles = number;
 	}
 	
+	/**
+	 * This method gets the string that is associated with each label, in the correct language
+	 * @param label
+	 * @return the string for this label
+	 */
 	private String getString(String label){
 		return LanguageSelector.getString(label);
 	}

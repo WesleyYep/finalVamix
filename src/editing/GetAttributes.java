@@ -88,7 +88,7 @@ public class GetAttributes{
 	 * @throws FileNotFoundException
 	 */
 	private static int processLinuxCmd(String inputFile, Pattern p, String option) throws FileNotFoundException{
-		String cmd = "avprobe -show_streams " + inputFile;
+		String cmd = "avprobe -show_streams \"" + inputFile + "\"";
 		ProcessBuilder builder = new ProcessBuilder("/bin/bash", "-c", cmd);
 		try {	
 			Process process = builder.start();

@@ -21,27 +21,24 @@ import state.LanguageSelector;
  *  
  * This class is used to run the downloads of VAMIX in the background so the user
  * can continue without interruption
- * @author Code created partly by my a3 partner, Matt Smith
+ * @author Matt Smith and Wesley Yep
  *
  */
-public class DownloadWorker extends SwingWorker<Integer, String>{
+public class DownloadWorker extends SwingWorker<Void, String>{
 
 	private String _cmd;
 	private JProgressBar prog;
-	private JButton submitBtn;
-	private JButton pauseBtn;
 	private LoadingScreen ls;
 	private DownloadPanel panel;
+	private Process p;
 	/**
 	 * This is the standard constructor
 	 * @param progress the progress bar that should be updated as the download progresses
 	 * @param button the button that must not be active until download is complete
 	 */
-	public DownloadWorker(String cmd, JProgressBar progress, JButton startButton, JButton pauseButton, LoadingScreen ls, DownloadPanel panel) {
+	public DownloadWorker(String cmd, JProgressBar progress, LoadingScreen ls, DownloadPanel panel) {
 		_cmd = cmd;
 		prog = progress;
-		submitBtn = startButton;
-		pauseBtn = pauseButton;
 		this.ls = ls;
 		this.panel = panel;
 	}
@@ -50,31 +47,31 @@ public class DownloadWorker extends SwingWorker<Integer, String>{
 	 * Perform the download in the background
 	 */
 	@Override
-	protected Integer doInBackground() throws Exception {
+	protected Void doInBackground() throws Exception {
+		//create a process builder to run the java process
 		ProcessBuilder builder = new ProcessBuilder("/bin/bash", "-c", _cmd);
-		Process process = builder.start();
-		
-		InputStream out = process.getInputStream();
+		p = builder.start();
+		//we also need to get the input stream so we can get the progress of the download
+		InputStream out = p.getInputStream();
 		BufferedReader stdout = new BufferedReader(new InputStreamReader(out));
 		String line;
+		//use regex to determine the progress
 		Pattern varPattern = Pattern.compile("([0-9]*)%");
+		//keep reading until there is no more output from the process
 		while ((line = stdout.readLine()) != null) {
 			if (isCancelled() || DownloadPanel.isPaused) {
-				process.destroy();
+				p.destroy();
 				return null;
 			}
 			Matcher matcher = varPattern.matcher(line);
 		
 			while (matcher.find()) {
 				String var = matcher.group(1);
-				
-				publish (var);
+				publish (var); //update in the background
 			}
 		}
-		
-		int errorCode = process.waitFor();
-		
-		return errorCode;
+				
+		return null;
 	}
 	
 	/**
@@ -97,33 +94,38 @@ public class DownloadWorker extends SwingWorker<Integer, String>{
 	 */
 	@Override
 	public void done() {
+		
+		try {
+			p.waitFor();
+		} catch (InterruptedException e1) { }
+		
+		int errorCode = p.exitValue();
 		if (DownloadPanel.isPaused){
 			return;
 		}
 		try {
 			ls.finishedQuite();
-			if (get() == 0) {
+			if (errorCode == 0) {
 				prog.setValue(100);
-				JOptionPane.showMessageDialog(submitBtn,
-					    getString("downloadSuccess"),
-					    getString("done"),
-					    JOptionPane.DEFAULT_OPTION);
+				JOptionPane.showMessageDialog(null,
+					    getString("downloadSuccess"), getString("done"), JOptionPane.DEFAULT_OPTION);
 			
 			} else {
-				wgetError(get());
+				wgetError(errorCode);
 			}
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(submitBtn,
-					getString("downloadCancel"),
-					getString("cancel"),
-				    JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(null, getString("downloadCancel"),getString("cancel"), JOptionPane.WARNING_MESSAGE);
 		}
 		
 		prog.setVisible(false);
 		prog.setValue(0);
-		submitBtn.setText(getString("startDownload"));
-		panel.downloadFinished(submitBtn);
-		pauseBtn.setEnabled(false);
+		panel.done();
+	}
+	
+	public void cancel(){
+		p.destroy();
+		panel.done();
+		JOptionPane.showMessageDialog(null,	getString("downloadCancel"),getString("cancel"), JOptionPane.WARNING_MESSAGE);
 	}
 	
 	/**
@@ -149,7 +151,7 @@ public class DownloadWorker extends SwingWorker<Integer, String>{
 		} else if (exitCode == 8) {
 			msg4Error = getString("downloadErr8");
 		} 
-		JOptionPane.showMessageDialog(submitBtn,
+		JOptionPane.showMessageDialog(null,
 					    msg4Error,
 					    getString("error"),
 					    JOptionPane.ERROR_MESSAGE);

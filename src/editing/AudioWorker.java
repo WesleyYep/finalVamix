@@ -47,22 +47,22 @@ public class AudioWorker extends SwingWorker<Void, String> {
 	protected Void doInBackground() {
     	String cmd;
     	if (option.equals("stripAudio")){
-    		cmd = "avconv -y -i " + videoFile + " -an -c:v copy -f mp4 " + file;
+    		cmd = "avconv -y -i \"" + videoFile + "\" -an -c:v copy -f mp4 \"" + file + "\"";
     		message = getString("audioRemoved");
     	}
     	else  if (option.equals("stripVideo")){
-    		cmd = "avconv -y -i " + videoFile + " -vn -c:v copy -f mp3 " + file;
+    		cmd = "avconv -y -i \"" + videoFile + "\" -vn -c:v copy -f mp3 \"" + file + "\"";
     		message = getString("videoRemoved");
 
     	}	
     	else if (option.equals("overlay")){
-    		cmd = "avconv -y -i " +  videoFile + " -i " + audioFile +
-    				" -filter_complex amix=inputs=2 -strict experimental -v debug -f mp4 " + file;
+    		cmd = "avconv -y -i \"" +  videoFile + "\" -i \"" + audioFile +
+    				"\" -filter_complex amix=inputs=2 -strict experimental -v debug -f mp4 \"" + file + "\"";
     		message = getString("videoOverlaid");
     	}
     	else{
-    		cmd = "avconv -y -i " +  videoFile + " -i " + audioFile +
-    				" -map 0:v -map 1:a -codec copy -f mp4 " + file;
+    		cmd = "avconv -y -i \"" +  videoFile + "\" -i \"" + audioFile +
+    				"\" -map 0:v -map 1:a -codec copy -f mp4 \"" + file + "\"";
     		message = getString("audioReplaced");
     	}
         	ProcessBuilder builder = new ProcessBuilder("/bin/bash", "-c", cmd);

@@ -13,9 +13,10 @@ import state.State;
 
 /**
  * This is the colour panel that is used in the bottom toolbar
- * @author wesley
+ * @author Wesley
  *
  */
+@SuppressWarnings("serial")
 public class SmallColourPanel extends JPanel implements ActionListener{
 	private JButton redButton = new JButton();
 	private JButton greenButton = new JButton();
@@ -24,11 +25,9 @@ public class SmallColourPanel extends JPanel implements ActionListener{
 	private JButton greyButton = new JButton();
 	private JButton whiteButton = new JButton();
 	private JButton blackButton = new JButton();
-	private Vamix ep;
 	
 	public SmallColourPanel(Vamix ep){
-		this.ep = ep;
-		
+		//sets the background of all buttons
 		redButton.setBackground(Color.RED);
 		greenButton.setBackground(Color.GREEN);
 		blueButton.setBackground(Color.BLUE);
@@ -37,7 +36,7 @@ public class SmallColourPanel extends JPanel implements ActionListener{
 		whiteButton.setBackground(Color.WHITE);
 		blackButton.setBackground(Color.BLACK);
 		setBackground(Color.BLACK);
-		
+		//now add all buttons to the panel
 		add(redButton);
 		add(greenButton);
 		add(blueButton);
@@ -45,7 +44,7 @@ public class SmallColourPanel extends JPanel implements ActionListener{
 		add(greyButton);
 		add(whiteButton);
 		add(blackButton);
-		
+		//ensure that all the buttons will do something
 		redButton.addActionListener(this);
 		greenButton.addActionListener(this);
 		blueButton.addActionListener(this);
@@ -57,6 +56,7 @@ public class SmallColourPanel extends JPanel implements ActionListener{
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		//change the state of the program depending on the colour of the button that was clicked.
 		State.getState().changeForeground(((JButton)e.getSource()).getBackground());
 	}
 	

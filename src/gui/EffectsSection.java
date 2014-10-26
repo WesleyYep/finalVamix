@@ -206,7 +206,7 @@ public class EffectsSection extends JPanel{
     				cmd += " -v debug " + output;
     			}
     		}else{
-    			cmd += " -strict experimental -f mp4 -v debug " + output;
+    			cmd += " -strict experimental -f mp4 -v debug \"" + output + "\"";
     		}
     	}else if (gifRadio.isSelected() && option.equals("preview")){
     		 cmd += " -loop 20 -strict experimental";
@@ -237,10 +237,10 @@ public class EffectsSection extends JPanel{
         String durTime = (endTime - startTime) + "";
     	String cmd = "";
     	if (option.equals("conv")){
-    		cmd = "avconv -y -i " + vamix.getMediaName() + " -ss " + start + 
+    		cmd = "avconv -y -i \"" + vamix.getMediaName() + "\" -ss " + start + 
     				" -t " + durTime + " -vf \"";
     	}else{
-    		cmd = "avplay -i " + vamix.getMediaName() + " -ss " + start + 
+    		cmd = "avplay -i \"" + vamix.getMediaName() + "\" -ss " + start + 
     				" -t " + durTime + " -vf \"";
     	}
     	return cmd;

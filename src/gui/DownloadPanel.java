@@ -64,7 +64,8 @@ public class DownloadPanel extends JPanel implements ActionListener{
 	    group.add(openN);
 		add(openY, "split 2");
 		add(openN, "wrap");
-		add(submitBtn, "span 2, grow");
+		add(submitBtn, "grow");
+		add(pauseBtn, "grow");
 		
 		//create a colourful border
 		TitledBorder border = BorderFactory.createTitledBorder(
@@ -86,13 +87,12 @@ public class DownloadPanel extends JPanel implements ActionListener{
 				if (isPaused){
 					pauseBtn.setText(getString("pause"));
 					isPaused = false;
-					submitBtn.setEnabled(true);
 					String cmd = "wget -c " + url + " 2>&1 ";
 					download(cmd);
 				}else{
 					pauseBtn.setText(getString("resume"));
 					isPaused = true;
-					submitBtn.setEnabled(false);
+					loadScreen.setVisible(false);
 				}
 			}	
 		});
@@ -110,26 +110,14 @@ public class DownloadPanel extends JPanel implements ActionListener{
 	 */
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		if (downloadWorker != null && !downloadWorker.isDone()) {
-			downloadWorker.cancel(true);
-			submitBtn.setText(getString("startDownload"));
-			downloadWorker = null;
+		url = urlField.getText();
+		if (url == null || url.equals("")) {
+			JOptionPane.showMessageDialog(submitBtn, getString("enterUrlPlease"),getString("error"),JOptionPane.WARNING_MESSAGE);
+		} else if (!openY.isSelected()) { 
+			JOptionPane.showMessageDialog(submitBtn, getString("illegalDownload"), getString("error"), JOptionPane.ERROR_MESSAGE);
 		} else {
 			pauseBtn.setEnabled(true);
-			url = urlField.getText();
-			if (url == null || url.equals("")) {
-				JOptionPane.showMessageDialog(submitBtn,
-					    getString("enterUrlPlease"),
-					    getString("error"),
-					    JOptionPane.WARNING_MESSAGE);
-			} else if (!openY.isSelected() ) { 
-				JOptionPane.showMessageDialog(submitBtn,
-					    getString("illegalDownload"),
-					    getString("error"),
-					    JOptionPane.ERROR_MESSAGE);
-			} else {
-				checkPreDownload();
-			}
+			checkPreDownload();
 		}
 	}
 	
@@ -147,46 +135,44 @@ public class DownloadPanel extends JPanel implements ActionListener{
 			if (process.waitFor() == 0) {
 				if(JOptionPane.showOptionDialog(submitBtn, getString("fileExists"),
 						getString("error"), 0, 0, null, new String[]{getString("overwrite"), getString("cancel")}, null) == 1){
-					JOptionPane.showMessageDialog(submitBtn,
-									    getString("notOverwritten"),
-									    getString("error"),
-									    JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(submitBtn, getString("notOverwritten"), getString("error"),JOptionPane.ERROR_MESSAGE);
 					pauseBtn.setEnabled(false);
 					return;
 				}
-				cmd = "wget -N " + url + " 2>&1 "; //using -N to "overwrite"
+				cmd = "wget -N \"" + url + "\" 2>&1 "; //using -N to "overwrite"
 			}else{
-				cmd = "wget " + url + " 2>&1 ";
+				cmd = "wget \"" + url + "\" 2>&1 ";
 			}
 			download(cmd);
 		}catch (Exception e) {
-			JOptionPane.showMessageDialog(submitBtn,
-				    getString("downloadError"),
-				    getString("error"),
-				    JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(submitBtn, getString("downloadError"), getString("error"), JOptionPane.ERROR_MESSAGE);
 		}
 	}
 	
 	/**
 	 * This method starts the download on a background thread
 	 * During the download the progress bar will be displayed and updated 
-	 * and you will be unable to start another download (the button is disabled)
+	 * 
 	 */
 	private void download(String cmd) {
 		try {
-			submitBtn.setText("Cancel");
-			loadScreen = new LoadingScreen(vamix, submitBtn);
-            loadScreen.prepare();
-			downloadWorker = new DownloadWorker(cmd, loadScreen.getProgBar(), submitBtn, pauseBtn, loadScreen, this);
+			submitBtn.setEnabled(false);
+			loadScreen = new LoadingScreen(vamix);
+			if (!loadScreen.isHidden()){
+				loadScreen.prepare();
+			}
+			downloadWorker = new DownloadWorker(cmd, loadScreen.getProgBar(), loadScreen, this);
+			loadScreen.setWorker(downloadWorker);
 			downloadWorker.execute();
-			
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(submitBtn,
-					getString("downloadError"),
-				    getString("error"),
-				    JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(submitBtn, getString("downloadError"), getString("error"), JOptionPane.ERROR_MESSAGE);
 		}
 		
+	}
+	
+	public void done(){
+		submitBtn.setEnabled(true);
+		pauseBtn.setEnabled(false);
 	}
 	
 	//accessors for the all important url field - primarily used to load/save settings
@@ -195,14 +181,6 @@ public class DownloadPanel extends JPanel implements ActionListener{
 	}
 	public void setUrl(String url){
 		urlField.setText(url);
-	}
-	
-	/**
-	 * this is used to put the button back into the main window once the download finishes
-	 * @param submit the submit button
-	 */
-	public void downloadFinished(JButton submit){
-		add(submit);
 	}
 	
 	private String getString(String label){

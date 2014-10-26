@@ -1,5 +1,6 @@
 package popups;
 
+import download.DownloadWorker;
 import editing.AudioWorker;
 import editing.VideoWorker;
 import gui.Vamix;
@@ -31,12 +32,13 @@ public class LoadingScreen extends JFrame{
 	public boolean isClosed = false;
 	private JButton hideBtn = new JButton(getString("hide"));
 	private JButton cancelBtn = new JButton(getString("cancel"));
-	private Vamix ep;
 	private SwingWorker<Void, String> worker;
+	private boolean hidden = false;
+	private Vamix vamix;
 	
-	public LoadingScreen(final Vamix ep) {
+	public LoadingScreen(final Vamix v) {
 		super(getString("saving"));
-		this.ep = ep;
+		this.vamix = v;
 		setSize(300,150);
 		setLocation(500, 250);
 		setLayout(new MigLayout());
@@ -49,7 +51,8 @@ public class LoadingScreen extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				setVisible(false);
-				ep.addToBottomPanel(progBar);
+				vamix.addToBottomPanel(progBar);
+				hidden = true;
 			}
 		});
 		
@@ -72,46 +75,27 @@ public class LoadingScreen extends JFrame{
 	
 	public void cancel(){
 		isClosed = true;
+		vamix.removeFromBottomPanel(progBar);
 		if (worker instanceof VideoWorker){
 			((VideoWorker)worker).cancel();
 		}else if (worker instanceof AudioWorker){
 			((AudioWorker)worker).cancel();
+		}else if (worker instanceof DownloadWorker){
+			((DownloadWorker)worker).cancel();
 		}
-	}
-	
-	public LoadingScreen(final Vamix ep, JButton cancel) {
-		super(getString("saving"));
-		this.ep = ep;
-		this.cancelBtn = cancel;
-		setSize(300,150);
-		setLocation(500, 250);
-		setLayout(new MigLayout());
-		add(title, "center, wrap");
-		add(progBar, "growx, height 20:45:, width 60:300:, wrap");
-		add(hideBtn, "align center");
-		add(cancelBtn, "align center");
-		
-		hideBtn.addActionListener(new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				setVisible(false);
-				ep.addToBottomPanel(progBar);
-			}
-		});
-		
-		this.addWindowListener(new java.awt.event.WindowAdapter() {
-		    @Override
-		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-		        isClosed = true;
-		    }
-		});
 	}
 
 	public JProgressBar getProgBar() {
 		return progBar;
 	}
 	
+	//for download panel only
+	public boolean isHidden(){
+		return hidden;
+	}
+	
 	public void finishedQuite() {
+		vamix.removeFromBottomPanel(progBar);
 		setVisible(false);
 	}
 	

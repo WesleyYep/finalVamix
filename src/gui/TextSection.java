@@ -374,9 +374,9 @@ public class TextSection extends JPanel implements MouseListener {
     	
     	String cmd = "";
     	if (option.equals("conv")){
-    		cmd = "avconv -y -i " + vamix.getMediaName() + " -vf \"";
+    		cmd = "avconv -y -i \"" + vamix.getMediaName() + "\" -vf \"";
     	} else {
-    		cmd = "avplay -i " + vamix.getMediaName() + " -vf \"";
+    		cmd = "avplay -i \"" + vamix.getMediaName() + "\" -vf \"";
     	}
 
     	for (int i = 0; i < tableModel.getRowCount(); i++){
@@ -411,7 +411,7 @@ public class TextSection extends JPanel implements MouseListener {
 	        }
     	}
     	if (option.equals("conv")){
-        	cmd += "\" -strict experimental -f mp4 -v debug " + output;
+        	cmd += "\" -strict experimental -f mp4 -v debug \"" + output + "\"";
     	} else {
         	cmd += "\" -strict experimental";
     	}

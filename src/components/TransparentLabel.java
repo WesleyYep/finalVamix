@@ -9,6 +9,7 @@ import javax.swing.JLabel;
  * @author wesley
  *
  */
+@SuppressWarnings("serial")
 public class TransparentLabel extends JLabel{
 	
 	public TransparentLabel(String caption){

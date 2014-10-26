@@ -98,17 +98,14 @@ public class ProjectFile {
 			return;
 		}
         try {
-        	File projectFile = new File(file); // Need to change this
+        	File projectFile = new File(file); 
 			BufferedReader input = new BufferedReader(new FileReader(projectFile));
 			readTheFile(input);
 			input.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(null,
 					getString("notValidProj"), getString("error")
     				,JOptionPane.ERROR_MESSAGE);
-			e.printStackTrace();
 		}
 	}
 	//converts the input to settings

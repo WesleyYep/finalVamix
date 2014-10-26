@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
+@SuppressWarnings("serial")
 public class TextTableModel extends AbstractTableModel {
 	private List<String[]> data = new ArrayList<String[]>();
 	private List<Object[]> fullData = new ArrayList<Object[]>();

@@ -17,6 +17,7 @@ import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -55,7 +56,8 @@ import uk.co.caprica.vlcj.player.MediaPlayer;
 import uk.co.caprica.vlcj.player.MediaPlayerEventAdapter;
 
 /**
- * This screen is used for all your video editing needs
+ * This is the main frame of the Vamix program. It consists of all the other editing panels and sections.
+ * It contains the main method for Vamix. 
  * The images used in the buttons have been taken from: http://www.softicons.com/
  * 
  * @author Wesley
@@ -64,7 +66,7 @@ import uk.co.caprica.vlcj.player.MediaPlayerEventAdapter;
 public class Vamix implements MouseMotionListener{
 
 	public static final int WIDTH = 1280;
-	public static final int HEIGHT = 750;
+	public static final int HEIGHT = 780;
 	private final EmbeddedMediaPlayerComponent mediaPlayerComponent;
 	private MediaPlayer mediaPlayer;
 	private JButton openBtn = new JButton(getString("open"));
@@ -116,6 +118,7 @@ public class Vamix implements MouseMotionListener{
             }
         });
 		f.setLayout(new BorderLayout());
+		
 		mediaPlayerComponent = new EmbeddedMediaPlayerComponent();
       	mediaPlayer = mediaPlayerComponent.getMediaPlayer();
       	
@@ -161,6 +164,14 @@ public class Vamix implements MouseMotionListener{
 		overlay.addMouseMotionListener(this);
       	mediaPlayerComponent.getMediaPlayer().setOverlay(overlay);
       	mediaPlayerComponent.getMediaPlayer().enableOverlay(true);
+      	
+		//finally check if any hidden settings files exist'
+		File file = new File(".settings");
+		if(file.exists() && !file.isDirectory()) {
+    		//System.out.println("yolo");
+			projFile.readFile(".settings");
+    		file.delete();
+		}
 	}
 
 	private void registerListeners() {
@@ -236,19 +247,6 @@ public class Vamix implements MouseMotionListener{
         		} catch (IOException | InterruptedException ex) {
         			JOptionPane.showMessageDialog(mediaPlayerComponent, getString("validMediaFile"));
         		}
-//        		try {
-//        			File file = new File("temp");
-//					InputStream in = Vamix.class.getResource("/userManual.pdf").openStream();
-//					OutputStream outputStream = new FileOutputStream(file);
-//					int read = 0;
-//					byte[] bytes = new byte[1024];
-//					while ((read = in.read(bytes)) != -1) {
-//						outputStream.write(bytes, 0, read);
-//					}
-//					System.out.println("done");
-//					outputStream.close();
-//					Desktop.getDesktop().open(file);
-//				} catch (IOException e1) {}
 			}
         });
         
@@ -269,6 +267,8 @@ public class Vamix implements MouseMotionListener{
 				JOptionPane.showMessageDialog(mediaPlayerComponent, "Language features only work when program is run from jar file");
 				return;
 			}
+			//firstly save project settings to a hidden file
+			projFile.writeFile(createProjectSettings(), ".settings");
 			/* Build command: java -jar Vamix.jar en NZ*/
 			final ArrayList<String> command = new ArrayList<String>();
 			command.add(javaBin);
@@ -369,6 +369,11 @@ public class Vamix implements MouseMotionListener{
 	//this is used by LoadingScreen to move the progress bar onto the bottom panel
 	public void addToBottomPanel(JComponent comp){
 		bottomPanel.add(comp);
+	}
+	
+	//this is used by LoadingScreen to move the progress bar onto the bottom panel
+	public void removeFromBottomPanel(JComponent comp){
+		bottomPanel.remove(comp);
 	}
 	
 	//changes the cursor to a crosshair if the textsection needs to get a certain position

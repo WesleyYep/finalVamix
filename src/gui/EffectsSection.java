@@ -231,7 +231,6 @@ public class EffectsSection extends JPanel{
 				loadScreen.prepare();
 		        loadScreen.setWorker(worker);
 	        }
-	        System.out.println(cmd);
 	        worker.execute();
 		}
         else{

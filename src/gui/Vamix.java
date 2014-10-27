@@ -50,7 +50,7 @@ import uk.co.caprica.vlcj.player.MediaPlayer;
  * It contains the main method for Vamix. 
  * The images used in the buttons have been taken from: http://www.softicons.com/
  * 
- * @author Wesley
+ * @author Wesley Yep
  */
 @SuppressWarnings("restriction")
 public class Vamix implements MouseMotionListener{
@@ -244,9 +244,11 @@ public class Vamix implements MouseMotionListener{
         		try {
         			Process process = processBuilder.start();
         			process.waitFor();
-        			System.out.println(process.exitValue());
+        			if (process.exitValue() != 0){
+            			JOptionPane.showMessageDialog(mediaPlayerComponent, getString("helpNotFound"));
+        			}
         		} catch (IOException | InterruptedException ex) {
-        			JOptionPane.showMessageDialog(mediaPlayerComponent, getString("validMediaFile"));
+        			JOptionPane.showMessageDialog(mediaPlayerComponent, getString("helpNotFound"));
         		}
 			}
         });

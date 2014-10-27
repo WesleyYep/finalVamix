@@ -438,7 +438,6 @@ public class TextSection extends JPanel implements MouseListener {
         //only carry out the command if the video file is valid
         if (dur > 0 && frames > 0){
     		loadScreen = new LoadingScreen(vamix);
-    		System.out.println(cmd);
 	        worker = new VideoWorker(cmd, loadScreen.getProgBar(), frames, option, "Text", loadScreen);
 	        if (option.equals("conv")){
 				loadScreen.prepare();

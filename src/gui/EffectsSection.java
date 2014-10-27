@@ -213,9 +213,9 @@ public class EffectsSection extends JPanel{
     	if (option.equals("conv")){
     		if (gifRadio.isSelected()){
     			if (!output.endsWith(".gif")){
-    				cmd += " -v debug " + output + ".gif";
+    				cmd += " -v debug \"" + output + ".gif\"";
     			}else {
-    				cmd += " -v debug " + output;
+    				cmd += " -v debug \"" + output + "\"";
     			}
     		}else{
     			cmd += " -strict experimental -f mp4 -v debug \"" + output + "\"";
